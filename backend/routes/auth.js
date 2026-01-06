@@ -1,16 +1,22 @@
+const User = require("../db/user");
 const express = require("express");
-const { registerNewUser,verifyOTP,resendOTP,loginUser } = require("../handlers/auth-handler");
+const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser } = require("../handlers/auth-handler");
 const router = express.Router();
 
 router.post("/register",async(req,res)=>{
     try{
         let model=req.body;
-        let existingUser = User.findOne({email_id: model.email_id});
+        let existingUser = await User.findOne({email_id: model.email_id});
 
         if(existingUser && existingUser.is_verified)
             return res.status(400).json({ message: "User already exists" });
 
-        await registerNewUser(model);
+        if(existingUser){
+            await updateExistingUser(model);
+        }else{
+            await registerNewUser(model);
+        }
+        
         res.send({ message: "User Registered, OTP sent to mail."});
     }catch(err){
         console.error("Register Route error:", err);
@@ -51,7 +57,7 @@ router.post("/resend-otp",async(req,res)=>{
 
 router.post("/login",async(req,res)=>{
     try {
-        const result = await loginUser(req.body);
+        const result = await loginUser(req.body,res);
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
         console.error("Resend OTP route error:", err);

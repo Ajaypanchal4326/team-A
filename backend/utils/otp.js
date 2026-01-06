@@ -1,4 +1,5 @@
 const dotenv = require("dotenv");
+const bcrypt = require("bcryptjs");
 const transporter = require("../config/email.js");
 const {Welcome_Email_Template, Verification_Email_Template} = require("./emailTemplates.js")
 dotenv.config();
@@ -6,9 +7,10 @@ dotenv.config();
 async function generateAndSendOTP(user){
     const otp= Math.floor(100000 + Math.random() * 900000);
     const salt = await bcrypt.genSalt(10);
-    const hashotp = await bcrypt.hash(otp,salt);
+    const hashotp = await bcrypt.hash(otp.toString(),salt);
     user.otp_hash = hashotp;
-    user.otp_expires_at = new Date(Date.now() + process.env.OTP_EXPIRY_MINUTES * 60 * 1000);
+    user.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
     await sendOTPEmail(otp,user.email_id);
 }
 
