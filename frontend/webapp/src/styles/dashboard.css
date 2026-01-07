@@ -1,0 +1,127 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+  background: #a5fedc;
+  font-family: Arial, sans-serif;
+}
+
+
+.sidebar {
+  width: 240px;
+  background: #91c7e6;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.menu li.active,
+.menu li:hover {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.profile {
+  font-size: 13px;
+  color: #555;
+}
+
+
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+justify-content: center;
+  
+gap: 20px;
+}
+
+.topbar-actions .notification{
+margin-bottom: 14px;
+}
+.topbar input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.notification {
+  font-size: 20px;
+  cursor: pointer;
+
+}
+
+
+.feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+
+.task-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 4px 5px rgb(90, 89, 89);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.task-card h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.task-card p {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.task-card button {
+  width: 100%;
+  padding: 8px;
+  background: #86efac;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
