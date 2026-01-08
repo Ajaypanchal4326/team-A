@@ -1,6 +1,6 @@
 const User = require("../db/user");
 const express = require("express");
-const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser } = require("../handlers/auth-handler");
+const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword } = require("../handlers/auth-handler");
 const router = express.Router();
 
 router.post("/register",async(req,res)=>{
@@ -62,6 +62,26 @@ router.post("/login",async(req,res)=>{
     } catch (err) {
         console.error("Resend OTP route error:", err);
         return res.status(500).json({ message: "Something went wrong while resending your OTP. Please try again." });
+    }
+});
+
+router.post("/forgot-password",async(req,res)=>{
+    try {
+        const result = await forgotPassword(req.body);
+        return res.status(result.status).json({ message: result.message });
+    } catch (err) {
+        console.error("Password-Forget route error:", err);
+        return res.status(500).json({ message: "Something went wrong while confirming your password." });
+    }
+});
+
+router.post("/reset-password",async(req,res)=>{
+    try {
+        const result = await resetPassword(req.body);
+        return res.status(result.status).json({ message: result.message });
+    } catch (err) {
+        console.error("Password-Reset route error:", err);
+        return res.status(500).json({ message: "Something went wrong while reseting your password.  Please try again." });
     }
 });
 

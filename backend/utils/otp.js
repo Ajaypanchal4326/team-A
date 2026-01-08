@@ -9,7 +9,9 @@ async function generateAndSendOTP(user){
     const salt = await bcrypt.genSalt(10);
     const hashotp = await bcrypt.hash(otp.toString(),salt);
     user.otp_hash = hashotp;
-    user.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000);
+    user.otp_expires_at = new Date(Date.now() + 5 * 60 * 1000);
+    user.otp_attempts = 0;
+    user.otp_blocked_time = null;
     await user.save();
     await sendOTPEmail(otp,user.email_id);
 }

@@ -11,7 +11,7 @@ async function updateExistingUser(model){
     }
     catch(err){
         console.error("Password hashing failed:", err);
-        throw new Error("Something went wrong while securing your password");
+        return { status: 500, message: "Something went wrong while securing your password"};
     }
 
     try{
@@ -24,10 +24,15 @@ async function updateExistingUser(model){
 
         await user.save();
         try{
-            await generateAndSendOTP(user);
+            const result = await resendOTP(user);
+            if (result.status !== 200) {
+                return result;
+            }
         }catch(err){
             console.error("Problem Sending OTP:", err);
+            return { status: 500, message: "Failed to send OTP" };
         }
+        return { status: 200, message: "User updated successfully" };
     }catch(err){
         console.error("Database save failed:", err);
         if (err && err.code === 11000) {
@@ -44,7 +49,7 @@ async function registerNewUser(model){
     }
     catch(err){
         console.error("Password hashing failed:", err);
-        throw new Error("Something went wrong while securing your password");
+        return { status: 500, message: "Something went wrong while securing your password"};
     }
 
     try{
@@ -61,7 +66,9 @@ async function registerNewUser(model){
             await generateAndSendOTP(user);
         }catch(err){
             console.error("Problem Sending OTP:", err);
+            return { status: 500, message: "Failed to send OTP" };
         }
+        return { status: 200, message: "User registered successfully" };
     }catch(err){
         console.error("Database save failed:", err);
         if (err && err.code === 11000) {
@@ -77,23 +84,41 @@ async function verifyOTP(model){
         const email = model.email_id;
         const user = await User.findOne({ email_id:email });
         if (!user)
-            return { status: 404, message: "User not found" };
+            return { status: 404, message: "User not found." };
+
+        
+        if (user.otp_blocked_time && Date.now() < user.otp_blocked_time)
+            return { status: 429, message: "Too many failed attempts. Try again later." };
 
         if (!user.otp_hash || Date.now() > user.otp_expires_at)
             return { status: 400, message: "OTP expired. Please resend OTP." };
 
+
         const otp = model.otp;
         const valid = await bcrypt.compare(otp, user.otp_hash);
-        if (!valid)
-            return { status: 400, message: "Invalid OTP" };
+        if (!valid){
+            user.otp_attempts = user.otp_attempts+ 1;
+            if (user.otp_attempts >= 6){
+                user.otp_blocked_time = Date.now() + 10 * 60 * 1000; 
+                await user.save();
+                return { status: 429, message: "Too many wrong attempts. Try again in 10 minutes." };
+            }
+
+            await user.save();
+            return { status: 400, message: `Invalid OTP. Attempts left: ${6 - user.otp_attempts}`  };
+        }
 
         user.is_verified=true;
         user.otp_hash=null;
         user.otp_expires_at=null;
+        user.last_password_change=new Date();
+        user.otp_attempts = 0;
+        user.otp_blocked_time = null;
         await user.save();
 
         try{
-            await welcomeMsg(user.email_id, `${user.first_name} ${user.last_name}`);
+            if(model.first_time)
+                await welcomeMsg(user.email_id, `${user.first_name} ${user.last_name}`);
         }catch(err){
             console.error("Welcome message failed:", err);
         }
@@ -110,7 +135,7 @@ async function resendOTP(model){
         const email = model.email_id;
         const user = await User.findOne({ email_id:email });
         if (!user)
-            return { status: 404, message: "User not found" };
+            return { status: 404, message: "User not found." };
 
         if (user.is_verified)
             return { status: 400, message: "Your email is already verified. No OTP is required." };
@@ -128,7 +153,7 @@ async function loginUser(model, res){
         const email = model.email_id;
         const user = await User.findOne({ email_id:email });
         if (!user)
-            return { status: 404, message: "User not found" };
+            return { status: 404, message: "User not found." };
 
         if (!user.is_verified)
             return { status: 400, message: "User not verified." };
@@ -147,4 +172,59 @@ async function loginUser(model, res){
     }
 }
 
-module.exports = {registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser};
+async function forgotPassword(model){
+    try{
+        const email = model.email_id;
+        const user = await User.findOne({ email_id:email });
+        if (!user)
+            return { status: 404, message: "User not found." };
+
+        if (!user.is_verified)
+            return { status: 400, message: "User is not verified. Password cannot be changed." };
+
+        try{
+            await generateAndSendOTP(user);
+        }catch(err){
+            console.error("Problem Sending OTP:", err);
+        }
+        return { status: 200, message: "OTP sent successfully." };
+    }catch(err){
+        console.error("Login failed:", err);
+        return { status: 500, message: "Something went wrong while logging in. Please try again later." };
+    }
+}
+
+async function resetPassword(model){
+    try{
+        const email = model.email_id;
+        const user = await User.findOne({ email_id:email });
+        if (!user)
+            return { status: 404, message: "User not found." };
+
+        if (!user.is_verified)
+            return { status: 400, message: "User is not verified. Password cannot be changed." };
+
+        let hashPassword;
+        try{
+            const salt = await bcrypt.genSalt(10);
+            hashPassword = await bcrypt.hash(model.password,salt);
+        }
+        catch(err){
+            console.error("Password hashing failed:", err);
+            return { status: 500,message: "Something went wrong while securing your password"};
+        }
+
+        user.password = hashPassword;
+        user.last_password_change=new Date();
+        user.otp_hash = null;
+        user.otp_expires_at = null;
+        await user.save();
+        return { status: 200, message: "Password reset successful." };
+    }catch(err){
+        console.error("Login failed:", err);
+        return { status: 500, message: "Something went wrong while logging in. Please try again later." };
+    }
+}
+
+
+module.exports = {registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword};

@@ -17,9 +17,13 @@ const userSchema = new mongoose.Schema({
             index: true
         },
         password: { type: String, required: true },
+        last_password_change: { type: Date, default: Date.now },
         profile_picture: { type: String },
         otp_hash: { type: String, default: null },
         otp_expires_at: { type: Date, default: null },
+        otp_resend_timer: { type: Date, default: null },
+        otp_attempts: { type:Number, default:0 },
+        otp_blocked_time: { type:Date, default:null },
         is_verified: { type: Boolean, default: false }
     },
     { timestamps: true, _id: false }
