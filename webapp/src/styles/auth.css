@@ -94,16 +94,35 @@ button:hover {
 .primary-btn {
   width: 100%;
   padding: 12px;
-  border-radius: 10px;
-  background: #6c63ff;
-  color: #fff;
-  font-size: 15px;
+  background: #6366f1;
+  color: white;
   border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
+  margin-top: 15px;
 }
 
 .primary-btn:hover {
-  background: #5a52e0;
+  background: #4f46e5;
+}
+
+.secondary-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: transparent;
+  color: #6366f1;
+  border: 2px solid #6366f1;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #eef2ff;
 }
 
 .error {
