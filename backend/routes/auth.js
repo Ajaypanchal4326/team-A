@@ -9,35 +9,40 @@ router.post("/register",async(req,res)=>{
         let existingUser = await User.findOne({email_id: model.email_id});
 
         if(existingUser && existingUser.is_verified)
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(409).json({ message: "User already exists" });
 
         if(existingUser){
-            await updateExistingUser(model);
+            await updateExistingUser(model,existingUser);
         }else{
             await registerNewUser(model);
         }
         
-        res.send({ message: "User Registered, OTP sent to mail."});
+        return res.status(200).json({message: "User registered. OTP sent to email."});
+
     }catch(err){
         console.error("Register Route error:", err);
 
         if (err.code === 11000) {
             if (err.keyPattern?.phone_number)
-                throw new Error("Phone number already registered");
+                return res.status(409).json({ message : "Phone number already registered" });
 
             if (err.keyPattern?.email_id)
-                throw new Error("Email already registered");
+                return res.status(409).json({ message: "Email already registered" });
 
             throw new Error("User already exists.");
         }
 
-        throw new Error("Registration failed. Please try again later.");
+        return res.status(500).json({message :"Registration failed. Please try again later." });
     }
 });
 
 router.post("/verify-otp",async(req,res)=>{
     try {
-        const result = await verifyOTP(req.body);
+        const model = req.body;
+        if(!model.email_id || !model.otp)
+            return res.status(400).json({ message: "Email and OTP are required" });
+
+        const result = await verifyOTP(model);
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
         console.error("Verify OTP route error:", err);
@@ -47,7 +52,11 @@ router.post("/verify-otp",async(req,res)=>{
 
 router.post("/resend-otp",async(req,res)=>{
     try {
-        const result = await resendOTP(req.body);
+        const model = req.body;
+        if(!model.email_id)
+            return res.status(400).json({ message: "Email is required" });
+
+        const result = await resendOTP(model);
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
         console.error("Resend OTP route error:", err);
@@ -57,17 +66,33 @@ router.post("/resend-otp",async(req,res)=>{
 
 router.post("/login",async(req,res)=>{
     try {
-        const result = await loginUser(req.body,res);
+        const model = req.body;
+        if(!model.email_id || !model.password)
+            return res.status(400).json({ message: "Email and password are required" });
+
+        const result = await loginUser(model);
+        if (result.token) {
+            res.cookie(process.env.COOKIE_NAME, result.token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "strict",
+                maxAge: model.rememberMe? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000
+            });
+        }
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
-        console.error("Resend OTP route error:", err);
-        return res.status(500).json({ message: "Something went wrong while resending your OTP. Please try again." });
+        console.error("Login route error:", err);
+        return res.status(500).json({ message: "Something went wrong while logging you in. Please try again." });
     }
 });
 
 router.post("/forgot-password",async(req,res)=>{
     try {
-        const result = await forgotPassword(req.body);
+        const model = req.body;
+        if(!model.email_id)
+            return res.status(400).json({ message: "Email is required" });
+
+        const result = await forgotPassword(model);
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
         console.error("Password-Forget route error:", err);
@@ -77,11 +102,15 @@ router.post("/forgot-password",async(req,res)=>{
 
 router.post("/reset-password",async(req,res)=>{
     try {
-        const result = await resetPassword(req.body);
+        const model = req.body;
+        if(!model.email_id || !model.password)
+            return res.status(400).json({ message: "Email and password are required" });
+
+        const result = await resetPassword(model);
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
         console.error("Password-Reset route error:", err);
-        return res.status(500).json({ message: "Something went wrong while reseting your password.  Please try again." });
+        return res.status(500).json({ message: "Something went wrong while resetting your password.  Please try again." });
     }
 });
 

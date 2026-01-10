@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs")
 const { generateAndSendOTP,welcomeMsg } = require("../utils/otp")
 const generateToken = require("../utils/generateToken")
 
-async function updateExistingUser(model){
+async function updateExistingUser(model,user){
     let hashPassword;
     try{
         const salt = await bcrypt.genSalt(10);
@@ -15,7 +15,6 @@ async function updateExistingUser(model){
     }
 
     try{
-        let user = await User.findOne({ email_id:model.email_id });
         user.first_name=model.first_name;
         user.last_name=model.last_name;
         user.phone_number=model.phone_number;
@@ -63,7 +62,7 @@ async function registerNewUser(model){
 
         await user.save();
         try{
-            await generateAndSendOTP(user);
+            await generateAndSendOTP(user,false);
         }catch(err){
             console.error("Problem Sending OTP:", err);
             return { status: 500, message: "Failed to send OTP" };
@@ -114,6 +113,7 @@ async function verifyOTP(model){
         user.last_password_change=new Date();
         user.otp_attempts = 0;
         user.otp_blocked_time = null;
+        user.password_is_verified=true;
         await user.save();
 
         try{
@@ -137,7 +137,18 @@ async function resendOTP(model){
         if (!user)
             return { status: 404, message: "User not found." };
 
-        await generateAndSendOTP(user);
+        const expiresAt = new Date(user.otp_expires_at).getTime();
+        const now = Date.now();
+        const cooldown = 4 * 60 * 1000; 
+        if (now < expiresAt - cooldown)
+            return { status: 429, message: "Please wait before requesting another OTP"};
+
+        try{
+            await generateAndSendOTP(user,false);
+        }catch(err){
+            console.error("Problem Sending OTP:", err);
+            return { status: 500, message: "Failed to send OTP" };
+        }
         return { status: 200, message: "OTP resent successfully" };
     }catch(err){
         console.error("Resend OTP failed:", err);
@@ -145,7 +156,7 @@ async function resendOTP(model){
     }
 }
 
-async function loginUser(model, res){
+async function loginUser(model){
     try{
         const email = model.email_id;
         const user = await User.findOne({ email_id:email });
@@ -160,9 +171,9 @@ async function loginUser(model, res){
         if(!valid)
             return { status: 400, message: "Invalid Password." };
 
-        generateToken(res, user._id);
+        const token = generateToken(user._id);
 
-        return { status: 200, message: "Login successful" };
+        return { status: 200, message: "Login successful", token };
     }catch(err){
         console.error("Login failed:", err);
         return { status: 500, message: "Something went wrong while logging in. Please try again later." };
@@ -180,7 +191,7 @@ async function forgotPassword(model){
             return { status: 400, message: "User is not verified. Password cannot be changed." };
 
         try{
-            await generateAndSendOTP(user);
+            await generateAndSendOTP(user,true);
         }catch(err){
             console.error("Problem Sending OTP:", err);
         }
@@ -198,7 +209,7 @@ async function resetPassword(model){
         if (!user)
             return { status: 404, message: "User not found." };
 
-        if (!user.is_verified)
+        if (!user.is_verified || !user.password_is_verified)
             return { status: 400, message: "User is not verified. Password cannot be changed." };
 
         let hashPassword;

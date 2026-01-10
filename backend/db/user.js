@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
         otp_resend_timer: { type: Date, default: null },
         otp_attempts: { type:Number, default:0 },
         otp_blocked_time: { type:Date, default:null },
+        password_is_verified: { type: Boolean, default: true },
         is_verified: { type: Boolean, default: false }
     },
     { timestamps: true, _id: false }
