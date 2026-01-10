@@ -137,9 +137,6 @@ async function resendOTP(model){
         if (!user)
             return { status: 404, message: "User not found." };
 
-        if (user.is_verified)
-            return { status: 400, message: "Your email is already verified. No OTP is required." };
-
         await generateAndSendOTP(user);
         return { status: 200, message: "OTP resent successfully" };
     }catch(err){
