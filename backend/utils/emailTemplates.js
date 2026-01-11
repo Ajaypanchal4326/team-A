@@ -20,7 +20,7 @@ const Verification_Email_Template=`
             <td style="padding:30px; color:#333333; font-size:15px; line-height:1.6;">
               
               <p style="margin:0 0 15px 0; font-size:18px; font-weight:bold;">
-                Hi {name},
+                Hi there,
               </p>
 
               <p style="margin:0 0 25px 0;">
