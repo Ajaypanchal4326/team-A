@@ -15,6 +15,8 @@ const Signup = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,9 +26,12 @@ const Signup = () => {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isValidPhone = (phone) =>
-    /^[6-9]\d{9}$/.test(phone); 
+    /^[6-9]\d{9}$/.test(phone);
 
   const handleSignup = async () => {
+    setError("");
+    setSuccess("");
+
     const payload = {
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
@@ -36,22 +41,22 @@ const Signup = () => {
     };
 
     if (Object.values(payload).some((v) => !v)) {
-      alert("All fields are required");
+      setError("All fields are required");
       return;
     }
 
     if (!isValidEmail(payload.email_id)) {
-      alert("Enter a valid email address");
+      setError("Enter a valid email address");
       return;
     }
 
     if (!isValidPhone(payload.phone_number)) {
-      alert("Enter a valid 10-digit phone number");
+      setError("Enter a valid 10-digit phone number");
       return;
     }
 
     if (payload.password.length < 8) {
-      alert("Password must be at least 8 characters");
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -60,13 +65,16 @@ const Signup = () => {
 
       const res = await api.post("/auth/register", payload);
 
-      alert(res.data?.message || "Registration successful");
-      navigate("/verify", {
-        state: { email: payload.email_id, first_time: true },
-      });
+      setSuccess(res.data?.message || "Registration successful");
+
+      setTimeout(() => {
+        navigate("/verify", {
+          state: { email: payload.email_id, first_time: true },
+        });
+      }, 800);
 
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -78,9 +86,11 @@ const Signup = () => {
         <h2>Create Account</h2>
         <p>Join the Hire-a-Helper community</p>
 
+        {error && <span className="error">{error}</span>}
+ {success && <div className="success">{success}</div>}
         <div className="two-col">
           <div className="input-group">
-            <label>First Name</label>
+            <label>First Name <span className="required">*</span></label>
             <input
               name="first_name"
               type="text"
@@ -92,7 +102,7 @@ const Signup = () => {
           </div>
 
           <div className="input-group">
-            <label>Last Name</label>
+            <label>Last Name <span className="required">*</span></label>
             <input
               name="last_name"
               type="text"
@@ -105,7 +115,7 @@ const Signup = () => {
         </div>
 
         <div className="input-group">
-          <label>Phone Number</label>
+          <label>Phone Number <span className="required">*</span></label>
           <input
             name="phone_number"
             maxLength={10}
@@ -116,7 +126,7 @@ const Signup = () => {
         </div>
 
         <div className="input-group">
-          <label>Email Address</label>
+          <label>Email Address <span className="required">*</span></label>
           <input
             name="email_id"
             type="email"
@@ -128,7 +138,7 @@ const Signup = () => {
         </div>
 
         <div className="input-group">
-          <label>Password</label>
+          <label>Password <span className="required">*</span></label>
           <input
             name="password"
             type="password"

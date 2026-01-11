@@ -9,11 +9,17 @@ const ForgotPassword = () => {
   const [email_id, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const handleSendOtp = async () => {
+    setError("");
+    setSuccess("");
+
     const cleanEmail = email_id.trim();
 
     if (!/^\S+@\S+\.\S+$/.test(cleanEmail)) {
-      alert("Enter a valid email address");
+      setError("Enter a valid email address");
       return;
     }
 
@@ -24,14 +30,16 @@ const ForgotPassword = () => {
         email_id: cleanEmail,
       });
 
-      alert(res.data?.message || "If email exists, OTP has been sent.");
+      setSuccess(res.data?.message || "If email exists, OTP has been sent.");
 
-      navigate("/verify", {
-        state: { email: cleanEmail, first_time: false },
-      });
+      setTimeout(() => {
+        navigate("/verify", {
+          state: { email: cleanEmail, first_time: false },
+        });
+      }, 1200);
+
     } catch (err) {
-      
-      alert("If email exists, OTP has been sent.");
+      setSuccess("If email exists, OTP has been sent.");
     } finally {
       setLoading(false);
     }
@@ -43,6 +51,13 @@ const ForgotPassword = () => {
         <h2>Forgot Password</h2>
         <p>Enter your registered email to receive OTP</p>
 
+        
+        {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
+
+        <label>
+          Email Address <span className="required">*</span>
+        </label>
         <input
           type="email"
           placeholder="Enter email"

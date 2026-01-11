@@ -11,6 +11,9 @@ const Login = () => {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -18,13 +21,16 @@ const Login = () => {
     const email = email_id.trim();
     const pass = password.trim();
 
+    setError("");
+    setSuccess("");
+
     if (!email || !pass) {
-      alert("Please enter email and password");
+      setError("Please enter email and password");
       return;
     }
 
     if (!isValidEmail(email)) {
-      alert("Please enter a valid email address");
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -37,17 +43,22 @@ const Login = () => {
         remember,
       });
 
-      alert(res.data?.message || "Login successful");
-      navigate("/Dashboard");
+      setSuccess(res.data?.message || "Login successful");
+
+      setTimeout(() => {
+        navigate("/Dashboard");
+      }, 1200);
 
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
 
       if (msg.toLowerCase().includes("verify")) {
-        alert(msg);
-        navigate("/verify", { state: { email, first_time: false } });
+        setError(msg);
+        setTimeout(() => {
+          navigate("/verify", { state: { email, first_time: false } });
+        }, 1200);
       } else {
-        alert("Invalid credentials or server error");
+        setError("Invalid credentials or server error");
       }
     } finally {
       setLoading(false);
@@ -60,7 +71,11 @@ const Login = () => {
         <h2>Welcome Back</h2>
         <p>Sign in to your Hire-a-Helper account</p>
 
-        <label>Email Address</label>
+       
+        {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
+
+        <label>Email Address <span className="required">*</span></label>
         <input
           type="email"
           value={email_id}
@@ -70,7 +85,7 @@ const Login = () => {
           placeholder="Enter your email"
         />
 
-        <label>Password</label>
+        <label>Password <span className="required">*</span></label>
         <input
           type="password"
           value={password}

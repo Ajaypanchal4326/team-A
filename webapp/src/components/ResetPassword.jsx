@@ -13,10 +13,13 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   useEffect(() => {
     if (!email) {
-      alert("Session expired. Please try again.");
-      navigate("/forgot");
+      setError("Session expired. Please try again.");
+      setTimeout(() => navigate("/forgot"), 1200);
     }
   }, [email, navigate]);
 
@@ -24,21 +27,24 @@ const ResetPassword = () => {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pwd);
 
   const handleReset = async () => {
+    setError("");
+    setSuccess("");
+
     const cleanPassword = password.trim();
     const cleanConfirm = confirmPassword.trim();
 
     if (!cleanPassword || !cleanConfirm) {
-      alert("All fields are required");
+      setError("All fields are required");
       return;
     }
 
     if (cleanPassword !== cleanConfirm) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
     if (!isStrongPassword(cleanPassword)) {
-      alert(
+      setError(
         "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
       );
       return;
@@ -52,10 +58,12 @@ const ResetPassword = () => {
         password: cleanPassword,
       });
 
-      alert(res.data?.message || "Password reset successful.");
-      navigate("/login");
+      setSuccess(res.data?.message || "Password reset successful.");
+
+      setTimeout(() => navigate("/login"), 1200);
+
     } catch (err) {
-      alert(err.response?.data?.message || "Reset failed");
+      setError(err.response?.data?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
@@ -67,6 +75,12 @@ const ResetPassword = () => {
         <h2>Reset Password</h2>
         <p>Create a new password</p>
 
+        {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
+
+        <label>
+          New Password <span className="required">*</span>
+        </label>
         <input
           type="password"
           placeholder="New password"
@@ -74,6 +88,9 @@ const ResetPassword = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        <label>
+          Confirm Password <span className="required">*</span>
+        </label>
         <input
           type="password"
           placeholder="Confirm password"

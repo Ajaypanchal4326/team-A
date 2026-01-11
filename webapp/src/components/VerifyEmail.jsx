@@ -7,22 +7,27 @@ const VerifyEmail = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const email = location.state?.email;
   const first_time = location.state?.first_time;
 
-  
   if (!email) {
     navigate("/signup");
   }
 
   const handleVerify = async () => {
+    setError("");
+    setSuccess("");
+
     const cleanOtp = otp.trim();
 
     if (!/^\d{4,6}$/.test(cleanOtp)) {
-      alert("Enter a valid OTP");
+      setError("Enter a valid OTP");
       return;
     }
 
@@ -32,24 +37,30 @@ const VerifyEmail = () => {
       const res = await api.post("/auth/verify-otp", {
         email_id: email,
         otp: cleanOtp,
-        first_time: first_time
+        first_time: first_time,
       });
 
-      alert(res.data?.message || "OTP verified");
+      setSuccess(res.data?.message || "OTP verified");
 
-      if (first_time) {
-        navigate("/login");
-      } else {
-        navigate("/ResetPassword", { state: { email } });
-      }
+      setTimeout(() => {
+        if (first_time) {
+          navigate("/login");
+        } else {
+          navigate("/ResetPassword", { state: { email } });
+        }
+      }, 1200);
+
     } catch (err) {
-      alert(err.response?.data?.message || "Invalid OTP");
+      setError(err.response?.data?.message || "Invalid OTP");
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
+    setError("");
+    setSuccess("");
+
     try {
       setLoading(true);
 
@@ -57,16 +68,16 @@ const VerifyEmail = () => {
         email_id: email,
       });
 
-      alert(res.data?.message || "OTP resent");
+      setSuccess(res.data?.message || "OTP resent");
 
     } catch (err) {
       const msg = err.response?.data?.message;
 
       if (msg?.toLowerCase().includes("already verified")) {
-        alert("Email already verified. Please login.");
-        navigate("/login");
+        setSuccess("Email already verified. Please login.");
+        setTimeout(() => navigate("/login"), 1200);
       } else {
-        alert(msg || "Something went wrong");
+        setError(msg || "Something went wrong");
       }
     } finally {
       setLoading(false);
@@ -79,7 +90,12 @@ const VerifyEmail = () => {
         <h2>Verify Your OTP</h2>
         <p>OTP sent to: {email}</p>
 
-        <label>Verification Code</label>
+        {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
+
+        <label>
+          Verification Code <span className="required">*</span>
+        </label>
         <input
           placeholder="Enter OTP"
           value={otp}
