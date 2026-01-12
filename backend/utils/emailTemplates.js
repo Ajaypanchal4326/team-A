@@ -78,6 +78,7 @@ const Verification_Email_Template=`
     </div>
 `;
 
+const frontendUrl = process.env.FRONTEND_URL;
 const Welcome_Email_Template= `
 <div style="margin:0; padding:0; background-color:#f4f6fb; font-family:Arial, Helvetica, sans-serif;">
 
@@ -121,7 +122,7 @@ const Welcome_Email_Template= `
 
               <!-- CTA Button -->
               <div style="text-align:center; margin:30px 0;">
-                <a href="{dashboard_link}" 
+                <a href="${frontendUrl}/Dashboard"
                    style="background-color:#4f46e5; color:#ffffff; padding:14px 28px; text-decoration:none; border-radius:8px; font-size:16px; font-weight:bold; display:inline-block;">
                   Get Started
                 </a>
