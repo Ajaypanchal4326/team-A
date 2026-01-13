@@ -171,7 +171,7 @@ async function loginUser(model){
         if(!valid)
             return { status: 400, message: "Invalid Password." };
 
-        const token = generateToken(user._id);
+        const token = generateToken(model.rememberMe,user._id);
 
         return { status: 200, message: "Login successful", token };
     }catch(err){
