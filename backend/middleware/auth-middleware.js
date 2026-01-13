@@ -13,7 +13,7 @@ const protect = async (req, res, next) => {
     try{
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     }catch(err){
-      if (error.name === "TokenExpiredError") {
+      if (err.name === "TokenExpiredError") {
         return res.status(401).json({ message: "Session expired, please login again" });
       }
       return res.status(401).json({ message: "Invalid token" });
@@ -37,3 +37,4 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = protect;
+
