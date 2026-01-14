@@ -1,6 +1,6 @@
 const User = require("../db/user");
 const express = require("express");
-const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword } = require("../handlers/auth-handler");
+const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword,logoutUser,authMe } = require("../handlers/auth-handler");
 const router = express.Router();
 
 router.post("/register",async(req,res)=>{
@@ -112,6 +112,32 @@ router.post("/reset-password",async(req,res)=>{
         console.error("Password-Reset route error:", err);
         return res.status(500).json({ message: "Something went wrong while resetting your password.  Please try again." });
     }
+});
+
+router.post("/logout", async (req, res) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",
+        });
+
+        const result = logoutUser();
+        return res.status(result.status).json({ message: result.message });
+
+    } catch (err) {
+        console.error("Logout route failed:", err);
+        return res.status(500).json({ message: "Logout failed" });
+    }
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+    const result = await authMe(req.user);
+
+    return res.status(result.status).json({
+        authenticated: result.authenticated,
+        user: result.user
+    });
 });
 
 module.exports = router;
