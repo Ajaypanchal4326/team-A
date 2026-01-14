@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import api from "../services/api";
+import Loader from "./Loader";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -50,9 +51,10 @@ const ResetPassword = () => {
       return;
     }
 
+     if(loading) return;
+  
     try {
-      setLoading(true);
-
+      
       const res = await api.post("/auth/reset-password", {
         email_id: email,
         password: cleanPassword,
@@ -60,16 +62,21 @@ const ResetPassword = () => {
 
       setSuccess(res.data?.message || "Password reset successful.");
 
+       setTimeout(() => {
+  setLoading(true);   
+}, 600);
+
       setTimeout(() => navigate("/login"), 1200);
 
     } catch (err) {
       setError(err.response?.data?.message || "Reset failed");
-    } finally {
       setLoading(false);
-    }
+    } 
   };
 
   return (
+    <>
+    {loading && <Loader/>}
     <div className="auth-container">
       <div className="auth-card">
         <h2>Reset Password</h2>
@@ -103,6 +110,7 @@ const ResetPassword = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import api from "../services/api";
+import Loader from "./Loader";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -23,14 +24,19 @@ const ForgotPassword = () => {
       return;
     }
 
+     if(loading) return;
+    
     try {
-      setLoading(true);
-
+      
       const res = await api.post("/auth/forgot-password", {
         email_id: cleanEmail,
       });
 
       setSuccess(res.data?.message || "If email exists, OTP has been sent.");
+
+       setTimeout(() => {
+  setLoading(true);   
+}, 600);
 
       setTimeout(() => {
         navigate("/verify", {
@@ -40,12 +46,13 @@ const ForgotPassword = () => {
 
     } catch (err) {
       setSuccess("If email exists, OTP has been sent.");
-    } finally {
-      setLoading(false);
-    }
+     setLoading(false);
+    } 
   };
 
   return (
+    <>
+    {loading && <Loader/>}
     <div className="auth-container">
       <div className="auth-card">
         <h2>Forgot Password</h2>
@@ -70,6 +77,7 @@ const ForgotPassword = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

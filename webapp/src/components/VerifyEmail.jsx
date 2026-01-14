@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../styles/auth.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import Loader from "./Loader";
 
 const VerifyEmail = () => {
   const [otp, setOtp] = useState("");
@@ -31,9 +32,10 @@ const VerifyEmail = () => {
       return;
     }
 
+      if(loading) return;
+  
     try {
-      setLoading(true);
-
+    
       const res = await api.post("/auth/verify-otp", {
         email_id: email,
         otp: cleanOtp,
@@ -41,6 +43,10 @@ const VerifyEmail = () => {
       });
 
       setSuccess(res.data?.message || "OTP verified");
+
+       setTimeout(() => {
+  setLoading(true);   
+}, 600);
 
       setTimeout(() => {
         if (first_time) {
@@ -52,7 +58,6 @@ const VerifyEmail = () => {
 
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP");
-    } finally {
       setLoading(false);
     }
   };
@@ -85,6 +90,8 @@ const VerifyEmail = () => {
   };
 
   return (
+  <>
+  {loading && <Loader/>}
     <div className="auth-container">
       <div className="auth-card">
         <h2>Verify Your OTP</h2>
@@ -113,6 +120,7 @@ const VerifyEmail = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

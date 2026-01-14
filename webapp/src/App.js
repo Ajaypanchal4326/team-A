@@ -5,6 +5,7 @@ import VerifyEmail from "./components/VerifyEmail";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import Dashboard from "./components/Dashboard";
+import Loader from "./components/Loader";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/verify" element={<VerifyEmail />} />
          <Route path="/ResetPassword" element={<ResetPassword />} />
         <Route path="/Dashboard" element={<Dashboard/>}/>
+         <Route path="/Loader" element={<Loader/>}/>
         
       </Routes>
     </BrowserRouter>
