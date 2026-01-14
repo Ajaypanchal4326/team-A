@@ -23,43 +23,6 @@
   flex-direction: column;
   justify-content: space-between;
 }
-/* Sidebar profile default hidden */
-.sidebar .profile {
-  background-color: #4c51bf; /* same as sidebar or slightly different */
-  color: white;
-  text-align: center;
-  padding: 12px;
-  border-radius: 12px;
-  margin-top: 20px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  height: 40px; /* compact height */
-  transition: height 0.3s ease;
-}
-
-/* Show full content on hover */
-.sidebar .profile:hover {
-  height: 80px; /* expand height */
-  background-color: #3b4298; /* optional hover color */
-}
-
-/* Username and email inside profile */
-.sidebar .profile strong,
-.sidebar .profile span {
-  display: block;
-  opacity: 0; /* hidden by default */
-  transition: opacity 0.3s ease;
-  font-size: 14px;
-  margin: 2px 0;
-}
-
-/* Show text on hover */
-.sidebar .profile:hover strong,
-.sidebar .profile:hover span {
-  opacity: 1;
-}
-
 
 .logo {
   font-size: 22px;
@@ -90,14 +53,6 @@
   background: #22c55e;
   color: #052e16;
   font-weight: bold;
-}
-
-/* PROFILE */
-.profile {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 12px;
-  border-radius: 10px;
-  text-align: center;
 }
 
 /* MAIN AREA */
@@ -275,34 +230,6 @@
   max-width: 450px;
 }
 
-.settings-form label {
-  display: block;
-  margin-bottom: 12px;
-  color: #14532d;
-}
-
-.settings-form input[type="text"],
-.settings-form input[type="email"] {
-  width: 100%;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #86efac;
-}
-
-.settings-form input[type="checkbox"] {
-  margin-left: 10px;
-}
-
-.settings-form button {
-  margin-top: 15px;
-  padding: 10px;
-  width: 100%;
-  background: #16a34a;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-}
 /* Notification badge */
 .notification-badge {
   display: inline-block;
@@ -317,68 +244,41 @@
   left: -8px;
 }
 
-/* Notification panel dropdown */
-.notification-panel {
-  position: absolute;
-  top: 36px;
-  right: 0;
-  width: 280px;
-  max-height: 300px;
-  overflow-y: auto;
-  background: white;
+/* PROFILE (BOTTOM SIDEBAR) */
+.profile {
+  margin-top: auto;
+  padding: 18px;
+  background: rgba(255,255,255,0.08);
   border-radius: 14px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.15);
-  padding: 12px;
-  z-index: 999;
-  animation: fadeIn 0.2s ease-in-out;
+  text-align: center;
+  color: white;
 }
 
-/* Single notification item */
-.notification-item {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f8fafc;
-  margin-bottom: 8px;
-  transition: 0.2s;
+.profile strong {
+  font-size: 15px;
 }
 
-.notification-item:hover {
-  background: #f1f5f9;
-}
-
-.notification-item strong {
-  display: block;
-  font-size: 14px;
-  color: #0f172a;
-}
-
-.notification-item p {
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 4px;
+.profile span {
+  font-size: 13px;
+  opacity: 0.8;
 }
 
 .logout-btn {
-  margin-top: 12px;
   width: 100%;
+  margin-top: 14px;
   padding: 10px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s ease;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  transition: 0.25s ease;
 }
 
 .logout-btn:hover {
-  box-shadow: 0 8px 18px rgba(239,68,68,0.35);
   transform: translateY(-1px);
-}
-
-.logout-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  box-shadow: 0 8px 18px rgba(239,68,68,0.4);
 }
 
 .success {
@@ -390,7 +290,6 @@
   border-radius: 10px;
   font-size: 13px;
   margin-bottom: 18px;
- 
 }
 
 .error {
@@ -401,14 +300,8 @@
   padding: 10px 12px;
   border-radius: 10px;
   font-size: 13px;
-  margin-bottom: 18px;   
+  margin-bottom: 18px;
 }
-
-.success, .error {
-  position: relative;
-  z-index: 3000;
-}
-
 
 /* Simple fade-in animation */
 @keyframes fadeIn {
