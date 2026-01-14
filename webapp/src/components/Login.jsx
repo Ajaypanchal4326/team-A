@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../styles/auth.css";
+import Loader from "../components/Loader";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,6 +26,9 @@ const Login = () => {
     setError("");
     setSuccess("");
 
+     if(loading) return;
+   
+
     if (!email || !pass) {
       setError("Please enter email and password");
       return;
@@ -33,17 +38,22 @@ const Login = () => {
       setError("Please enter a valid email address");
       return;
     }
-
+    
+   
     try {
-      setLoading(true);
-
-      const res = await api.post("/auth/login", {
+       
+        const res = await api.post("/auth/login", {
         email_id: email,
         password: pass,
         remember,
       });
+      
+    
+     setSuccess(res.data?.message || "Login successful");
 
-      setSuccess(res.data?.message || "Login successful");
+ setTimeout(() => {
+  setLoading(true);   
+}, 600);
 
       setTimeout(() => {
         navigate("/Dashboard");
@@ -60,12 +70,13 @@ const Login = () => {
       } else {
         setError("Invalid credentials or server error");
       }
-    } finally {
-      setLoading(false);
-    }
+       setLoading(false);
+    } 
   };
 
   return (
+   <>
+   {loading && <Loader/>}
     <div className="auth-container">
       <div className="auth-card">
         <h2>Welcome Back</h2>
@@ -110,7 +121,7 @@ const Login = () => {
           </Link>
         </div>
 
-        <button onClick={handleLogin} disabled={loading}>
+        <button onClick={handleLogin} disabled={loading} className={loading ? "btn disabled" : "btn"}>
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
@@ -119,6 +130,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

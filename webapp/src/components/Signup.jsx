@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../styles/auth.css";
+import Loader from "./Loader";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -60,12 +61,17 @@ const Signup = () => {
       return;
     }
 
+      if(loading) return;
+    
     try {
-      setLoading(true);
-
+      
       const res = await api.post("/auth/register", payload);
 
       setSuccess(res.data?.message || "Registration successful");
+
+       setTimeout(() => {
+  setLoading(true);   
+}, 600);
 
       setTimeout(() => {
         navigate("/verify", {
@@ -75,12 +81,13 @@ const Signup = () => {
 
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
-    } finally {
       setLoading(false);
-    }
+    } 
   };
 
   return (
+  <>
+  {loading && <Loader/>}
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create Account</h2>
@@ -158,6 +165,7 @@ const Signup = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
