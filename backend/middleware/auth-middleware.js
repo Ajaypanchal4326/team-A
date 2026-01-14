@@ -3,7 +3,7 @@ const User = require("../db/user");
 
 const protect = async (req, res, next) => {
   try {
-    const token = req.cookies?.token;
+    const token = req.cookies?.[process.env.COOKIE_NAME];
     let decoded;
 
     if (!token) {
@@ -19,7 +19,7 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    req.user = await User.findById(decoded.id).select("-password");
+    req.user = await User.findById(decoded.userId).select("-password");
 
     if (!req.user) {
       return res.status(401).json({ message: "User no longer exists" });

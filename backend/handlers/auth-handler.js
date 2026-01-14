@@ -234,37 +234,4 @@ async function resetPassword(model){
     }
 }
 
-
-async function logoutUser() {
-    try {
-        return {
-            status: 200,
-            message: "Logout successful"
-        };
-    } catch (err) {
-        console.error("Logout failed:", err);
-        return {
-            status: 500,
-            message: "Something went wrong while logging out."
-        };
-    }
-}
-async function authMe(user) {
-    try {
-        return {
-            status: 200,
-            authenticated: true,
-            user
-        };
-    } catch (err) {
-        console.error("AuthMe failed:", err);
-        return {
-            status: 500,
-            message: "Failed to fetch user"
-        };
-    }
-}
-
-
-
-module.exports = {registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword,logoutUser,authMe};
+module.exports = {registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword };

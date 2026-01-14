@@ -1,6 +1,7 @@
 const User = require("../db/user");
 const express = require("express");
-const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword,logoutUser,authMe } = require("../handlers/auth-handler");
+const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword } = require("../handlers/auth-handler");
+const authMiddleware = require("../middleware/auth-middleware");
 const router = express.Router();
 
 router.post("/register",async(req,res)=>{
@@ -74,8 +75,8 @@ router.post("/login",async(req,res)=>{
         if (result.token) {
             res.cookie(process.env.COOKIE_NAME, result.token, {
                 httpOnly: true,
-                secure: false,
-                sameSite: "strict",
+                secure: true,
+                sameSite: "none",
                 maxAge: model.rememberMe? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000
             });
         }
@@ -116,14 +117,13 @@ router.post("/reset-password",async(req,res)=>{
 
 router.post("/logout", async (req, res) => {
     try {
-        res.clearCookie("token", {
+        res.clearCookie(process.env.COOKIE_NAME, {
             httpOnly: true,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV === "production",
+            sameSite: "none",
+            secure: true,
         });
 
-        const result = logoutUser();
-        return res.status(result.status).json({ message: result.message });
+        return res.status(200).json({ message: "Logged out successfully" });
 
     } catch (err) {
         console.error("Logout route failed:", err);
@@ -132,12 +132,19 @@ router.post("/logout", async (req, res) => {
 });
 
 router.get("/me", authMiddleware, async (req, res) => {
-    const result = await authMe(req.user);
+    try {
+        const sanitizeUser = (user) => ({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        });
 
-    return res.status(result.status).json({
-        authenticated: result.authenticated,
-        user: result.user
-    });
+        return res.status(200).json({ authenticated: true, user: sanitizeUser(req.user) });
+
+    } catch (err) {
+        console.error("/me route error:", err);
+        return res.status(500).json({ authenticated: false, message: "Failed to fetch user" });
+    }
 });
 
 module.exports = router;
