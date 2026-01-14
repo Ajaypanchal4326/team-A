@@ -1,8 +1,38 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
+import api from "../services/api";
 
 const Dashboard = () => {
-  const [activePage, setActivePage] = useState("Feed");
+const [activePage, setActivePage] = useState ("Feed");
+const [logoutLoading, setLogoutLoading] = useState(false);
+const [logoutError, setLogoutError] = useState("");
+const [logoutSuccess, setLogoutSuccess] = useState("");
+const navigate = useNavigate();
+
+const handleLogout = async () => {
+  if (logoutLoading) return;
+
+  setLogoutError("");
+  setLogoutSuccess("");
+
+  try {
+    setLogoutLoading(true);
+
+    const res = await api.post("/auth/logout");
+
+    setLogoutSuccess(res.data?.message || "Logged out successfully");
+
+    setTimeout(() => {
+      navigate("/login");
+    }, 700);
+
+  } catch (err) {
+    setLogoutError("Logout failed. Please try again.");
+  } finally {
+    setLogoutLoading(false);
+  }
+};
 
   // Tasks state
   const [tasks, setTasks] = useState([
@@ -96,11 +126,24 @@ const [settings, setSettings] = useState({
             </li>
           ))}
         </ul>
-        <div className="profile">
-          <strong>{settings.username}</strong>
-          <br />
-          <span>{settings.email}</span>
-        </div>
+
+      <div className="profile">
+  <strong>{settings.username || "User"}</strong>
+  <br />
+  <span>{settings.email || "user@email.com"}</span>
+
+  {logoutError && <div className="error">{logoutError}</div>}
+  {logoutSuccess && <div className="success">{logoutSuccess}</div>}
+
+  <button
+    className="logout-btn"
+    onClick={handleLogout}
+    disabled={logoutLoading}
+  >
+    {logoutLoading ? "Logging out..." : "Logout"}
+  </button>
+</div>
+
       </aside>
 
       {/* MAIN CONTENT */}
