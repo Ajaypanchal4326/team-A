@@ -5,6 +5,9 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth")
+const taskRoutes = require("./routes/task")
+const authmiddleware = require("./middleware/auth-middleware");
+dotenv.config();
 
 app.use(express.json());
 app.use(cors({
@@ -12,10 +15,10 @@ app.use(cors({
     credentials: true,              
 }));
 app.use(cookieParser());
-dotenv.config();
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/task", authmiddleware, taskRoutes);
 
 connectDB();
 

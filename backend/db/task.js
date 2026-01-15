@@ -12,7 +12,7 @@ const taskSchema = new mongoose.Schema(
         },
         title: { type: String, required: true },
         description: { type: String },
-        location: { type: String },
+        location: { type: String, required: true },
         start_time: { type: Date, required: true },
         end_time: { type: Date },
         status: {

@@ -1,7 +1,7 @@
 const User = require("../db/user")
 const bcrypt = require("bcryptjs")
 const { generateAndSendOTP,welcomeMsg } = require("../utils/otp")
-const generateToken = require("../utils/generateToken")
+const jwt = require("jsonwebtoken");
 
 async function updateExistingUser(model,user){
     let hashPassword;
@@ -171,7 +171,9 @@ async function loginUser(model){
         if(!valid)
             return { status: 400, message: "Invalid Password." };
 
-        const token = generateToken(model.rememberMe,user._id);
+        const expiresIn = model.rememberMe ? "30d" : "2h";
+        const userId = user._id;
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn });
 
         return { status: 200, message: "Login successful", token };
     }catch(err){
@@ -234,4 +236,12 @@ async function resetPassword(model){
     }
 }
 
-module.exports = {registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword };
+module.exports = {
+    registerNewUser,
+    verifyOTP,
+    resendOTP,
+    loginUser,
+    updateExistingUser,
+    forgotPassword, 
+    resetPassword 
+};

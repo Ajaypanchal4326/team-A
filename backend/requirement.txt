@@ -8,3 +8,5 @@ cookie-parser
 nodemon
 nodemailer
 uuid
+multer 
+cloudinary
