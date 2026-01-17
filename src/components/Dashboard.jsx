@@ -4,396 +4,326 @@ import "../styles/dashboard.css";
 import api from "../services/api";
 
 const Dashboard = () => {
-const [activePage, setActivePage] = useState ("Feed");
-const [logoutLoading, setLogoutLoading] = useState(false);
-const [logoutError, setLogoutError] = useState("");
-const [logoutSuccess, setLogoutSuccess] = useState("");
-const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [activePage, setActivePage] = useState("Feed");
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
 const handleLogout = async () => {
   if (logoutLoading) return;
-
-  setLogoutError("");
-  setLogoutSuccess("");
-
   try {
     setLogoutLoading(true);
-
-    const res = await api.post("/auth/logout");
-
-    setLogoutSuccess(res.data?.message || "Logged out successfully");
-
-    setTimeout(() => {
-      navigate("/login");
-    }, 700);
-
-  } catch (err) {
-    setLogoutError("Logout failed. Please try again.");
+    await api.post("/auth/logout");
+    setTimeout(() => navigate("/login"), 700);
+  } catch {
+    console.error("Logout failed");
   } finally {
     setLogoutLoading(false);
   }
 };
 
-  // Tasks state
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "Help Moving Furniture", category: "Moving", location: "Downtown Seattle, WA", requested: false },
-    { id: 2, title: "Garden Cleanup", category: "Gardening", location: "Bellevue, WA", requested: false },
-    { id: 3, title: "Room Painting Project", category: "Painting", location: "Redmond, WA", requested: false },
-    { id: 4, title: "Dog Walking", category: "Pet Care", location: "Seattle, WA", requested: false },
-    { id: 5, title: "Grocery Shopping Assistance", category: "Errands", location: "Kirkland, WA", requested: false },
-    { id: 6, title: "Assemble IKEA Furniture", category: "DIY", location: "Renton, WA", requested: false },
-    { id: 7, title: "Math Tutoring", category: "Education", location: "Bellevue, WA", requested: false },
-    { id: 8, title: "Yoga Session Help", category: "Fitness", location: "Redmond, WA", requested: false },
-    { id: 9, title: "Website Bug Fix", category: "Tech", location: "Seattle, WA", requested: false },
-    { id: 10, title: "Car Wash Assistance", category: "Automotive", location: "Kirkland, WA", requested: false },
-    { id: 11, title: "Birthday Party Setup", category: "Event", location: "Bothell, WA", requested: false },
-    { id: 12, title: "Photography Help", category: "Creative", location: "Seattle, WA", requested: false },
-    { id: 13, title: "Music Lesson Assistance", category: "Education", location: "Redmond, WA", requested: false },
-    { id: 14, title: "Laptop Setup", category: "Tech", location: "Bellevue, WA", requested: false },
-    { id: 15, title: "Closet Organization", category: "Home", location: "Renton, WA", requested: false }
-  ]);
 
-  // Requests state
+ 
+  // TASKS
+  const [tasks, setTasks] = useState([ { id: 1, title: "Help Moving Furniture", category: "Moving", location: "Downtown Seattle, WA", requested: false },
+     { id: 2, title: "Garden Cleanup", category: "Gardening", location: "Bellevue, WA", requested: false },
+      { id: 3, title: "Room Painting Project", category: "Painting", location: "Redmond, WA", requested: false }, 
+      { id: 4, title: "Dog Walking", category: "Pet Care", location: "Seattle, WA", requested: false },
+       { id: 5, title: "Grocery Shopping Assistance", category: "Errands", location: "Kirkland, WA", requested: false }, 
+       { id: 6, title: "Assemble IKEA Furniture", category: "DIY", location: "Renton, WA", requested: false },
+        { id: 7, title: "Math Tutoring", category: "Education", location: "Bellevue, WA", requested: false }, 
+        { id: 8, title: "Yoga Session Help", category: "Fitness", location: "Redmond, WA", requested: false }, 
+        { id: 9, title: "Website Bug Fix", category: "Tech", location: "Seattle, WA", requested: false }, 
+        { id: 10, title: "Car Wash Assistance", category: "Automotive", location: "Kirkland, WA", requested: false }, 
+        { id: 11, title: "Birthday Party Setup", category: "Event", location: "Bothell, WA", requested: false }, 
+        { id: 12, title: "Photography Help", category: "Creative", location: "Seattle, WA", requested: false },
+         { id: 13, title: "Music Lesson Assistance", category: "Education", location: "Redmond, WA", requested: false }, 
+         { id: 14, title: "Laptop Setup", category: "Tech", location: "Bellevue, WA", requested: false }, 
+         { id: 15, title: "Closet Organization", category: "Home", location: "Renton, WA", requested: false } 
+        ]);
+
+
+  const [myTasks, setMyTasks] = useState([]);
   const [requests, setRequests] = useState([]);
 
-  // Notifications panel state
-  const [showNotifications, setShowNotifications] = useState(false);
+  // ===== HANDLE REQUEST APPROVAL / REJECTION =====
+const handleApproveRequest = (id) => {
+  setRequests(prev =>
+    prev.map(req =>
+      req.id === id ? { ...req, status: "Approved" } : req
+    )
+  );
+};
 
-  // Add Task form state
+const handleRejectRequest = (id) => {
+  setRequests(prev =>
+    prev.map(req =>
+      req.id === id ? { ...req, status: "Rejected" } : req
+    )
+  );
+};
+
+
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [newTask, setNewTask] = useState({ title: "", category: "", location: "" });
 
-  // Search state
-  const [searchTerm, setSearchTerm] = useState("");
+  const [settings, setSettings] = useState({
+    username: "",
+    email: "",
+    notifications: true,
+  });
 
-  // Settings state
-const [settings, setSettings] = useState({
-  username: "",
-  email: "",
-  notifications: true,
-});
-
-
-  // Add new task
-  const handleAddTask = () => {
-    if (!newTask.title || !newTask.category || !newTask.location) return;
-    const nextId = tasks.length ? tasks[tasks.length - 1].id + 1 : 1;
-    setTasks([...tasks, { ...newTask, id: nextId, requested: false }]);
-    setNewTask({ title: "", category: "", location: "" });
-    setActivePage("Feed"); // Go back to Feed after adding
-  };
-
-  // Request a task
-  const handleRequestTask = (id) => {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-
-    // Mark task as requested
-    setTasks(tasks.map(t => t.id === id ? { ...t, requested: true } : t));
-
-    // Add to requests list
-    const nextReqId = requests.length ? requests[requests.length - 1].id + 1 : 1;
-    setRequests([...requests, { id: nextReqId, taskId: id, requester: settings.username, status: "Pending" }]);
-  };
-
-  // Approve or reject request
-  const handleRequestAction = (id, action) => {
-    setRequests(requests.map(r => r.id === id ? { ...r, status: action } : r));
-  };
-
-  // Notification click
-  const handleNotificationClick = () => {
-    setShowNotifications(!showNotifications);
-  };
-
-  // Filter tasks by search term
   const filteredTasks = tasks.filter(t =>
     t.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // ================= HANDLE REQUEST =================
+  const handleRequestTask = (task) => {
+    // Update task as requested
+    setTasks(tasks.map(t => t.id === task.id ? { ...t, requested: true } : t));
+
+    // Add to My Tasks
+    setMyTasks([...myTasks, { ...task, requested: true }]);
+
+    // Add to Requests list
+    setRequests([
+  ...requests,
+  {
+    ...task,
+    requestedBy: settings.username || "You",
+    status: "Pending",
+  },
+]);
+
+
+    // Add notification
+    setNotifications([...notifications, `Request sent for "${task.title}"`]);
+  };
+
   return (
     <div className="dashboard">
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-        <h2 className="logo">Hire-a-Helper</h2>
-        <ul className="menu">
-          {["Feed", "My Tasks", "Requests", "My Requests", "Add Task", "Settings"].map(page => (
-            <li
-              key={page}
-              className={activePage === page ? "active" : ""}
-              onClick={() => setActivePage(page)}
-            >
-              {page}
-            </li>
-          ))}
-        </ul>
 
-      <div className="profile">
-  <strong>{settings.username || "User"}</strong>
-  <br />
-  <span>{settings.email || "user@email.com"}</span>
+      {/* ================= TOP BAR ================= */}
+      <div className="topbar">
+        <span
+          className="hamburger-icon"
+          onClick={() => setShowMenu(true)}
+          style={{ cursor: "pointer" }}
+        >
+          ☰
+        </span>
 
-  {logoutError && <div className="error">{logoutError}</div>}
-  {logoutSuccess && <div className="success">{logoutSuccess}</div>}
+        <h2>{activePage}</h2>
 
- <button
-  className="logout-btn"
-  onClick={() => setShowLogoutConfirm(true)}
-  disabled={logoutLoading}
-  >
-
-    {logoutLoading ? "Logging out..." : "Logout"}
-  </button>
-</div>
-
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="main">
-        {/* TOP BAR */}
-        <div className="topbar">
-          <h2>{activePage}</h2>
-          {activePage === "Feed" && (
-            <div className="topbar-actions" style={{ position: "relative" }}>
-              <input
-                type="text"
-                placeholder="Search tasks..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <span
-  className="notification"
-  style={{ cursor: "pointer", marginLeft: "12px", position: "relative" }}
-  onClick={handleNotificationClick}
+        {activePage === "Feed" && (
+          <div className="topbar-actions">
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div
+  className="notification-bell"
+  onClick={() => setShowNotifications(!showNotifications)}
 >
   🔔
-  {requests.filter(r => r.status === "Pending").length > 0 && (
+  {notifications.length > 0 && (
     <span className="notification-badge">
-      {requests.filter(r => r.status === "Pending").length}
+      {notifications.length}
     </span>
   )}
-  {showNotifications && (
-    <div className="notification-panel">
-      {requests.filter(r => r.status === "Pending").length === 0 ? (
-        <p>No new notifications.</p>
-      ) : (
-        requests.filter(r => r.status === "Pending").map(r => {
-          const task = tasks.find(t => t.id === r.taskId);
-          return (
-            <div key={r.id} className="notification-item">
-              <strong>{task ? task.title : "Task deleted"}</strong>
-              <p>Requested by: {r.requester}</p>
-            </div>
-          );
-        })
-      )}
-    </div>
-  )}
-</span>
+</div>
 
-
-              {/* Notification panel */}
-              {showNotifications && (
-                <div className="notification-panel">
-                  {requests.filter(r => r.status === "Pending").length === 0 ? (
-                    <p>No new notifications.</p>
-                  ) : (
-                    requests.filter(r => r.status === "Pending").map(r => {
-                      const task = tasks.find(t => t.id === r.taskId);
-                      return (
-                        <div key={r.id} className="notification-item">
-                          <strong>{task ? task.title : "Task deleted"}</strong>
-                          <p>Requested by: {r.requester}</p>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* PAGE CONTENT */}
-        {activePage === "Feed" && (
-          <div className="feed">
-            {filteredTasks.length === 0 ? (
-              <p>No tasks found.</p>
-            ) : (
-              filteredTasks.map(task => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onRequest={() => handleRequestTask(task.id)}
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activePage === "My Tasks" && (
-          <div>
-            <h3>My Tasks</h3>
-            {tasks.filter(t => t.requested).length === 0 ? (
-              <p>No tasks requested yet.</p>
-            ) : (
-              tasks.filter(t => t.requested).map(t => (
-                <TaskCard key={t.id} task={t} readOnly />
-              ))
-            )}
-          </div>
-        )}
-
-        {activePage === "Requests" && (
-          <div className="requests-page">
-            <h3>Pending Requests</h3>
-            {requests.length === 0 ? (
-              <p>No requests yet.</p>
-            ) : (
-              requests.map(r => {
-                const task = tasks.find(t => t.id === r.taskId);
-                return (
-                  <div key={r.id} className="request-card">
-                    <h4>{task ? task.title : "Task deleted"}</h4>
-                    <p>Requested by: {r.requester}</p>
-                    <p>Status: {r.status}</p>
-                    {r.status === "Pending" && (
-                      <div>
-                        <button onClick={() => handleRequestAction(r.id, "Approved")}>Approve</button>
-                        <button onClick={() => handleRequestAction(r.id, "Rejected")}>Reject</button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        {activePage === "My Requests" && (
-          <div>
-            <h3>My Requests</h3>
-            {requests.filter(r => r.requester === settings.username).length === 0 ? (
-              <p>No requests sent yet.</p>
-            ) : (
-              requests.filter(r => r.requester === settings.username).map(r => {
-                const task = tasks.find(t => t.id === r.taskId);
-                return (
-                  <div key={r.id} className="request-card">
-                    <h4>{task ? task.title : "Task deleted"}</h4>
-                    <p>Status: {r.status}</p>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        {activePage === "Add Task" && (
-          <div className="add-task-form">
-            <input
-              type="text"
-              placeholder="Task Title"
-              value={newTask.title}
-              onChange={e => setNewTask({ ...newTask, title: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Category"
-              value={newTask.category}
-              onChange={e => setNewTask({ ...newTask, category: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Location"
-              value={newTask.location}
-              onChange={e => setNewTask({ ...newTask, location: e.target.value })}
-            />
-            <button onClick={handleAddTask}>Add Task</button>
-          </div>
-        )}
-
-        {activePage === "Settings" && (
-          <div className="settings-page">
-            <h3>Settings</h3>
-            <div className="settings-form">
-              <label>
-                Username:
-                <input
-                  type="text"
-                  value={settings.username}
-                  onChange={e => setSettings({ ...settings, username: e.target.value })}
-                />
-              </label>
-              <label>
-                Email:
-                <input
-                  type="email"
-                  value={settings.email}
-                  onChange={e => setSettings({ ...settings, email: e.target.value })}
-                />
-              </label>
-              <label>
-                Notifications:
-                <input
-                  type="checkbox"
-                  checked={settings.notifications}
-                  onChange={e => setSettings({ ...settings, notifications: e.target.checked })}
-                />
-              </label>
-              <button onClick={() => alert("Settings saved!")}>Save Settings</button>
-            </div>
-          </div>
-        )}
-      </main>
-      {showLogoutConfirm && (
-  <div className="modal-overlay">
-    <div className="modal">
-      <h3>Confirm Logout</h3>
-      <p>Do you really want to logout?</p>
-
-      <div className="modal-actions">
-        <button
-          className="yes-btn"
-          onClick={() => {
-            setShowLogoutConfirm(false);
-            handleLogout();
-          }}
-        >
-          YES
-        </button>
-
-        <button
-          className="no-btn"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-          NO
-        </button>
-      </div>
-    </div>
+            {showNotifications && (
+  <div className="notification-dropdown">
+    {notifications.length === 0 ? (
+      <p style={{ padding: "10px" }}>No notifications</p>
+    ) : (
+      notifications.map((note, index) => (
+        <p key={index} style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
+          {note}
+        </p>
+      ))
+    )}
   </div>
 )}
 
+          </div>
+        )}
+      </div>
+
+      {/* ================= MAIN CONTENT ================= */}
+      <main className="main">
+
+        {/* ===== FEED ===== */}
+        {activePage === "Feed" && (
+          <div className="feed">
+            {filteredTasks.map(task => (
+              <TaskCard key={task.id} task={task} handleRequestTask={handleRequestTask} />
+            ))}
+          </div>
+        )}
+
+        {/* ===== ADD TASK ===== */}
+        {activePage === "Add Task" && (
+          <div className="add-task-form">
+            <input placeholder="Title" onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
+            <input placeholder="Category" onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
+            <input placeholder="Location" onChange={e => setNewTask({ ...newTask, location: e.target.value })} />
+            <button onClick={() => {
+              setTasks([...tasks, { ...newTask, id: tasks.length + 1, requested: false, status: "Pending" }]);
+              setActivePage("Feed");
+            }}>Add Task</button>
+          </div>
+        )}
+
+        {/* ===== SETTINGS ===== */}
+        {activePage === "Settings" && (
+          <div className="settings-page">
+            <input placeholder="Username" value={settings.username}
+              onChange={e => setSettings({ ...settings, username: e.target.value })} />
+            <input placeholder="Email" value={settings.email}
+              onChange={e => setSettings({ ...settings, email: e.target.value })} />
+          </div>
+        )}
+
+        {/* ===== MY TASKS ===== */}
+        {activePage === "My Tasks" && (
+          <div className="feed">
+            {myTasks.map(task => (
+              <div key={task.id} className="task-card">
+                <div className="tag">{task.category}</div>
+                <h3>{task.title}</h3>
+                <p>{task.location}</p>
+                <button disabled>Request Sent</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== REQUESTS ===== */}
+        {activePage === "Requests" && (
+          <div className="feed">
+            {requests.map(task => (
+              <div key={task.id} className="task-card">
+                <h3>{task.title}</h3>
+                <p>Requested by: {task.requestedBy}</p>
+                <p>Status: {task.status}</p>
+                {task.status === "Pending" && (
+  <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
+    <button
+      style={{ background: "#22c55e", color: "#fff" }}
+      onClick={() => handleApproveRequest(task.id)}
+    >
+      Approve
+    </button>
+
+    <button
+      style={{ background: "#ef4444", color: "#fff" }}
+      onClick={() => handleRejectRequest(task.id)}
+    >
+      Reject
+    </button>
+  </div>
+)}
+
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== MY REQUESTS ===== */}
+        {activePage === "My Requests" && (
+          <div className="feed">
+            {requests.map(task => (
+
+              <div key={task.id} className="task-card">
+                <h3>{task.title}</h3>
+                <p>Status: {task.status}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+      </main>
+
+      {/* ================= HAMBURGER MENU ================= */}
+      {showMenu && (
+        <div className="hamburger-overlay" onClick={() => setShowMenu(false)}>
+          <div className="hamburger-menu" onClick={e => e.stopPropagation()}>
+            <h3>Hire-a-Helper</h3>
+
+            <ul className="menu-list">
+              {["Feed", "My Tasks", "Requests", "My Requests", "Add Task", "Settings"].map(page => (
+                <li
+                  key={page}
+                  onClick={() => {
+                    setActivePage(page);
+                    setShowMenu(false);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  {page}
+                </li>
+              ))}
+            </ul>
+
+            <div className="menu-profile">
+              <strong>{settings.username || "User"}</strong>
+              <span>{settings.email || "user@email.com"}</span>
+
+              <button
+                className="logout-btn"
+                onClick={() => {
+                  setShowMenu(false);
+                  setShowLogoutConfirm(true);
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= LOGOUT CONFIRM ================= */}
+      {showLogoutConfirm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <p style={{ textAlign: "center", marginBottom: "20px" }}>Do you really want to logout?</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
+              <button onClick={handleLogout}>YES</button>
+              <button onClick={() => setShowLogoutConfirm(false)}>NO</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
-// TaskCard component
-const TaskCard = ({ task, onRequest, readOnly }) => {
-  return (
-    <div className={`task-card ${task.requested ? "requested" : ""}`}>
-      <div className="tag">{task.category}</div>
-      <h3>{task.title}</h3>
-      <p>{task.location}</p>
-      <button
-        onClick={onRequest}
-        disabled={readOnly || task.requested}
-      >
-        {task.requested ? "Request Sent" : "Request Task"}
-      </button>
-    </div>
-  );
-};
+const TaskCard = ({ task, handleRequestTask }) => (
+  <div className="task-card">
+    <div className="tag">{task.category}</div>
+    <h3>{task.title}</h3>
+    <p>{task.location}</p>
+    <button
+      disabled={task.requested}
+      onClick={() => handleRequestTask(task)}
+    >
+      {task.requested ? "Request Sent" : "Request Task"}
+    </button>
+  </div>
+);
 
 export default Dashboard;
+
+
+
+
