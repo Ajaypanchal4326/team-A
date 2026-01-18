@@ -36,7 +36,81 @@ async function createTask(model, file, userId) {
 };
 
 
+async function updateTask(taskId, model, file, userId) {
+  try {
+    const task = await Task.findById(taskId);
+
+    if (!task) {
+      return { status: 404, message: "Task not found" };
+    }
+
+    if (task.user_id.toString() !== userId.toString()) {
+      return { status: 403, message: "You are not allowed to edit this task" };
+    }
+
+    let imageUrl = task.picture;
+
+    if (file) {
+      try {
+        const uploadedImg = await uploadToCloudinary(file.path, "tasks");
+        imageUrl = uploadedImg.secure_url;
+      } catch (err) {
+        return {
+          status: 500,
+          message: "Failed to upload image. Please try again."
+        };
+      }
+    }
+
+    const allowedStatus = ["pending", "active", "completed", "cancelled"];
+
+    task.title = model.title ?? task.title;
+    task.description = model.description ?? task.description;
+    task.location = model.location ?? task.location;
+    task.start_time = model.start_time ?? task.start_time;
+    task.end_time = model.end_time ?? task.end_time;
+    task.picture = imageUrl;
+    task.status = allowedStatus.includes(model.status)? model.status: task.status;
+
+    await task.save();
+
+    return {
+      status: 200,
+      message: "Task updated successfully",
+      task
+    };
+  } catch (err) {
+    console.error("Update Task error:", err);
+    return {
+      status: 500,
+      message: "Something went wrong while updating the task"
+    };
+  }
+}
+
+
+async function getUserTasks(userId) {
+  try {
+    const tasks = await Task.find({ user_id: userId })
+      .sort({ createdAt: -1 });
+
+    return {
+      status: 200,
+      message: "User tasks fetched successfully",
+      tasks
+    };
+  } catch (err) {
+    console.error("Get User Tasks error:", err);
+    return {
+      status: 500,
+      message: "Failed to fetch user tasks"
+    };
+  }
+}
+
 
 module.exports = {
-    createTask,
+  createTask,
+  updateTask,
+  getUserTasks
 };
