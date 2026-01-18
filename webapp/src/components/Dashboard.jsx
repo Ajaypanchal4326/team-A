@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Upload } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import api from "../services/api";
@@ -69,7 +70,8 @@ const handleRejectRequest = (id) => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [newTask, setNewTask] = useState({ title: "", category: "", location: "" });
+  // const [newTask, setNewTask] = useState({ title: "", category: "", location: "" });
+  const [newTask, setNewTask] = useState({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
 
   const [settings, setSettings] = useState({
     username: "",
@@ -80,6 +82,57 @@ const handleRejectRequest = (id) => {
   const filteredTasks = tasks.filter(t =>
     t.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // ===== HANDLE IMAGE UPLOAD =====
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewTask({ 
+        ...newTask, 
+        image: file,
+        imagePreview: reader.result  
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+// ===== HANDLE DRAG AND DROP =====
+const handleDragOver = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+};
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setNewTask({ 
+        ...newTask, 
+        image: file,
+        imagePreview: reader.result
+      });
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert('Please drop an image file');
+  }
+};
+
+
+// ===== REMOVE IMAGE =====
+const handleRemoveImage = () => {
+  setNewTask({ 
+    ...newTask, 
+    image: null,
+    imagePreview: null
+  });
+};
 
   // ================= HANDLE REQUEST =================
   const handleRequestTask = (task) => {
@@ -170,7 +223,7 @@ const handleRejectRequest = (id) => {
         )}
 
         {/* ===== ADD TASK ===== */}
-        {activePage === "Add Task" && (
+        {/* {activePage === "Add Task" && (
           <div className="add-task-form">
             <input placeholder="Title" onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
             <input placeholder="Category" onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
@@ -180,7 +233,133 @@ const handleRejectRequest = (id) => {
               setActivePage("Feed");
             }}>Add Task</button>
           </div>
+        )} */}
+
+         {/* ===== NEW ADD TASK ===== */}
+         {activePage === "Add Task" && (
+  <div className="add-task-container">
+    <div className="add-task-form">
+      <h2>Add Task</h2>
+      
+      <div className="form-group">
+        <label>Task Title</label>
+        <input 
+          type="text"
+          placeholder="Task Title" 
+          value={newTask.title}
+          onChange={e => setNewTask({ ...newTask, title: e.target.value })} 
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Task Description</label>
+        <textarea 
+          placeholder="Describe the task you need help with"
+          value={newTask.description}
+          onChange={e => setNewTask({ ...newTask, description: e.target.value })}
+          rows="4"
+        />
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Category</label>
+          <input 
+            type="text"
+            placeholder="e.g., Moving, Gardening, Tech"
+            value={newTask.category}
+            onChange={e => setNewTask({ ...newTask, category: e.target.value })} 
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Location</label>
+          <input 
+            type="text"
+            placeholder="City, State"
+            value={newTask.location}
+            onChange={e => setNewTask({ ...newTask, location: e.target.value })} 
+          />
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Date</label>
+          <input 
+            type="date"
+            value={newTask.date}
+            onChange={e => setNewTask({ ...newTask, date: e.target.value })} 
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Budget</label>
+          <input 
+            type="number"
+            min={0}
+            placeholder="₹0.00"
+            value={newTask.budget}
+            onChange={e => setNewTask({ ...newTask, budget: e.target.value })} 
+          />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Task Image</label>
+        {newTask.imagePreview ? (
+          <div className="image-preview-container">
+            <img src={newTask.imagePreview} alt="Preview" className="image-preview" />
+            <button 
+              type="button"
+              className="btn-remove-image"
+              onClick={handleRemoveImage}
+            >
+              ✕ Remove Image
+            </button>
+          </div>
+        ) : (
+          <div className="file-upload"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <input 
+              type="file"
+              id="task-image"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            <label htmlFor="task-image" className="file-upload-label">
+             <span><Upload /></span>Upload a file or drag and drop
+              <span>PNG, JPG, GIF up to 10MB</span>
+            </label>
+          </div>
         )}
+      </div>
+
+      <div className="form-actions">
+        <button 
+          className="btn-submit"
+          onClick={() => {
+            if (newTask.title && newTask.category && newTask.location) {
+              setTasks([...tasks, { 
+                ...newTask, 
+                id: tasks.length + 1, 
+                requested: false 
+              }]);
+              setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
+              setActivePage("Feed");
+            } else {
+              alert("Please fill in all required fields");
+            }
+          }}
+        >
+          Add Task
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* ===== SETTINGS ===== */}
         {activePage === "Settings" && (
