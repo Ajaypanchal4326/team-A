@@ -18,4 +18,25 @@ router.post("/create", upload.single("picture"), async(req, res) => {
     }
 });
 
+
+router.put("/:taskId",upload.single("picture"),async (req, res) => {
+    const { taskId } = req.params;
+
+    const result = await updateTask(
+      taskId,
+      req.body,
+      req.file,
+      req.user._id
+    );
+
+    return res.status(result.status).json(result);
+  }
+);
+
+
+router.get("/my-tasks",async (req, res) => {
+  const result = await getUserTasks(req.user._id);
+  return res.status(result.status).json(result);
+});
+
 module.exports = router;
