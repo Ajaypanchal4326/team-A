@@ -106,6 +106,36 @@ const handleRejectRequest = (id) => {
 
   return (
     <div className="dashboard">
+    
+    {/* ================= DESKTOP SIDEBAR ================= */}
+<aside className="sidebar">
+  <h3 className="logo">Hire-a-Helper</h3>
+
+  <ul className="sidebar-menu">
+    {["Feed", "My Tasks", "Requests", "My Requests", "Add Task", "Settings"].map(page => (
+      <li
+        key={page}
+        className={activePage === page ? "active" : ""}
+        onClick={() => setActivePage(page)}
+      >
+        {page}
+      </li>
+    ))}
+  </ul>
+
+  <div className="sidebar-footer">
+    <strong>{settings.username || "User"}</strong>
+    <span>{settings.email || "user@email.com"}</span>
+
+    <button
+      className="logout-btn"
+      onClick={() => setShowLogoutConfirm(true)}
+    >
+      Logout
+    </button>
+  </div>
+</aside>
+
 
       {/* ================= TOP BAR ================= */}
       <div className="topbar">

@@ -18,7 +18,7 @@ function App() {
          <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyEmail />} />
          <Route path="/ResetPassword" element={<ResetPassword />} />
-        <Route path="/Dashboard" element={<ProtectedRoute> <Dashboard/> </ProtectedRoute>}/>
+        <Route path="/Dashboard" element={ <ProtectedRoute><Dashboard/></ProtectedRoute>}/>
          <Route path="/Loader" element={<Loader/>}/>
         
       </Routes>
