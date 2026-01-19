@@ -10,3 +10,4 @@ nodemailer
 uuid
 multer 
 cloudinary
+validator

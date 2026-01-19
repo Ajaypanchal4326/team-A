@@ -1,5 +1,12 @@
 const uploadToCloudinary = require('../utils/uploadToCloudinary');
+const deleteFromCloudinary = require("../utils/deleteFromCloudinary");
 const Task = require('../db/task');
+const allowedStatus = Object.freeze([
+  "pending",
+  "active",
+  "completed",
+  "cancelled"
+]);
 
 async function createTask(model, file, userId) {
   try {
@@ -8,13 +15,13 @@ async function createTask(model, file, userId) {
       try {
         Img = await uploadToCloudinary(file.path, 'tasks');
       } catch (err) {
+        console.error("Failed to upload image to Cloudinary:", err);
         return {
           status: 500,
           message: "Failed to upload image to cloud. Please try again later."
         };
       }
     }
-    const allowedStatus = ["pending", "active", "completed", "cancelled"];
 
     let task = new Task({
       title: model.title,
@@ -23,6 +30,7 @@ async function createTask(model, file, userId) {
       start_time: model.start_time,
       end_time: model.end_time || null,
       picture: Img ? Img.secure_url : null,
+      picture_public_id: Img ? Img.public_id : null,
       user_id: userId,
       status: allowedStatus.includes(model.status) ? model.status : "pending",
     });
@@ -49,11 +57,22 @@ async function updateTask(taskId, model, file, userId) {
     }
 
     let imageUrl = task.picture;
+    let publicId = task.picture_public_id;
 
     if (file) {
       try {
         const uploadedImg = await uploadToCloudinary(file.path, "tasks");
+
+        if (publicId) {
+          try {
+            await deleteFromCloudinary(publicId);
+          } catch (err) {
+            console.error("Failed to delete old image from Cloudinary:", err);
+          }
+        }
+        
         imageUrl = uploadedImg.secure_url;
+        publicId = uploadedImg.public_id;
       } catch (err) {
         return {
           status: 500,
@@ -62,7 +81,7 @@ async function updateTask(taskId, model, file, userId) {
       }
     }
 
-    const allowedStatus = ["pending", "active", "completed", "cancelled"];
+    
 
     task.title = model.title ?? task.title;
     task.description = model.description ?? task.description;
@@ -70,6 +89,7 @@ async function updateTask(taskId, model, file, userId) {
     task.start_time = model.start_time ?? task.start_time;
     task.end_time = model.end_time ?? task.end_time;
     task.picture = imageUrl;
+    task.picture_public_id = publicId;
     task.status = allowedStatus.includes(model.status) ? model.status : task.status;
 
     await task.save();
@@ -77,7 +97,7 @@ async function updateTask(taskId, model, file, userId) {
     return {
       status: 200,
       message: "Task updated successfully",
-      task
+      taskId: task._id 
     };
   } catch (err) {
     console.error("Update Task error:", err);
@@ -91,13 +111,15 @@ async function updateTask(taskId, model, file, userId) {
 
 async function getUserTasks(userId) {
   try {
-    const tasks = await Task.find({ user_id: userId })
-      .sort({ createdAt: -1 });
+    const user_tasks = await Task.find({ user_id: userId })
+      .select("title description location picture status start_time end_time")
+      .sort({ createdAt: -1 })
+      .lean();
 
     return {
       status: 200,
       message: "User tasks fetched successfully",
-      tasks
+      tasks : user_tasks
     };
   } catch (err) {
     console.error("Get User Tasks error:", err);
@@ -110,14 +132,15 @@ async function getUserTasks(userId) {
 
 async function getOtherUserTasks(userId) {
   try {
-    const tasks = await Task.find({
-      user_id: { $ne: userId }
-    }).sort({ createdAt: -1 });
+    const other_user_tasks = await Task.find({ user_id: { $ne: userId } })
+    .select("title description location picture status start_time end_time")
+    .sort({ createdAt: -1 })
+    .lean();
 
     return {
       status: 200,
       message: "Other users tasks fetched successfully",
-      tasks
+      tasks : other_user_tasks
     };
   } catch (err) {
     console.error("Get Other User Tasks error:", err);
@@ -131,7 +154,7 @@ async function getOtherUserTasks(userId) {
 
 async function changeTaskStatus(taskId, status, userId) {
   try {
-    const allowedStatus = ["pending", "active", "completed", "cancelled"];
+    
 
     if (!allowedStatus.includes(status)) {
       return {
@@ -161,8 +184,7 @@ async function changeTaskStatus(taskId, status, userId) {
 
     return {
       status: 200,
-      message: "Task status updated successfully",
-      task
+      message: "Task status updated successfully"
     };
   } catch (err) {
     console.error("Change Task Status error:", err);

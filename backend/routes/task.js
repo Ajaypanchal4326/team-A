@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { createTask, getUserTasks, updateTask, getOtherUserTasks, changeTaskStatus } = require("../handlers/task-handler");
 const upload = require("../middleware/multer.middleware");
+const validator = require("validator");
 
 
 router.post("/create", upload.single("picture"), async (req, res) => {
@@ -18,44 +19,64 @@ router.post("/create", upload.single("picture"), async (req, res) => {
   }
 });
 
+router.get("/me",async (req, res) => {
+  try{
+    const result = await getUserTasks(req.user._id);
+    return res.status(result.status).json({message: result.message, tasks: result.tasks });
+  }catch(err){
+    console.error("Get User Tasks Route error:", err);
+    return res.status(500).json({ message : "Something went wrong while fetching your tasks." });
+  }
+});
 
-router.put("/:taskId", upload.single("picture"), async (req, res) => {
-  const { taskId } = req.params;
+router.get("/other", async (req, res) => {
+  try{
+    const result = await getOtherUserTasks(req.user._id);
+    return res.status(result.status).json({message: result.message, tasks: result.tasks });
+    }catch(err){
+      console.error("Get Other Users Tasks Route error:", err);
+      return res.status(500).json({ message : "Something went wrong while fetching other users tasks." });
+    }
+});
 
-  const result = await updateTask(
-    taskId,
-    req.body,
-    req.file,
-    req.user._id
-  );
+router.put("/:taskId",upload.single("picture"),async (req, res) => {
+    try{
+      const { taskId } = req.params;
 
-  return res.status(result.status).json(result);
-}
+      if (!validator.isUUID(taskId)) {
+        return res.status(400).json({ message: "Invalid Task ID" });
+      }
+
+      const result = await updateTask(
+        taskId,
+        req.body,
+        req.file,
+        req.user._id
+      );
+      return res.status(result.status).json({ message: result.message, taskId: result.taskId});
+    }catch(err){
+        console.error("Update Task Route error:", err);
+        return res.status(500).json({ message : "Something went wrong while updating your task." });
+    }
+  }
 );
 
+router.patch("/:taskId/status", async (req, res) => {
+  try{
+    const { taskId } = req.params;
+    const { status } = req.body;
 
-router.get("/my-tasks", async (req, res) => {
-  const result = await getUserTasks(req.user._id);
-  return res.status(result.status).json(result);
-});
+    const result = await changeTaskStatus(
+      taskId,
+      status,
+      req.user._id
+    );
 
-
-router.get("/other-users-tasks", async (req, res) => {
-  const result = await getOtherUserTasks(req.user._id);
-  return res.status(result.status).json(result);
-});
-
-router.patch("/change-status/:taskId", async (req, res) => {
-  const { taskId } = req.params;
-  const { status } = req.body;
-
-  const result = await changeTaskStatus(
-    taskId,
-    status,
-    req.user._id
-  );
-
-  return res.status(result.status).json(result);
+    return res.status(result.status).json({message: result.message});
+  }catch(err){
+      console.error("Change Task Status Route error:", err);
+      return res.status(500).json({ message : "Something went wrong while changing the task status." });
+  }
 });
 
 module.exports = router;

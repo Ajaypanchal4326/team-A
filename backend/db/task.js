@@ -21,6 +21,7 @@ const taskSchema = new mongoose.Schema(
         default: "pending",
         },
         picture: { type: String },
+        picture_public_id: { type: String },
     },
     { timestamps: true, _id: false }
 );
