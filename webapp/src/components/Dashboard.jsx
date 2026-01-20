@@ -371,19 +371,31 @@ const handleRemoveImage = () => {
         <button 
           className="btn-submit"
           onClick={() => {
-            if (newTask.title && newTask.category && newTask.location) {
-              setTasks([...tasks, { 
-                ...newTask, 
-                id: tasks.length + 1, 
-                requested: false 
-              }]);
-              setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
-              setActivePage("Feed");
-            } else {
-              alert("Please fill in all required fields");
-            }
-          }}
-        >
+           if (newTask.title && newTask.category && newTask.location) {
+           const createdTask = {
+           title: newTask.title,
+           description: newTask.description,
+           category: newTask.category,
+           location: newTask.location,
+           date: newTask.date,
+           budget: newTask.budget,
+           picture: newTask.imagePreview,
+           id: tasks.length + 1, 
+           requested: false 
+          };
+     
+          setTasks([...tasks, createdTask]);
+          // Add to Feed tasks
+    
+          setMyTasks([...myTasks, { ...createdTask, status: "pending" }]);
+          // Add to My Tasks as well
+    
+          setActivePage("My Tasks");
+          setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
+        } else {
+          alert("Please fill in all required fields");
+          alert("Task created successfully!");
+        }}} >
           Add Task
         </button>
       </div>
@@ -407,6 +419,7 @@ const handleRemoveImage = () => {
             {myTasks.map(task => (
               <div key={task.id} className="task-card">
                 <div className="tag">{task.category}</div>
+                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <h3>{task.title}</h3>
                 <p>{task.location}</p>
                 <button disabled>Request Sent</button>
@@ -420,7 +433,7 @@ const handleRemoveImage = () => {
           <div className="feed">
             {requests.map(task => (
               <div key={task.id} className="task-card">
-                <h3>{task.title}</h3>
+                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <p>Requested by: {task.requestedBy}</p>
                 <p>Status: {task.status}</p>
                 {task.status === "Pending" && (
@@ -452,6 +465,7 @@ const handleRemoveImage = () => {
             {requests.map(task => (
 
               <div key={task.id} className="task-card">
+                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <h3>{task.title}</h3>
                 <p>Status: {task.status}</p>
               </div>
@@ -519,9 +533,13 @@ const handleRemoveImage = () => {
 
 const TaskCard = ({ task, handleRequestTask }) => (
   <div className="task-card">
+    {task.picture && (
+      <img src={task.picture} alt={task.title} className="task-image" />
+    )}
     <div className="tag">{task.category}</div>
     <h3>{task.title}</h3>
     <p>{task.location}</p>
+    {task.date && <p className="task-date">{task.date}</p>}
     <button
       disabled={task.requested}
       onClick={() => handleRequestTask(task)}
@@ -530,5 +548,4 @@ const TaskCard = ({ task, handleRequestTask }) => (
     </button>
   </div>
 );
-
 export default Dashboard;
