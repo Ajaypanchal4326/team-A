@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useCallback  } from "react";
 import { Upload } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
@@ -34,11 +34,34 @@ const handleLogout = async () => {
   const [myTasks, setMyTasks] = useState([]);
   const [requests, setRequests] = useState([]);
 
+  
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    category: "",
+    location: "",
+    date: "",
+    budget: "",
+    image: null,
+    imagePreview: null,
+  });
+
+
  // ================= LOAD DATA =================
-  useEffect(() => {
-    loadFeed();
-    loadMyTasks();
-  }, []);
+
+
+  const loadAll = useCallback(async () => {
+  await Promise.all([
+    loadFeed(),
+    loadMyTasks(),
+   
+  ]);
+}, []);
+
+ useEffect(() => {
+  loadAll();
+}, [loadAll]);
+
 
   const loadFeed = async () => {
     try {
@@ -58,36 +81,98 @@ setMyTasks(res.data.tasks);
     }
   };
 
+  
+
+  // ================= ADD TASK =================
+const handleAddTask = async () => {
+  try {
+    const formData = new FormData();
+
+    formData.append("title", newTask.title);
+    formData.append("description", newTask.description);
+    formData.append("category", newTask.category);   
+    formData.append("location", newTask.location);
+    formData.append("start_time", newTask.date);
+    formData.append("end_time", newTask.date);
+    formData.append("status", "active");
+    formData.append("budget", newTask.budget);      
+
+    if (newTask.image) formData.append("picture", newTask.image);
+
+
+    const res = await api.post("/task/create", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+
+    setNotifications((p) => [...p, "Task added successfully"]);
+if (res.data?.task) {
+  setTasks(prev => [res.data.task, ...prev]);
+}
+
+    setNewTask({
+      title: "",
+      description: "",
+      category: "",
+      location: "",
+      date: "",
+      budget: "",
+      image: null,
+      imagePreview: null
+    });
+
+    await loadFeed();
+    await loadMyTasks();
+    setActivePage("My Tasks");
+
+  } catch (err) {
+    console.error("Task creation failed:", err.response?.data || err.message);
+  }
+};
+
 
   // ===== HANDLE REQUEST APPROVAL / REJECTION =====
- const handleApproveRequest = async (id) => {
-    await api.patch(`/task/${id}/status`, { status: "active" });
-    loadMyTasks();
-  };
+ const handleApproveRequest = async (_id) => {
+  try {
+    await api.patch(`/task/${_id}/status`, { status: "active" });
+    setNotifications(p => [...p, "Task approved"]);
+    await loadMyTasks();
+    await loadFeed();
+  } catch (err) {
+    console.error("Approve failed:", err.response?.data || err.message);
+  }
+};
 
-  const handleRejectRequest = async (id) => {
-    await api.patch(`/task/${id}/status`, { status: "cancelled" });
-    loadMyTasks();
-  };
+const handleRejectRequest = async (_id) => {
+  try {
+    await api.patch(`/task/${_id}/status`, { status: "cancelled" });
+    setNotifications(p => [...p, "Task rejected"]);
+    await loadMyTasks();
+    await loadFeed();
+  } catch (err) {
+    console.error("Reject failed:", err.response?.data || err.message);
+  }
+};
+
 
 
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [newTask, setNewTask] = useState({ title: "", category: "", location: "" });
-  const [newTask, setNewTask] = useState({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
-
+  
   const [settings, setSettings] = useState({
     username: "",
     email: "",
     notifications: true,
   });
 
-const filteredTasks = Array.isArray(tasks)
-  ? tasks.filter(t =>
-      t.title?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  : [];
+const filteredTasks = !Array.isArray(tasks)
+  ? []
+  : searchTerm.trim() === ""
+    ? tasks
+    : tasks.filter(t =>
+        t.title?.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      );
+
 
   
   // ===== HANDLE IMAGE UPLOAD =====
@@ -143,28 +228,24 @@ const handleRemoveImage = () => {
 
   // ================= HANDLE REQUEST =================
   const handleRequestTask = (task) => {
-    // Update task as requested
-    setTasks(tasks.map(t => t.id === task.id ? { ...t, requested: true } : t));
+  if (!task) return;
 
-    // Add to My Tasks
-    setMyTasks([...myTasks, { ...task, requested: true }]);
-
-    // Add to Requests list
-    setRequests([
-  ...requests,
-  {
-    ...task,
+  const newRequest = {
+    _id: task._id || Date.now(),
+    title: task.title,
+    location: task.location,
+    picture: task.picture,
+    category: task.category,
     requestedBy: settings.username || "You",
     status: "Pending",
-  },
-  
-  
-]);
-
-
-    // Add notification
-    setNotifications([...notifications, `Request sent for "${task.title}"`]);
   };
+
+  setRequests(prev => [...prev, newRequest]);
+
+  setNotifications(prev => [...prev, `Request sent for "${task.title}"`]);
+};
+
+
 
   return (
     <div className="dashboard">
@@ -256,7 +337,7 @@ const handleRemoveImage = () => {
          {activePage === "Feed" && (
           <div className="feed">
             {filteredTasks.map(task => (
-              <TaskCard key={task.id} task={task} handleRequestTask={handleRequestTask} />
+              <TaskCard key={task._id || task.id} task={task} handleRequestTask={handleRequestTask} />
 
               
             ))}
@@ -378,52 +459,12 @@ const handleRemoveImage = () => {
         )}
       </div>
 
-      <div className="form-actions">
-        <button 
-          className="btn-submit"
-          onClick={() => {
-           if (newTask.title && newTask.category && newTask.location) {
-           const createdTask = {
-           title: newTask.title,
-           description: newTask.description,
-           category: newTask.category,
-           location: newTask.location,
-           date: newTask.date,
-           budget: newTask.budget,
-           picture: newTask.imagePreview,
-           id: tasks.length + 1, 
-           requested: false 
-          };
-     
-          setTasks([...tasks, createdTask]);
-          // Add to Feed tasks
-    
-          setMyTasks([...myTasks, { ...createdTask, status: "pending" }]);
-          // Add to My Tasks as well
-    
-          setActivePage("My Tasks");
-          setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
-        } else {
-          alert("Please fill in all required fields");
-          alert("Task created successfully!");
-        }}} >
-onClick={() => {
-            if (newTask.title && newTask.category && newTask.location) {
-              setTasks([...tasks, { 
-                ...newTask, 
-                id: tasks.length + 1, 
-                requested: false 
-              }]);
-              setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
-              setActivePage("Feed");
-            } else {
-              alert("Please fill in all required fields");
-            }
-          }}      
-            >
-          Add Task
-        </button>
-      </div>
+     <div className="form-actions">
+  <button className="btn-submit" onClick={handleAddTask}>
+    Add Task
+  </button>
+</div>
+
     </div>
   </div>
 )}
@@ -442,7 +483,7 @@ onClick={() => {
         {activePage === "My Tasks" && (
           <div className="feed">
             {myTasks.map(task => (
-              <div key={task.id} className="task-card">
+              <div key={task._id || task.id} className="task-card">
                 <div className="tag">{task.category}</div>
                 {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <h3>{task.title}</h3>
@@ -464,7 +505,7 @@ onClick={() => {
        {activePage === "Requests" && (
           <div className="feed">
             {requests.map(task => (
-              <div key={task.id} className="task-card">
+              <div key={task._id || task.id} className="task-card">
                 {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <p>Requested by: {task.requestedBy}</p>
                 <p>Status: {task.status}</p>
@@ -472,14 +513,14 @@ onClick={() => {
   <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
     <button
       style={{ background: "#22c55e", color: "#fff" }}
-      onClick={() => handleApproveRequest(task.id)}
+      onClick={() => handleApproveRequest(task._id || task.id)}
     >
       Approve
     </button>
 
     <button
       style={{ background: "#ef4444", color: "#fff" }}
-      onClick={() => handleRejectRequest(task.id)}
+      onClick={() => handleRejectRequest(task._id || task.id)}
     >
       Reject
     </button>
@@ -496,7 +537,7 @@ onClick={() => {
           <div className="feed">
             {requests.map(task => (
 
-              <div key={task.id} className="task-card">
+              <div key={task._id || task.id} className="task-card">
                 {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <h3>{task.title}</h3>
                 <p>Status: {task.status}</p>
