@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Upload } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
@@ -9,6 +9,8 @@ const Dashboard = () => {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  
+
 
   const navigate = useNavigate();
 
@@ -28,43 +30,45 @@ const handleLogout = async () => {
 
  
   // TASKS
-  const [tasks, setTasks] = useState([ { id: 1, title: "Help Moving Furniture", category: "Moving", location: "Downtown Seattle, WA", requested: false },
-    { id: 2, title: "Garden Cleanup", category: "Gardening", location: "Bellevue, WA", requested: false },
-    { id: 3, title: "Room Painting Project", category: "Painting", location: "Redmond, WA", requested: false }, 
-    { id: 4, title: "Dog Walking", category: "Pet Care", location: "Seattle, WA", requested: false },
-    { id: 5, title: "Grocery Shopping Assistance", category: "Errands", location: "Kirkland, WA", requested: false }, 
-    { id: 6, title: "Assemble IKEA Furniture", category: "DIY", location: "Renton, WA", requested: false },
-    { id: 7, title: "Math Tutoring", category: "Education", location: "Bellevue, WA", requested: false }, 
-    { id: 8, title: "Yoga Session Help", category: "Fitness", location: "Redmond, WA", requested: false }, 
-    { id: 9, title: "Website Bug Fix", category: "Tech", location: "Seattle, WA", requested: false }, 
-    { id: 10, title: "Car Wash Assistance", category: "Automotive", location: "Kirkland, WA", requested: false }, 
-    { id: 11, title: "Birthday Party Setup", category: "Event", location: "Bothell, WA", requested: false }, 
-    { id: 12, title: "Photography Help", category: "Creative", location: "Seattle, WA", requested: false },
-    { id: 13, title: "Music Lesson Assistance", category: "Education", location: "Redmond, WA", requested: false }, 
-    { id: 14, title: "Laptop Setup", category: "Tech", location: "Bellevue, WA", requested: false }, 
-    { id: 15, title: "Closet Organization", category: "Home", location: "Renton, WA", requested: false } 
-  ]);
-
-
+  const [tasks, setTasks] = useState([]);
   const [myTasks, setMyTasks] = useState([]);
   const [requests, setRequests] = useState([]);
 
-  // ===== HANDLE REQUEST APPROVAL / REJECTION =====
-const handleApproveRequest = (id) => {
-  setRequests(prev =>
-    prev.map(req =>
-      req.id === id ? { ...req, status: "Approved" } : req
-    )
-  );
-};
+ // ================= LOAD DATA =================
+  useEffect(() => {
+    loadFeed();
+    loadMyTasks();
+  }, []);
 
-const handleRejectRequest = (id) => {
-  setRequests(prev =>
-    prev.map(req =>
-      req.id === id ? { ...req, status: "Rejected" } : req
-    )
-  );
-};
+  const loadFeed = async () => {
+    try {
+      const res = await api.get("/task/other");
+setTasks(res.data.tasks || res.data.data || res.data);
+    } catch {
+      console.error("Feed load failed");
+    }
+  };
+
+  const loadMyTasks = async () => {
+    try {
+      const res = await api.get("/task/me");
+setMyTasks(res.data.tasks);
+    } catch {
+      console.error("My task load failed");
+    }
+  };
+
+
+  // ===== HANDLE REQUEST APPROVAL / REJECTION =====
+ const handleApproveRequest = async (id) => {
+    await api.patch(`/task/${id}/status`, { status: "active" });
+    loadMyTasks();
+  };
+
+  const handleRejectRequest = async (id) => {
+    await api.patch(`/task/${id}/status`, { status: "cancelled" });
+    loadMyTasks();
+  };
 
 
   const [notifications, setNotifications] = useState([]);
@@ -79,10 +83,13 @@ const handleRejectRequest = (id) => {
     notifications: true,
   });
 
-  const filteredTasks = tasks.filter(t =>
-    t.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredTasks = Array.isArray(tasks)
+  ? tasks.filter(t =>
+      t.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
 
+  
   // ===== HANDLE IMAGE UPLOAD =====
 const handleImageChange = (e) => {
   const file = e.target.files[0];
@@ -150,6 +157,8 @@ const handleRemoveImage = () => {
     requestedBy: settings.username || "You",
     status: "Pending",
   },
+  
+  
 ]);
 
 
@@ -244,10 +253,12 @@ const handleRemoveImage = () => {
       <main className="main">
 
         {/* ===== FEED ===== */}
-        {activePage === "Feed" && (
+         {activePage === "Feed" && (
           <div className="feed">
             {filteredTasks.map(task => (
               <TaskCard key={task.id} task={task} handleRequestTask={handleRequestTask} />
+
+              
             ))}
           </div>
         )}
@@ -396,6 +407,20 @@ const handleRemoveImage = () => {
           alert("Please fill in all required fields");
           alert("Task created successfully!");
         }}} >
+onClick={() => {
+            if (newTask.title && newTask.category && newTask.location) {
+              setTasks([...tasks, { 
+                ...newTask, 
+                id: tasks.length + 1, 
+                requested: false 
+              }]);
+              setNewTask({ title: "", description: "", category: "", location: "", date: "", budget: "", image: null, imagePreview: null });
+              setActivePage("Feed");
+            } else {
+              alert("Please fill in all required fields");
+            }
+          }}      
+            >
           Add Task
         </button>
       </div>
@@ -422,14 +447,21 @@ const handleRemoveImage = () => {
                 {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
                 <h3>{task.title}</h3>
                 <p>{task.location}</p>
-                <button disabled>Request Sent</button>
+                <p>Status: {task.status}</p>
+
+                {task.status === "pending" && (
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button onClick={() => handleApproveRequest(task._id)}>Activate</button>
+                    <button onClick={() => handleRejectRequest(task._id)}>Cancel</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         )}
 
         {/* ===== REQUESTS ===== */}
-        {activePage === "Requests" && (
+       {activePage === "Requests" && (
           <div className="feed">
             {requests.map(task => (
               <div key={task.id} className="task-card">
@@ -460,7 +492,7 @@ const handleRemoveImage = () => {
         )}
 
         {/* ===== MY REQUESTS ===== */}
-        {activePage === "My Requests" && (
+      {activePage === "My Requests" && (
           <div className="feed">
             {requests.map(task => (
 
@@ -528,8 +560,11 @@ const handleRemoveImage = () => {
       )}
 
     </div>
+
+    
   );
 };
+
 
 const TaskCard = ({ task, handleRequestTask }) => (
   <div className="task-card">
