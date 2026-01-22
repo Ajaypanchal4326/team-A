@@ -136,7 +136,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         const sanitizeUser = (user) => ({
         first_name: user.first_name,
         last_name: user.last_name,
-        email: user.email,
+        email_id: user.email_id,
         });
 
         return res.status(200).json({ authenticated: true, user: sanitizeUser(req.user) });

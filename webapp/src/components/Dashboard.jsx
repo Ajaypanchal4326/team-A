@@ -16,6 +16,8 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [user, setUser] = useState({username: "", email: ""});
   
    // TASKS
   const [tasks, setTasks] = useState([]);
@@ -56,9 +58,9 @@ const handleLogout = async () => {
 
   const loadFeed = async () => {
     try {
-      const res = await api.get("/task/other");
-setTasks(res.data.tasks || res.data.data || res.data);
-    } catch {
+      const res = await api.get("/task/other"); 
+      setTasks(res.data.tasks || res.data.data || res.data);
+     } catch {
       console.error("Feed load failed");
     }
   };
@@ -74,12 +76,41 @@ setMyTasks(res.data.tasks);
 
   
 
-  const loadAll = useCallback(async () => {
+const loadUserProfile = async () => {
+  try {
+    const res = await api.get("/auth/me");
+    
+    // Handle different response structures
+    const userData = res.data.user?.first_name || res.data.user?.last_name || res.data.user?.email_id
+      ? {
+          username: `${res.data.user.first_name || ""} ${res.data.user.last_name || ""}`.trim(),
+          email: res.data.user.email_id
+        }
+      : res.data.user;
+    
+    if (userData) {
+      setUser({
+        username: userData.username || userData.name || "User",
+        email: userData.email || "user@email.com"
+      });
+      
+      // Also update settings
+      setSettings({
+        username: userData.username || userData.name || "User",
+        email: userData.email || "user@email.com",
+        notifications: true
+      });
+    }
+  } catch (err) {
+    console.error("Failed to load user profile:", err.message);
+  }
+};
+
+const loadAll = useCallback(async () => {
   await Promise.all([
+    loadUserProfile(),
     loadFeed(),
     loadMyTasks(),
-   
-   
   ]);
 }, []);
 
@@ -99,8 +130,8 @@ const handleAddTask = async () => {
     formData.append("description", newTask.description);
     formData.append("category", newTask.category);   
     formData.append("location", newTask.location);
-    formData.append("start_time", newTask.date);
-    formData.append("end_time", newTask.date);
+    formData.append("start_time", newTask.startDate);
+    formData.append("end_time", newTask.endDate);
     formData.append("status", "active");
     formData.append("budget", newTask.budget);      
 
@@ -298,8 +329,15 @@ const handleUpdateTask = async () => {
   </ul>
 
   <div className="sidebar-footer">
-   <strong>{settings.username || "User"}</strong>
-    <span>{settings.email || "user@email.com"}</span>   
+  <div className="sidebar-footer-info">
+  <div className="sidebar-footer-user">
+    {(user.username || "U").charAt(0).toUpperCase()}
+  </div>
+  <div className="sidebar-footer-text">
+  <strong>{user.username || settings.username || "User"}</strong>
+  <span>{user.email || settings.email || "user@email.com"}</span> 
+  </div>
+  </div>
      <button
       className="logout-btn"
       onClick={() => setShowLogoutConfirm(true)}
@@ -437,22 +475,20 @@ const handleUpdateTask = async () => {
 
       <div className="form-row">
         <div className="form-group">
-          <label>Date</label>
+          <label> Start Date</label>
           <input 
             type="date"
-            value={newTask.date}
-            onChange={e => setNewTask({ ...newTask, date: e.target.value })} 
+            value={newTask.startDate}
+            onChange={e => setNewTask({ ...newTask, startDate: e.target.value })} 
           />
         </div>
 
         <div className="form-group">
-          <label>Budget</label>
+          <label> End Date</label>
           <input 
-            type="number"
-            min={0}
-            placeholder="₹0.00"
-            value={newTask.budget}
-            onChange={e => setNewTask({ ...newTask, budget: e.target.value })} 
+            type="date"
+            value={newTask.endDate}
+            onChange={e => setNewTask({ ...newTask, endDate: e.target.value })} 
           />
         </div>
       </div>
@@ -667,10 +703,12 @@ const handleUpdateTask = async () => {
               ))}
             </ul>
 
-            <div className="menu-profile">
-              <strong>{settings.username || "User"}</strong>
-              <span>{settings.email || "user@email.com"}</span>
-
+           <div className="sidebar-footer">
+  <div className="sidebar-footer-user">
+    {(user.username || "U").charAt(0).toUpperCase()}
+  </div>
+  <strong>{user.username || settings.username || "User"}</strong>
+  <span>{user.email || settings.email || "user@email.com"}</span> 
               <button
                 className="logout-btn"
                 onClick={() => {
@@ -752,19 +790,19 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
           </p>
         )}
 
-        {task.budget && (
-          <p className="task-budget">
-            <span className="icon">₹</span> {task.budget}
-          </p>
-        )}
 
         <div className="task-footer">
           <div className="task-author">
-            <div className="author-avatar">
-              {(task.user?.username || "U").charAt(0).toUpperCase()}
-            </div>
-            <span className="author-name">{task.user?.username || "User"}</span>
-          </div>
+           <div className="author-avatar">
+             {(task.user_id?.first_name || task.user?.username || "U").charAt(0).toUpperCase()}
+           </div>
+           <span className="author-name">
+            {task.user_id?.first_name 
+             ? `${task.user_id.first_name}${task.user_id.last_name ? ' ' + task.user_id.last_name : ''}`
+             : task.user?.username || "User"
+            }
+           </span>
+        </div>
 
           {/* ===== MY TASKS → EDIT ===== */}
           {editable && (
