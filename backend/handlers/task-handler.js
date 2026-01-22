@@ -24,14 +24,15 @@ async function createTask(model, file, userId) {
     }
 
     let task = new Task({
+      user_id: userId,
       title: model.title,
       description: model.description || '',
       location: model.location,
       start_time: model.start_time,
       end_time: model.end_time || null,
+      category: model.category,
       picture: Img ? Img.secure_url : null,
       picture_public_id: Img ? Img.public_id : null,
-      user_id: userId,
       status: allowedStatus.includes(model.status) ? model.status : "pending",
     });
 
@@ -88,6 +89,7 @@ async function updateTask(taskId, model, file, userId) {
     task.location = model.location ?? task.location;
     task.start_time = model.start_time ?? task.start_time;
     task.end_time = model.end_time ?? task.end_time;
+    task.category = model.category ?? task.category;
     task.picture = imageUrl;
     task.picture_public_id = publicId;
     task.status = allowedStatus.includes(model.status) ? model.status : task.status;
@@ -112,9 +114,9 @@ async function updateTask(taskId, model, file, userId) {
 async function getUserTasks(userId) {
   try {
     const user_tasks = await Task.find({ user_id: userId })
-      .select("title description location picture status start_time end_time")
-      .sort({ createdAt: -1 })
-      .lean();
+    .select("title description location picture status start_time end_time category")
+    .sort({ createdAt: -1 })
+    .lean();
 
     return {
       status: 200,
@@ -132,8 +134,15 @@ async function getUserTasks(userId) {
 
 async function getOtherUserTasks(userId) {
   try {
-    const other_user_tasks = await Task.find({ user_id: { $ne: userId } })
-    .select("title description location picture status start_time end_time")
+    const other_user_tasks = await Task.find({ 
+      user_id: { $ne: userId },
+      status: { $in: ["pending", "active"] }
+    })
+    .select("title description location picture status start_time end_time category user_id")
+    .populate({
+        path: "user_id",
+        select: "first_name last_name -_id"
+    })
     .sort({ createdAt: -1 })
     .lean();
 
@@ -155,7 +164,6 @@ async function getOtherUserTasks(userId) {
 async function changeTaskStatus(taskId, status, userId) {
   try {
     
-
     if (!allowedStatus.includes(status)) {
       return {
         status: 400,
