@@ -369,10 +369,7 @@ const handleUpdateTask = async () => {
          {activePage === "Feed" && (
           <div className="feed">
             {filteredTasks.map(task => (
-              <TaskCard key={task._id || task.id} task={task} handleRequestTask={handleRequestTask} />
-
-
-              
+              <TaskCard key={task._id || task.id} task={task} handleRequestTask={handleRequestTask} /> 
             ))}
           </div>
         )}
@@ -512,9 +509,9 @@ const handleUpdateTask = async () => {
           </div>
         )}
 
-       {/* ===== MY TASKS ===== */}
+      {/* ===== MY TASKS ===== */}
 {activePage === "My Tasks" && (
-  <div className="feed">
+  <div className="feed my-tasks-section">
     {myTasks.map(task => (
       <TaskCard
         key={task._id || task.id}
@@ -715,17 +712,19 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
       {task.picture && (
         <img src={task.picture} alt={task.title || "task"} className="task-image" />
       )}
+          <div className="badges-container">
+            
+        <div className="tag">{task.category || "General"}</div>
 
-      <div className="card-content">
         {/* Status badge for My Tasks */}
         {editable && task.status && (
           <div className={`status-badge status-${task.status.toLowerCase()}`}>
             {task.status}
           </div>
         )}
+        </div>
 
-        <div className="tag">{task.category || "General"}</div>
-
+         <div className="card-content">
         <h3>{task.title}</h3>
         
         {task.description && (
