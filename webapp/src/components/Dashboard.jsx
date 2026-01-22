@@ -712,40 +712,76 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
 
   return (
     <div className="task-card">
-
       {task.picture && (
         <img src={task.picture} alt={task.title || "task"} className="task-image" />
       )}
 
-      <div className="tag">{task.category || "General"}</div>
+      <div className="card-content">
+        {/* Status badge for My Tasks */}
+        {editable && task.status && (
+          <div className={`status-badge status-${task.status.toLowerCase()}`}>
+            {task.status}
+          </div>
+        )}
 
-      <h3>{task.title}</h3>
-      <p>{task.location}</p>
+        <div className="tag">{task.category || "General"}</div>
 
-      {task.start_time && (
-        <p className="task-date">
-          📅 {new Date(task.start_time).toLocaleDateString()}
-        </p>
-      )}
+        <h3>{task.title}</h3>
+        
+        {task.description && (
+          <p className="task-description">{task.description}</p>
+        )}
 
-      <p>
-        <b>Posted by:</b> {task.user?.username || "User"}
-      </p>
+        {task.location && (
+          <p className="task-location">
+            <span className="icon">📍</span> {task.location}
+          </p>
+        )}
 
-      {/* ===== MY TASKS → EDIT ===== */}
-      {editable && (
-        <button className="edit-btn" onClick={() => onEdit(task)}>
-          ✏ Edit Task
-        </button>
-      )}
+        {task.start_time && (
+          <p className="task-date">
+            <span className="icon">📅</span> 
+            {new Date(task.start_time).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric', 
+              year: 'numeric' 
+            })} • {new Date(task.start_time).toLocaleTimeString('en-US', { 
+              hour: 'numeric', 
+              minute: '2-digit',
+              hour12: true 
+            })}
+          </p>
+        )}
 
-      {/* ===== FEED → REQUEST (OPTIONAL / FUTURE) ===== */}
-      {!editable && handleRequestTask && (
-        <button onClick={() => handleRequestTask(task)}>
-          Request Task
-        </button>
-      )}
+        {task.budget && (
+          <p className="task-budget">
+            <span className="icon">₹</span> {task.budget}
+          </p>
+        )}
 
+        <div className="task-footer">
+          <div className="task-author">
+            <div className="author-avatar">
+              {(task.user?.username || "U").charAt(0).toUpperCase()}
+            </div>
+            <span className="author-name">{task.user?.username || "User"}</span>
+          </div>
+
+          {/* ===== MY TASKS → EDIT ===== */}
+          {editable && (
+            <button className="edit-btn" onClick={() => onEdit(task)}>
+              ✏️ Edit Task
+            </button>
+          )}
+
+          {/* ===== FEED → REQUEST ===== */}
+          {!editable && handleRequestTask && (
+            <button className="request-btn" onClick={() => handleRequestTask(task)}>
+              Request Task
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
