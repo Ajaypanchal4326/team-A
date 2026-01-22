@@ -396,6 +396,135 @@
   z-index: 999;
 }
 
+
+/* ================= EDIT MODAL ================= */
+.edit-modal {
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px;
+  text-align: left;
+}
+
+.edit-modal h2 {
+  margin-bottom: 25px;
+  font-size: 24px;
+  color: #1f2937;
+  text-align: center;
+}
+
+.edit-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.edit-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.edit-modal input[type="text"],
+.edit-modal input[type="number"],
+.edit-modal input[type="datetime-local"],
+.edit-modal textarea,
+.edit-modal select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.edit-modal input[type="text"]:focus,
+.edit-modal input[type="number"]:focus,
+.edit-modal input[type="datetime-local"]:focus,
+.edit-modal textarea:focus,
+.edit-modal select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.edit-modal textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.edit-modal .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.edit-modal input[type="file"] {
+  padding: 10px;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #f9fafb;
+}
+
+.edit-modal .current-image {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.edit-modal .modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.edit-modal .btn-submit,
+.edit-modal .btn-cancel {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-modal .btn-submit {
+  background: #6366f1;
+  color: white;
+}
+
+.edit-modal .btn-submit:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.edit-modal .btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.edit-modal .btn-cancel:hover {
+  background: #d1d5db;
+}
+
+/* Edit Modal Responsive */
+@media (max-width: 768px) {
+  .edit-modal {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .edit-modal .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ================= HAMBURGER MENU ================= */
 .hamburger-overlay {
   position: fixed;

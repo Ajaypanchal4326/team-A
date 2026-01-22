@@ -5,14 +5,26 @@ import "../styles/dashboard.css";
 import api from "../services/api";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
+
   const [activePage, setActivePage] = useState("Feed");
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+   // TASKS
+  const [tasks, setTasks] = useState([]);
+  const [myTasks, setMyTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+ const [requests, setRequests] = useState([]);
 
 
-  const navigate = useNavigate();
+  
 
 const handleLogout = async () => {
   if (logoutLoading) return;
@@ -28,13 +40,6 @@ const handleLogout = async () => {
 };
 
 
- 
-  // TASKS
-  const [tasks, setTasks] = useState([]);
-  const [myTasks, setMyTasks] = useState([]);
-  const [requests, setRequests] = useState([]);
-
-  
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -48,20 +53,6 @@ const handleLogout = async () => {
 
 
  // ================= LOAD DATA =================
-
-
-  const loadAll = useCallback(async () => {
-  await Promise.all([
-    loadFeed(),
-    loadMyTasks(),
-   
-  ]);
-}, []);
-
- useEffect(() => {
-  loadAll();
-}, [loadAll]);
-
 
   const loadFeed = async () => {
     try {
@@ -80,6 +71,22 @@ setMyTasks(res.data.tasks);
       console.error("My task load failed");
     }
   };
+
+  
+
+  const loadAll = useCallback(async () => {
+  await Promise.all([
+    loadFeed(),
+    loadMyTasks(),
+   
+   
+  ]);
+}, []);
+
+
+ useEffect(() => {
+  loadAll();
+}, [loadAll]);
 
   
 
@@ -120,9 +127,9 @@ if (res.data?.task) {
       imagePreview: null
     });
 
-    await loadFeed();
-    await loadMyTasks();
+   
     setActivePage("My Tasks");
+      loadAll();
 
   } catch (err) {
     console.error("Task creation failed:", err.response?.data || err.message);
@@ -131,33 +138,28 @@ if (res.data?.task) {
 
 
   // ===== HANDLE REQUEST APPROVAL / REJECTION =====
- const handleApproveRequest = async (_id) => {
+ const handleApproveRequest = async (id) => {
   try {
-    await api.patch(`/task/${_id}/status`, { status: "active" });
+    await api.patch(`/task/${id}/status`, { status: "active" });
     setNotifications(p => [...p, "Task approved"]);
-    await loadMyTasks();
-    await loadFeed();
+         loadAll();
+
   } catch (err) {
     console.error("Approve failed:", err.response?.data || err.message);
   }
 };
 
-const handleRejectRequest = async (_id) => {
+const handleRejectRequest = async (id) => {
   try {
-    await api.patch(`/task/${_id}/status`, { status: "cancelled" });
+    await api.patch(`/task/${id}/status`, { status: "cancelled" });
     setNotifications(p => [...p, "Task rejected"]);
-    await loadMyTasks();
-    await loadFeed();
+          loadAll();
+
   } catch (err) {
     console.error("Reject failed:", err.response?.data || err.message);
   }
 };
 
-
-
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   
   const [settings, setSettings] = useState({
     username: "",
@@ -246,6 +248,35 @@ const handleRemoveImage = () => {
 };
 
 
+/* ================= EDIT TASK ================= */
+
+const handleUpdateTask = async () => {
+  try {
+    const fd = new FormData();
+    fd.append("title", editingTask.title);
+    fd.append("description", editingTask.description);
+    fd.append("category", editingTask.category);
+    fd.append("location", editingTask.location);
+    fd.append("start_time", editingTask.start_time);
+    fd.append("end_time", editingTask.end_time);
+    fd.append("status", editingTask.status);
+    fd.append("budget", editingTask.budget);
+
+    if (editingTask.newImage) {
+      fd.append("picture", editingTask.newImage);
+    }
+
+    await api.put(`/task/${editingTask._id}`, fd);
+
+    setEditingTask(null);
+    setNotifications(p => [...p, "Task updated successfully"]);
+    loadAll();
+
+  } catch (err) {
+    console.error("Update failed:", err.response?.data || err.message);
+  }
+};
+
 
   return (
     <div className="dashboard">
@@ -267,10 +298,9 @@ const handleRemoveImage = () => {
   </ul>
 
   <div className="sidebar-footer">
-    <strong>{settings.username || "User"}</strong>
-    <span>{settings.email || "user@email.com"}</span>
-
-    <button
+   <strong>{settings.username || "User"}</strong>
+    <span>{settings.email || "user@email.com"}</span>   
+     <button
       className="logout-btn"
       onClick={() => setShowLogoutConfirm(true)}
     >
@@ -282,6 +312,7 @@ const handleRemoveImage = () => {
 
       {/* ================= TOP BAR ================= */}
       <div className="topbar">
+        
         <span
           className="hamburger-icon"
           onClick={() => setShowMenu(true)}
@@ -291,6 +322,7 @@ const handleRemoveImage = () => {
         </span>
 
         <h2>{activePage}</h2>
+
 
         {activePage === "Feed" && (
           <div className="topbar-actions">
@@ -338,6 +370,7 @@ const handleRemoveImage = () => {
           <div className="feed">
             {filteredTasks.map(task => (
               <TaskCard key={task._id || task.id} task={task} handleRequestTask={handleRequestTask} />
+
 
               
             ))}
@@ -479,29 +512,21 @@ const handleRemoveImage = () => {
           </div>
         )}
 
-        {/* ===== MY TASKS ===== */}
-        {activePage === "My Tasks" && (
-          <div className="feed">
-            {myTasks.map(task => (
-              <div key={task._id || task.id} className="task-card">
-                <div className="tag">{task.category}</div>
-                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
-                <h3>{task.title}</h3>
-                <p>{task.location}</p>
-                <p>Status: {task.status}</p>
+       {/* ===== MY TASKS ===== */}
+{activePage === "My Tasks" && (
+  <div className="feed">
+    {myTasks.map(task => (
+      <TaskCard
+        key={task._id || task.id}
+        task={task}
+        editable={true}
+        onEdit={setEditingTask}
+      />
+    ))}
+  </div>
+)}
 
-                {task.status === "pending" && (
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <button onClick={() => handleApproveRequest(task._id)}>Activate</button>
-                    <button onClick={() => handleRejectRequest(task._id)}>Cancel</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ===== REQUESTS ===== */}
+          {/* ===== REQUESTS ===== */}
        {activePage === "Requests" && (
           <div className="feed">
             {requests.map(task => (
@@ -532,6 +557,7 @@ const handleRemoveImage = () => {
           </div>
         )}
 
+
         {/* ===== MY REQUESTS ===== */}
       {activePage === "My Requests" && (
           <div className="feed">
@@ -547,6 +573,81 @@ const handleRemoveImage = () => {
         )}
 
       </main>
+
+
+       {/* ===== EDIT MODAL ===== */}
+      {editingTask && (
+  <div className="modal-overlay">
+    <div className="modal edit-modal">
+
+      <h2>Edit Task</h2>
+
+      <input
+        type="text"
+        value={editingTask.title || ""}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, title: e.target.value })
+        }
+        placeholder="Title"
+      />
+
+      <textarea
+        value={editingTask.description || ""}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, description: e.target.value })
+        }
+        placeholder="Description"
+      />
+
+      <input
+        type="text"
+        value={editingTask.location || ""}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, location: e.target.value })
+        }
+        placeholder="Location"
+      />
+
+     <input
+  type="datetime-local"
+  value={editingTask.start_time ? editingTask.start_time.slice(0, 16) : ""}
+  onChange={(e) =>
+    setEditingTask({ ...editingTask, start_time: e.target.value })
+  }
+/>
+
+      <select
+        value={editingTask.status || "pending"}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, status: e.target.value })
+        }
+      >
+        <option value="pending">Pending</option>
+        <option value="active">Active</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) =>
+          setEditingTask({
+            ...editingTask,
+            newImage: e.target.files[0]
+          })
+        }
+      />
+
+      <div className="modal-actions">
+        <button onClick={handleUpdateTask}>Update</button>
+        <button onClick={() => setEditingTask(null)}>Cancel</button>
+      </div>
+
+    </div>
+  </div>
+)}
+
 
       {/* ================= HAMBURGER MENU ================= */}
       {showMenu && (
@@ -606,22 +707,47 @@ const handleRemoveImage = () => {
   );
 };
 
+const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
+  if (!task) return null;
 
-const TaskCard = ({ task, handleRequestTask }) => (
-  <div className="task-card">
-    {task.picture && (
-      <img src={task.picture} alt={task.title} className="task-image" />
-    )}
-    <div className="tag">{task.category}</div>
-    <h3>{task.title}</h3>
-    <p>{task.location}</p>
-    {task.date && <p className="task-date">{task.date}</p>}
-    <button
-      disabled={task.requested}
-      onClick={() => handleRequestTask(task)}
-    >
-      {task.requested ? "Request Sent" : "Request Task"}
-    </button>
-  </div>
-);
+  return (
+    <div className="task-card">
+
+      {task.picture && (
+        <img src={task.picture} alt={task.title || "task"} className="task-image" />
+      )}
+
+      <div className="tag">{task.category || "General"}</div>
+
+      <h3>{task.title}</h3>
+      <p>{task.location}</p>
+
+      {task.start_time && (
+        <p className="task-date">
+          📅 {new Date(task.start_time).toLocaleDateString()}
+        </p>
+      )}
+
+      <p>
+        <b>Posted by:</b> {task.user?.username || "User"}
+      </p>
+
+      {/* ===== MY TASKS → EDIT ===== */}
+      {editable && (
+        <button className="edit-btn" onClick={() => onEdit(task)}>
+          ✏ Edit Task
+        </button>
+      )}
+
+      {/* ===== FEED → REQUEST (OPTIONAL / FUTURE) ===== */}
+      {!editable && handleRequestTask && (
+        <button onClick={() => handleRequestTask(task)}>
+          Request Task
+        </button>
+      )}
+
+    </div>
+  );
+};
+
 export default Dashboard;
