@@ -7,12 +7,19 @@
 }
 
 /* ================= DASHBOARD ================= */
-.dashboard {
+.dashboard-layout {
+  display: flex;
   min-height: 100vh;
-  background: #f4f7fb;
+  background: #f8fafc;
+}
+
+.dashboard-right {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  margin-left: 240px; 
 }
+
 
 /* ================= TOPBAR ================= */
 .topbar {
@@ -66,8 +73,9 @@
 
 /* ================= MAIN CONTENT ================= */
 .main {
-  margin-left: 240px; /* space for sidebar */
-  padding: 24px;
+ padding: 24px;
+  width: 100%;
+  min-height: calc(100vh - 72px);
 }
 
 
@@ -77,7 +85,57 @@
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 24px;
   justify-content: start;
+  width: 100%;
+  align-content: start;
 }
+
+/* ===== MY TASKS HEADER ===== */
+.my-tasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* Left title */
+.my-tasks-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* Add New Task button */
+.add-task-btn {
+  background: #6366f1;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+  width: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.add-task-btn:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(99, 102, 241, 0.35);
+}
+
+.add-task-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(99, 102, 241, 0.25);
+}
+
 /* ================= TASK CARD ================= */
 
 .task-card {
@@ -117,8 +175,8 @@
 .task-card .badges-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;   /* category left, status right */
-  padding: 14px 16px;               /* space from top, left, right */
+  justify-content: space-between;   
+  padding: 14px 16px;               
 }
 
 /* Category Tag - Small pill style */
@@ -136,7 +194,7 @@
   position: static;
 }
 
-/* Status Badge - Small pill style */
+/* Status Badge  */
 .status-badge {
   padding: 4px 10px;
   border-radius: 4px;
@@ -317,38 +375,13 @@
   margin: 5px 0;
 }
 
-/* ================= ADD TASK ================= */
-/* .add-task-form {
-  background: linear-gradient(135deg, #fdf4ff, #fae8ff);
-  padding: 20px;
-  border-radius: 16px;
-  max-width: 420px;
-}
-
-.add-task-form input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #d8b4fe;
-}
-
-.add-task-form button {
-  width: 100%;
-  padding: 10px;
-  background: #a855f7;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-} */
-
 /* ================= NEW ADD TASK ================= */
 .add-task-container {
   display: flex;
   justify-content: center;
   padding: 40px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .add-task-form {
@@ -903,8 +936,9 @@
   min-height: calc(100vh - 72px);
   padding: 20px;
   position: fixed;
-  top: 72px;
+  top: 0;
   left: 0;
+  height: 100vh;
 }
 
 .sidebar .logo {

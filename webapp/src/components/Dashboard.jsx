@@ -198,13 +198,15 @@ const handleRejectRequest = async (id) => {
     notifications: true,
   });
 
-const filteredTasks = !Array.isArray(tasks)
-  ? []
-  : searchTerm.trim() === ""
-    ? tasks
-    : tasks.filter(t =>
-        t.title?.toLowerCase().includes(searchTerm.toLowerCase().trim())
-      );
+const filteredTasks = (list) => {
+  if (!Array.isArray(list)) return [];
+
+  if (searchTerm.trim() === "") return list;
+
+  return list.filter(t =>
+    t.title?.toLowerCase().includes(searchTerm.toLowerCase().trim())
+  );
+};
 
 
   
@@ -285,13 +287,13 @@ const handleUpdateTask = async () => {
   try {
     const fd = new FormData();
     fd.append("title", editingTask.title);
-    fd.append("description", editingTask.description);
     fd.append("category", editingTask.category);
+    fd.append("description", editingTask.description);
     fd.append("location", editingTask.location);
     fd.append("start_time", editingTask.start_time);
     fd.append("end_time", editingTask.end_time);
     fd.append("status", editingTask.status);
-    fd.append("budget", editingTask.budget);
+    
 
     if (editingTask.newImage) {
       fd.append("picture", editingTask.newImage);
@@ -310,12 +312,16 @@ const handleUpdateTask = async () => {
 
 
   return (
-    <div className="dashboard">
+    <div className="dashboard-layout">
     
-    {/* ================= DESKTOP SIDEBAR ================= */}
+  {/* ================= DESKTOP SIDEBAR ================= */}
 <aside className="sidebar">
-  <h3 className="logo">Hire-a-Helper</h3>
 
+  <div className="sidebar-header">
+    <h3 className="logo">Hire-a-Helper</h3>
+  </div>
+
+  {/*  NAVIGATION */}
   <ul className="sidebar-menu">
     {["Feed", "My Tasks", "Requests", "My Requests", "Add Task", "Settings"].map(page => (
       <li
@@ -328,102 +334,108 @@ const handleUpdateTask = async () => {
     ))}
   </ul>
 
+  {/*  FOOTER (USER INFO + LOGOUT) */}
   <div className="sidebar-footer">
-  <div className="sidebar-footer-info">
-  <div className="sidebar-footer-user">
-    {(user.username || "U").charAt(0).toUpperCase()}
-  </div>
-  <div className="sidebar-footer-text">
-  <strong>{user.username || settings.username || "User"}</strong>
-  <span>{user.email || settings.email || "user@email.com"}</span> 
-  </div>
-  </div>
-     <button
+
+    <div className="sidebar-footer-info">
+      <div className="sidebar-footer-user">
+        {(user.username || "U").charAt(0).toUpperCase()}
+      </div>
+
+      <div className="sidebar-footer-text">
+        <strong>{user.username || settings.username || "User"}</strong>
+        <span>{user.email || settings.email || "user@email.com"}</span>
+      </div>
+    </div>
+
+    <button
       className="logout-btn"
       onClick={() => setShowLogoutConfirm(true)}
     >
       Logout
     </button>
+
   </div>
 </aside>
 
 
-      {/* ================= TOP BAR ================= */}
-      <div className="topbar">
-        
-        <span
-          className="hamburger-icon"
-          onClick={() => setShowMenu(true)}
-          style={{ cursor: "pointer" }}
-        >
-          ☰
-        </span>
+ {/* ===== RIGHT SIDE WRAPPER ===== */}
+  <div className="dashboard-right">
 
-        <h2>{activePage}</h2>
+    {/* ================= TOP BAR ================= */}
+<div className="topbar">
 
-
-        {activePage === "Feed" && (
-          <div className="topbar-actions">
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div
-  className="notification-bell"
-  onClick={() => setShowNotifications(!showNotifications)}
->
-  🔔
-  {notifications.length > 0 && (
-    <span className="notification-badge">
-      {notifications.length}
+  {/*  LEFT SIDE */}
+  <div className="topbar-left">
+    <span
+      className="hamburger-icon"
+      onClick={() => setShowMenu(true)}
+      style={{ cursor: "pointer" }}
+    >
+      ☰
     </span>
-  )}
-</div>
 
-            {showNotifications && (
-  <div className="notification-dropdown">
-    {notifications.length === 0 ? (
-      <p style={{ padding: "10px" }}>No notifications</p>
-    ) : (
-      notifications.map((note, index) => (
-        <p key={index} style={{ padding: "10px", borderBottom: "1px solid #eee" }}>
-          {note}
-        </p>
-      ))
-    )}
+    <h2>{activePage}</h2>
   </div>
-)}
 
-          </div>
+  {/*  RIGHT SIDE */}
+  <div className="topbar-actions">
+    <input
+      type="text"
+      placeholder={`Search in ${activePage.toLowerCase()}...`}
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+
+    <div
+      className="notification-bell"
+      onClick={() => setShowNotifications(!showNotifications)}
+    >
+      🔔
+      {notifications.length > 0 && (
+        <span className="notification-badge">
+          {notifications.length}
+        </span>
+      )}
+    </div>
+
+    {showNotifications && (
+      <div className="notification-dropdown">
+        {notifications.length === 0 ? (
+          <p style={{ padding: "10px" }}>No notifications</p>
+        ) : (
+          notifications.map((note, index) => (
+            <p
+              key={index}
+              style={{ padding: "10px", borderBottom: "1px solid #eee" }}
+            >
+              {note}
+            </p>
+          ))
         )}
       </div>
+    )}
+  </div>
+</div>
+
+
 
       {/* ================= MAIN CONTENT ================= */}
       <main className="main">
 
-        {/* ===== FEED ===== */}
-         {activePage === "Feed" && (
-          <div className="feed">
-            {filteredTasks.map(task => (
-              <TaskCard key={task._id || task.id} task={task} handleRequestTask={handleRequestTask} /> 
-            ))}
-          </div>
-        )}
+        {activePage === "Feed" && (
+  <div className="feed">
+    {filteredTasks(tasks).map(task => (
+      
+      <TaskCard
+        key={task._id || task.id}
+        task={task}
+        handleRequestTask={handleRequestTask}
+      />
+    ))}
+  </div>
+)}
 
-        {/* ===== ADD TASK ===== */}
-        {/* {activePage === "Add Task" && (
-          <div className="add-task-form">
-            <input placeholder="Title" onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
-            <input placeholder="Category" onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
-            <input placeholder="Location" onChange={e => setNewTask({ ...newTask, location: e.target.value })} />
-            <button onClick={() => {
-              setTasks([...tasks, { ...newTask, id: tasks.length + 1, requested: false, status: "Pending" }]);
-              setActivePage("Feed");
-            }}>Add Task</button>
-          </div>
-        )} */}
 
          {/* ===== NEW ADD TASK ===== */}
          {activePage === "Add Task" && (
@@ -545,10 +557,22 @@ const handleUpdateTask = async () => {
           </div>
         )}
 
-      {/* ===== MY TASKS ===== */}
+   {/* ===== MY TASKS ===== */}
 {activePage === "My Tasks" && (
+<>
+    <div className="my-tasks-header">
+      <h2> </h2>
+
+      <button
+        className="add-task-btn"
+        onClick={() => setActivePage("Add Task")}
+      >
+        + Add New Task
+      </button>
+    </div>
+
   <div className="feed my-tasks-section">
-    {myTasks.map(task => (
+    {filteredTasks(myTasks).map(task => (
       <TaskCard
         key={task._id || task.id}
         task={task}
@@ -557,98 +581,130 @@ const handleUpdateTask = async () => {
       />
     ))}
   </div>
+  </>
 )}
 
-          {/* ===== REQUESTS ===== */}
-       {activePage === "Requests" && (
-          <div className="feed">
-            {requests.map(task => (
-              <div key={task._id || task.id} className="task-card">
-                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
-                <p>Requested by: {task.requestedBy}</p>
-                <p>Status: {task.status}</p>
-                {task.status === "Pending" && (
-  <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
-    <button
-      style={{ background: "#22c55e", color: "#fff" }}
-      onClick={() => handleApproveRequest(task._id || task.id)}
-    >
-      Approve
-    </button>
 
-    <button
-      style={{ background: "#ef4444", color: "#fff" }}
-      onClick={() => handleRejectRequest(task._id || task.id)}
-    >
-      Reject
-    </button>
+          {/* ===== REQUESTS ===== */}
+      {activePage === "Requests" && (
+  <div className="feed">
+    {filteredTasks(requests).map(task => (
+      <div key={task._id || task.id} className="task-card">
+        {task.picture && (
+          <img src={task.picture} alt={task.title} className="task-image" />
+        )}
+
+        <h3>{task.title}</h3>
+        <p>Requested by: {task.requestedBy}</p>
+        <p>Status: {task.status}</p>
+
+        {task.status === "Pending" && (
+          <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
+            <button
+              style={{ background: "#22c55e", color: "#fff" }}
+              onClick={() => handleApproveRequest(task._id || task.id)}
+            >
+              Approve
+            </button>
+
+            <button
+              style={{ background: "#ef4444", color: "#fff" }}
+              onClick={() => handleRejectRequest(task._id || task.id)}
+            >
+              Reject
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
   </div>
 )}
 
-              </div>
-            ))}
-          </div>
-        )}
 
 
         {/* ===== MY REQUESTS ===== */}
       {activePage === "My Requests" && (
-          <div className="feed">
-            {requests.map(task => (
-
-              <div key={task._id || task.id} className="task-card">
-                {task.picture && <img src={task.picture} alt={task.title} className="task-image" />}
-                <h3>{task.title}</h3>
-                <p>Status: {task.status}</p>
-              </div>
-            ))}
-          </div>
+  <div className="feed">
+    {filteredTasks(requests).map(task => (
+      <div key={task._id || task.id} className="task-card">
+        {task.picture && (
+          <img src={task.picture} alt={task.title} className="task-image" />
         )}
+        <h3>{task.title}</h3>
+        <p>Status: {task.status}</p>
+      </div>
+    ))}
+  </div>
+)}
 
       </main>
+      
 
 
-       {/* ===== EDIT MODAL ===== */}
-      {editingTask && (
+      {/* ===== EDIT MODAL ===== */}
+{editingTask && (
   <div className="modal-overlay">
     <div className="modal edit-modal">
 
       <h2>Edit Task</h2>
 
+      <label>Title</label>
       <input
         type="text"
         value={editingTask.title || ""}
         onChange={(e) =>
           setEditingTask({ ...editingTask, title: e.target.value })
         }
-        placeholder="Title"
       />
 
+      <label>Category</label>
+<input
+  type="text"
+  value={editingTask.category || ""}
+  onChange={(e) =>
+    setEditingTask({ ...editingTask, category: e.target.value })
+  }
+  placeholder="e.g., Cleaning, Tech, Moving"
+/>
+
+
+      <label>Description</label>
       <textarea
         value={editingTask.description || ""}
         onChange={(e) =>
           setEditingTask({ ...editingTask, description: e.target.value })
         }
-        placeholder="Description"
       />
 
+      <label>Location</label>
       <input
         type="text"
         value={editingTask.location || ""}
         onChange={(e) =>
           setEditingTask({ ...editingTask, location: e.target.value })
         }
-        placeholder="Location"
       />
 
-     <input
-  type="datetime-local"
-  value={editingTask.start_time ? editingTask.start_time.slice(0, 16) : ""}
-  onChange={(e) =>
-    setEditingTask({ ...editingTask, start_time: e.target.value })
-  }
-/>
+      <label>Start Date & Time</label>
+      <input
+        type="datetime-local"
+        value={editingTask.start_time ? editingTask.start_time.slice(0, 16) : ""}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, start_time: e.target.value })
+        }
+      />
 
+      {/*  END DATE */}
+      <label>End Date & Time</label>
+      <input
+        type="datetime-local"
+        value={editingTask.end_time ? editingTask.end_time.slice(0, 16) : ""}
+        onChange={(e) =>
+          setEditingTask({ ...editingTask, end_time: e.target.value })
+        }
+      />
+
+      <label>Status</label>
       <select
         value={editingTask.status || "pending"}
         onChange={(e) =>
@@ -661,6 +717,7 @@ const handleUpdateTask = async () => {
         <option value="cancelled">Cancelled</option>
       </select>
 
+      <label>Change Image</label>
       <input
         type="file"
         accept="image/*"
@@ -680,6 +737,7 @@ const handleUpdateTask = async () => {
     </div>
   </div>
 )}
+
 
 
       {/* ================= HAMBURGER MENU ================= */}
@@ -737,7 +795,7 @@ const handleUpdateTask = async () => {
       )}
 
     </div>
-
+</div>
     
   );
 };
@@ -777,8 +835,8 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
 
         {task.start_time && (
           <p className="task-date">
-            <span className="icon">📅</span> 
-            {new Date(task.start_time).toLocaleDateString('en-US', { 
+          <span className="icon">🟢</span> 
+            Start: {new Date(task.start_time).toLocaleDateString('en-US', { 
               month: 'short', 
               day: 'numeric', 
               year: 'numeric' 
@@ -790,6 +848,20 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
           </p>
         )}
 
+        {task.end_time && (
+  <p className="task-date end-date">
+    <span className="icon">🔴</span> 
+    End: {new Date(task.end_time).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })} • {new Date(task.end_time).toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    })}
+  </p>
+)}
 
         <div className="task-footer">
           <div className="task-author">
