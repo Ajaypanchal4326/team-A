@@ -20,6 +20,13 @@
   margin-left: 240px; 
 }
 
+@media (max-width: 768px) {
+  .dashboard-right {
+    margin-left: 0;
+  }
+}
+
+
 
 /* ================= TOPBAR ================= */
 .topbar {
@@ -89,6 +96,13 @@
   align-content: start;
 }
 
+@media (max-width: 480px) {
+  .feed {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 /* ===== MY TASKS HEADER ===== */
 .my-tasks-header {
   display: flex;
@@ -135,6 +149,22 @@
   transform: translateY(0);
   box-shadow: 0 3px 8px rgba(99, 102, 241, 0.25);
 }
+
+@media (max-width: 600px) {
+  .my-tasks-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+
 
 /* ================= TASK CARD ================= */
 
