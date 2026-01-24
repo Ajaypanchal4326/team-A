@@ -61,22 +61,4 @@ router.put("/:taskId",upload.single("picture"),async (req, res) => {
   }
 );
 
-router.patch("/:taskId/status", async (req, res) => {
-  try{
-    const { taskId } = req.params;
-    const { status } = req.body;
-
-    const result = await changeTaskStatus(
-      taskId,
-      status,
-      req.user._id
-    );
-
-    return res.status(result.status).json({message: result.message});
-  }catch(err){
-      console.error("Change Task Status Route error:", err);
-      return res.status(500).json({ message : "Something went wrong while changing the task status." });
-  }
-});
-
 module.exports = router;

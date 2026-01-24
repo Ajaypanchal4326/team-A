@@ -1,12 +1,7 @@
 const uploadToCloudinary = require('../utils/uploadToCloudinary');
 const deleteFromCloudinary = require("../utils/deleteFromCloudinary");
+const Requests = require('../db/requests');
 const Task = require('../db/task');
-const allowedStatus = Object.freeze([
-  "pending",
-  "active",
-  "completed",
-  "cancelled"
-]);
 
 async function createTask(model, file, userId) {
   try {
@@ -32,8 +27,7 @@ async function createTask(model, file, userId) {
       end_time: model.end_time || null,
       category: model.category,
       picture: Img ? Img.secure_url : null,
-      picture_public_id: Img ? Img.public_id : null,
-      status: allowedStatus.includes(model.status) ? model.status : "pending",
+      picture_public_id: Img ? Img.public_id : null
     });
 
     await task.save();
@@ -82,8 +76,6 @@ async function updateTask(taskId, model, file, userId) {
       }
     }
 
-    
-
     task.title = model.title ?? task.title;
     task.description = model.description ?? task.description;
     task.location = model.location ?? task.location;
@@ -92,7 +84,6 @@ async function updateTask(taskId, model, file, userId) {
     task.category = model.category ?? task.category;
     task.picture = imageUrl;
     task.picture_public_id = publicId;
-    task.status = allowedStatus.includes(model.status) ? model.status : task.status;
 
     await task.save();
 
@@ -136,7 +127,7 @@ async function getOtherUserTasks(userId) {
   try {
     const other_user_tasks = await Task.find({ 
       user_id: { $ne: userId },
-      status: { $in: ["pending", "active"] }
+      status: { $in: ["open"] }
     })
     .select("title description location picture status start_time end_time category user_id")
     .populate({
@@ -146,10 +137,24 @@ async function getOtherUserTasks(userId) {
     .sort({ createdAt: -1 })
     .lean();
 
+    const userRequests = await Requests.find(
+      { requester_id: userId },
+      { task_id: 1, _id: 0 }
+    ).lean();
+
+    const requestedTaskIds = new Set(
+      userRequests.map(req => req.task_id.toString())
+    );
+
+    const tasksWithRequestStatus = other_user_tasks.map(task => ({
+      ...task,
+      hasRequested: requestedTaskIds.has(task._id.toString())
+    }));
+
     return {
       status: 200,
       message: "Other users tasks fetched successfully",
-      tasks : other_user_tasks
+      tasks : tasksWithRequestStatus
     };
   } catch (err) {
     console.error("Get Other User Tasks error:", err);
@@ -161,53 +166,10 @@ async function getOtherUserTasks(userId) {
 }
 
 
-async function changeTaskStatus(taskId, status, userId) {
-  try {
-    
-    if (!allowedStatus.includes(status)) {
-      return {
-        status: 400,
-        message: "Invalid status value"
-      };
-    }
-
-    const task = await Task.findById(taskId);
-
-    if (!task) {
-      return {
-        status: 404,
-        message: "Task not found"
-      };
-    }
-
-    if (task.user_id.toString() !== userId.toString()) {
-      return {
-        status: 403,
-        message: "You are not allowed to change status of this task"
-      };
-    }
-
-    task.status = status;
-    await task.save();
-
-    return {
-      status: 200,
-      message: "Task status updated successfully"
-    };
-  } catch (err) {
-    console.error("Change Task Status error:", err);
-    return {
-      status: 500,
-      message: "Failed to update task status"
-    };
-  }
-}
-
 
 module.exports = {
   createTask,
   updateTask,
   getUserTasks,
-  getOtherUserTasks,
-  changeTaskStatus
+  getOtherUserTasks
 };

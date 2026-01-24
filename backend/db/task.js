@@ -17,8 +17,8 @@ const taskSchema = new mongoose.Schema(
         end_time: { type: Date },
         status: {
         type: String,
-        enum: ["pending", "active", "completed", "cancelled"],
-        default: "pending",
+        enum: ["open", "assigned", "completed", "cancelled"],
+        default: "open",
         },
         category: { type: String, required: true },
         picture: { type: String },

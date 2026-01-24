@@ -3,7 +3,6 @@ const { v4: uuidv4 } = require("uuid");
 
 const notificationSchema = new mongoose.Schema(
   {
-        _id: { type: String, default: uuidv4 },
         user_id: {
         type: String,
         ref: "User",
@@ -13,7 +12,7 @@ const notificationSchema = new mongoose.Schema(
         message: { type: String, required: true },
         read: { type: Boolean, default: false },
     },
-    { timestamps: true, _id: false }
+    { timestamps: true }
 );
 
 const Notification = mongoose.model("Notification", notificationSchema);
