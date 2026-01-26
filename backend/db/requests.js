@@ -24,5 +24,8 @@ const requestSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+requestSchema.index({ task_id: 1, status: 1 });
+requestSchema.index({ requester_id: 1 });
+
 const Requests = mongoose.model("Requests", requestSchema);
 module.exports = Requests;

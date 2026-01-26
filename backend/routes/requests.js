@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const validator = require("validator");
-const { createRequest } = require("../handlers/requests-handler");
-const { getReceivedRequests, updateRequestStatus } = require("../handlers/requests-handler");
+const { createRequest, getReceivedRequests, updateRequestStatus } = require("../handlers/requests-handler");
 
 router.post("/:taskId/send", async (req, res) => {
     try {
@@ -38,10 +37,6 @@ router.put("/:requestId", async (req, res) => {
     try {
         const { requestId } = req.params;
         const { status } = req.body;
-
-        if (!requestId) {
-            return res.status(400).json({ message: "Request ID required" });
-        }
 
         if (!["accepted", "rejected"].includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
