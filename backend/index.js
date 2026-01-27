@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth")
 const taskRoutes = require("./routes/task")
 const requestsRoutes = require("./routes/requests")
+const notificationsRoutes = require("./routes/notification")
 const authmiddleware = require("./middleware/auth-middleware");
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/task", authmiddleware, taskRoutes);
 app.use("/api/requests", authmiddleware, requestsRoutes);
+app.use("/api/notifications", authmiddleware, notificationsRoutes);
 
 connectDB();
 

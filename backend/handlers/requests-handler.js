@@ -64,13 +64,15 @@ async function getReceivedRequests(userId) {
             task_id: { $in: taskIds }
         })
         .populate("requester_id", "first_name last_name profile_picture")
-        .populate("task_id", "title")
+        .populate("task_id", "title location")
         .sort({ createdAt: -1 })
         .lean();
 
         const response = requests.map(r => ({
             requestId: r._id,
             taskTitle: r.task_id.title,
+            taskLocation: r.task_id.location,
+            creationDate: r.createdAt,
             requester: {
                 name: `${r.requester_id.first_name} ${r.requester_id.last_name}`,
                 profilePicture: r.requester_id.profile_picture || null
@@ -86,6 +88,39 @@ async function getReceivedRequests(userId) {
     }
 }
 
+async function getSentRequests(userId) {
+    try {
+        const requests = await Requests.find({ requester_id: userId })
+            .populate({
+                path: "task_id",
+                select: "title status location user_id",
+                populate: {
+                    path: "user_id",
+                    select: "first_name last_name"
+                }
+            })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const response = requests.map(r => ({
+            requestId: r._id,
+            taskTitle: r.task_id.title,
+            taskStatus: r.task_id.status,
+            taskLocation: r.task_id.location,
+            taskOwner: {
+                name: `${r.task_id.user_id.first_name} ${r.task_id.user_id.last_name}`
+            },
+            status: r.status,
+            creationDate: r.createdAt,
+            description: r.description
+        }));
+
+        return { status: 200, data: response };
+    } catch (err) {
+        console.error("Get sent requests error:", err);
+        return { status: 500, data: [] };
+    }
+}
 
 async function updateRequestStatus(requestId, action, loggedInUserId) {
     const session = await mongoose.startSession();
@@ -182,4 +217,5 @@ module.exports = {
     createRequest,
     getReceivedRequests,
     updateRequestStatus,
+    getSentRequests,
 };

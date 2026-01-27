@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const validator = require("validator");
-const { createRequest, getReceivedRequests, updateRequestStatus } = require("../handlers/requests-handler");
+const { createRequest, getReceivedRequests, updateRequestStatus, getSentRequests } = require("../handlers/requests-handler");
 
 router.post("/:taskId/send", async (req, res) => {
     try {
@@ -29,6 +29,16 @@ router.get("/received", async (req, res) => {
         return res.status(result.status).json(result.data);
     } catch (err) {
         console.error("Get Received Requests Route error:", err);
+        return res.status(500).json({ message: "Failed to fetch requests" });
+    }
+});
+
+router.get("/sent", async (req, res) => {
+    try {
+        const result = await getSentRequests(req.user._id);
+        return res.status(result.status).json(result.data);
+    } catch (err) {
+        console.error("Get Sent Requests Route error:", err);
         return res.status(500).json({ message: "Failed to fetch requests" });
     }
 });
