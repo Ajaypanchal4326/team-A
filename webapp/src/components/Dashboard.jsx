@@ -24,6 +24,7 @@ const Dashboard = () => {
   const [myTasks, setMyTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
  const [requests, setRequests] = useState([]);
+ const [myRequests ,setMyRequests] = useState([]);
 
 
   
@@ -74,6 +75,16 @@ setMyTasks(res.data.tasks);
     }
   };
 
+  const loadMyRequests = async () =>{
+
+    try{
+      const res = await api.get("/requests/sent");
+      setMyRequests(res.data.requests || res.data || []);
+    }
+    catch(err){
+      console.error("Failed load my requests request:",err);
+    }
+  };
   
 
 const loadUserProfile = async () => {
@@ -111,6 +122,7 @@ const loadAll = useCallback(async () => {
     loadUserProfile(),
     loadFeed(),
     loadMyTasks(),
+    loadMyRequests(),
   ]);
 }, []);
 
@@ -623,19 +635,48 @@ const handleUpdateTask = async () => {
 
 
         {/* ===== MY REQUESTS ===== */}
-      {activePage === "My Requests" && (
+    {activePage === "My Requests" && (
   <div className="feed">
-    {filteredTasks(requests).map(task => (
-      <div key={task._id || task.id} className="task-card">
-        {task.picture && (
-          <img src={task.picture} alt={task.title} className="task-image" />
-        )}
-        <h3>{task.title}</h3>
-        <p>Status: {task.status}</p>
-      </div>
-    ))}
+    {myRequests.length === 0 ? (
+      <p style={{ padding: "20px" }}>You haven’t requested any tasks yet.</p>
+    ) : (
+      myRequests.map(req => (
+        <div key={req._id || req.id} className="task-card">
+
+      
+          {req.task?.picture && (
+            <img
+              src={req.task.picture}
+              alt={req.task.title}
+              className="task-image"
+            />
+          )}
+
+          <h3>{req.task?.title || "Task"}</h3>
+
+          <p>
+            Owner:{" "}
+            <strong>
+              {req.task?.user_id?.first_name
+                ? `${req.task.user_id.first_name} ${req.task.user_id.last_name || ""}`
+                : "Task Owner"}
+            </strong>
+          </p>
+
+          <p>
+            Status:{" "}
+            <span style={{ fontWeight: "600" }}>
+              {req.status}
+            </span>
+          </p>
+
+        </div>
+      ))
+    )}
   </div>
 )}
+
+
 
       </main>
       
