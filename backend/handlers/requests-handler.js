@@ -91,25 +91,16 @@ async function getReceivedRequests(userId) {
 async function getSentRequests(userId) {
     try {
         const requests = await Requests.find({ requester_id: userId })
-            .populate({
-                path: "task_id",
-                select: "title status location user_id",
-                populate: {
-                    path: "user_id",
-                    select: "first_name last_name"
-                }
-            })
+            .populate("task_id", "title status location user_id picture")
             .sort({ createdAt: -1 })
             .lean();
 
         const response = requests.map(r => ({
+            taskPicture: r.task_id.picture || null,
             requestId: r._id,
             taskTitle: r.task_id.title,
             taskStatus: r.task_id.status,
             taskLocation: r.task_id.location,
-            taskOwner: {
-                name: `${r.task_id.user_id.first_name} ${r.task_id.user_id.last_name}`
-            },
             status: r.status,
             creationDate: r.createdAt,
             description: r.description
