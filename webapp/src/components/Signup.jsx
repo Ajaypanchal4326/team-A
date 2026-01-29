@@ -71,13 +71,13 @@ const Signup = () => {
 
        setTimeout(() => {
   setLoading(true);   
-}, 600);
+}, 400);
 
       setTimeout(() => {
         navigate("/verify", {
           state: { email: payload.email_id, first_time: true },
         });
-      }, 800);
+      }, 400);
 
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");

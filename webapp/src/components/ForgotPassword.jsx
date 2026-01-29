@@ -36,13 +36,13 @@ const ForgotPassword = () => {
 
        setTimeout(() => {
   setLoading(true);   
-}, 600);
+}, 400);
 
       setTimeout(() => {
         navigate("/verify", {
           state: { email: cleanEmail, first_time: false },
         });
-      }, 1200);
+      }, 400);
 
     } catch (err) {
       setSuccess("If email exists, OTP has been sent.");

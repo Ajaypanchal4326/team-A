@@ -53,11 +53,11 @@ const Login = () => {
 
  setTimeout(() => {
   setLoading(true);   
-}, 600);
+}, 100);
 
       setTimeout(() => {
         navigate("/Dashboard");
-      }, 1200);
+      }, 100);
 
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
@@ -66,7 +66,7 @@ const Login = () => {
         setError(msg);
         setTimeout(() => {
           navigate("/verify", { state: { email, first_time: false } });
-        }, 1200);
+        }, 400);
       } else {
         setError("Invalid credentials or server error");
       }

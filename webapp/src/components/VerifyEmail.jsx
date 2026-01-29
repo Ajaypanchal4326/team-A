@@ -46,7 +46,7 @@ const VerifyEmail = () => {
 
        setTimeout(() => {
   setLoading(true);   
-}, 600);
+}, 400);
 
       setTimeout(() => {
         if (first_time) {
@@ -54,7 +54,7 @@ const VerifyEmail = () => {
         } else {
           navigate("/ResetPassword", { state: { email } });
         }
-      }, 1200);
+      }, 400);
 
     } catch (err) {
       setError(err.response?.data?.message || "Invalid OTP");

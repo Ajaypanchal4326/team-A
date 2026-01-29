@@ -64,9 +64,9 @@ const ResetPassword = () => {
 
        setTimeout(() => {
   setLoading(true);   
-}, 600);
+}, 400);
 
-      setTimeout(() => navigate("/login"), 1200);
+      setTimeout(() => navigate("/login"), 400);
 
     } catch (err) {
       setError(err.response?.data?.message || "Reset failed");

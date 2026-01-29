@@ -1105,6 +1105,741 @@
   padding: 8px 10px;
 }
 
+/* ================= REQUEST MODAL ================= */
+.request-modal {
+  max-width: 600px;
+  width: 90%;
+}
+
+.modal-task-info {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.modal-task-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.modal-task-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.request-modal textarea {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.request-modal textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-submit {
+  background: #22c55e;
+  color: white;
+  flex: 1;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-cancel:hover {
+  background: #d1d5db;
+}
+
+/* ================= REQUEST CARDS ================= */
+
+.request-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.request-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* INCOMING REQUEST CARD (Requests Page) */
+.requester-header {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.requester-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.requester-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.rating {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.request-task-info {
+  margin-bottom: 20px;
+}
+
+.request-task-info h4 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  color: #374151;
+}
+
+.request-task-image {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.request-message {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.request-message p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.request-message strong {
+  color: #374151;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.message-text {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.request-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.request-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-accept,
+.btn-reject {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.btn-accept {
+  background: #22c55e;
+  color: white;
+}
+
+.btn-accept:hover {
+  background: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-reject {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-reject:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-accepted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+/* SENT REQUEST CARD (My Requests Page) */
+.my-request-card {
+  display: grid;
+  grid-template-columns: 150px 1fr 150px;
+  gap: 20px;
+  align-items: start;
+}
+
+.request-task-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  grid-column: 1;
+}
+
+.task-info-wrapper {
+  grid-column: 2;
+}
+
+.task-info-wrapper h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.task-owner-info {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.task-owner-info p {
+  margin: 0;
+}
+
+.request-status-section {
+  grid-column: 3;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-date {
+  margin: 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ================= PAGES ================= */
+
+.requests-page,
+.my-requests-page {
+  padding: 20px;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  margin: 10px 0 20px 0;
+  font-size: 14px;
+}
+
+/* ================= FEED BUTTON STATES ================= */
+
+.request-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.request-btn:hover:not(.disabled):not(.requested):not(.unavailable) {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.request-btn.disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.request-btn.requested {
+  background: #8b5cf6;
+  color: white;
+  cursor: not-allowed;
+}
+
+.request-btn.unavailable {
+  background: #6b7280;
+  color: white;
+  cursor: not-allowed;
+}
+
+/* ================= MODAL OVERLAY ================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.modal h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #1f2937;
+}
+
+.modal label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.modal input:focus,
+.modal textarea:focus,
+.modal select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+/* ================= MY REQUESTS PAGE ================= */
+
+.my-requests-page {
+  padding: 10px 20px;
+}
+
+.my-requests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+
+/* ================= REQUEST CARD ================= */
+
+.my-request-card {
+  display: flex;
+  flex-direction: column;   /* 👈 vertical */
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+  transition: 0.25s ease;
+}
+
+.my-request-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.1);
+}
+
+/* ================= IMAGE ================= */
+
+.my-request-card .request-task-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+/* ================= INFO ================= */
+
+.my-request-card h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #b34700;
+}
+
+.task-owner-info {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* ================= Card body ================= */
+
+.request-card-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.request-owner {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.request-message {
+  font-size: 14px;
+  background: #f9fafb;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #374151;
+}
+
+.message-text {
+  font-style: italic;
+  color: #444;
+  margin-top: 4px;
+}
+
+/* ================= STATUS ================= */
+
+.request-status-section {
+  padding: 12px 18px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-accepted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.request-date {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+
+/* ================= RESPONSIVE DESIGN ================= */
+
+@media (max-width: 768px) {
+  .my-request-card {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .request-task-image {
+    grid-column: 1;
+    width: 100%;
+    height: 200px;
+  }
+
+  .task-info-wrapper {
+    grid-column: 1;
+  }
+
+  .request-status-section {
+    grid-column: 1;
+    text-align: left;
+    display: block;
+  }
+
+  .request-actions {
+    flex-direction: column;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    width: 100%;
+  }
+
+  .request-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .requester-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-submit,
+  .btn-cancel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .request-card {
+    padding: 15px;
+  }
+
+  .request-actions {
+    gap: 8px;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+
+  .request-meta {
+    font-size: 12px;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: 95vh;
+    border-radius: 8px;
+    padding: 15px;
+  }
+
+  .modal h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+}
+
+/* ================= NOTIFICATION BADGE ================= */
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* ================= SIDEBAR BADGE ================= */
+
+.sidebar-menu li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.request-card,
+.modal {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ================= EDIT MODAL ================= */
+
+/* ADDED */
+
+.edit-modal {
+  max-width: 700px;
+}
+
+.edit-modal label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.edit-modal input,
+.edit-modal textarea,
+.edit-modal select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.modal-actions button:first-child {
+  background: #22c55e;
+  color: white;
+}
+
+.modal-actions button:first-child:hover {
+  background: #16a34a;
+  transform: translateY(-2px);
+}
+
+.modal-actions button:last-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.modal-actions button:last-child:hover {
+  background: #d1d5db;
+}
+
+
 /* ================= RESPONSIVE DESIGN ================= */
 
 /* Tablet (768px - 1024px) */

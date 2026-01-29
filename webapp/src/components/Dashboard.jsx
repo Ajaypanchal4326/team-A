@@ -23,11 +23,30 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [myTasks, setMyTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
- const [requests, setRequests] = useState([]);
- const [myRequests ,setMyRequests] = useState([]);
 
+ // REQUESTS
+  const [receivedRequests, setReceivedRequests] = useState([]); 
+  const [sentRequests, setSentRequests] = useState([]);         
+  const [loadingRequests, setLoadingRequests] = useState(false);
 
-  
+// REQUEST MODAL
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [selectedTaskForRequest, setSelectedTaskForRequest] = useState(null);
+  const [requestMessage, setRequestMessage] = useState("");
+  const [sendingRequest, setSendingRequest] = useState(false);
+
+   // NEW TASK FORM
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    category: "",
+    location: "",
+   startDate: "",
+    endDate: "",
+    image: null,
+    imagePreview: null,
+  });
+
 
 const handleLogout = async () => {
   if (logoutLoading) return;
@@ -42,17 +61,6 @@ const handleLogout = async () => {
   }
 };
 
-
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    category: "",
-    location: "",
-    date: "",
-    budget: "",
-    image: null,
-    imagePreview: null,
-  });
 
 
  // ================= LOAD DATA =================
@@ -75,37 +83,61 @@ setMyTasks(res.data.tasks);
     }
   };
 
-  const loadMyRequests = async () =>{
+  // REQUEST PAGE
+ const loadReceivedRequests = async () => {
+  try {
+    setLoadingRequests(true);
+    const res = await api.get("/requests/received");
+    
+   setReceivedRequests(res.data.requests || res.data || []);
 
-    try{
-      const res = await api.get("/requests/sent");
-      setMyRequests(res.data.requests || res.data || []);
-    }
-    catch(err){
-      console.error("Failed load my requests request:",err);
-    }
-  };
+  } catch (err) {
+    console.error("Failed to load received requests:", err);
+    setReceivedRequests([]);
+  } finally {
+    setLoadingRequests(false);
+  }
+};
+
+   // MY REQUESTS PAGE
+ const loadSentRequests = async () => {
+  try {
+    setLoadingRequests(true);
+    const res = await api.get("/requests/sent");
+
+    setSentRequests(res.data.requests || res.data || []);
+
+  } catch (err) {
+    console.error("Failed to load sent requests:", err);
+    setSentRequests([]);
+  } finally {
+    setLoadingRequests(false);
+  }
+};
+
   
 
 const loadUserProfile = async () => {
   try {
     const res = await api.get("/auth/me");
     
-    // Handle different response structures
+    
     const userData = res.data.user?.first_name || res.data.user?.last_name || res.data.user?.email_id
       ? {
           username: `${res.data.user.first_name || ""} ${res.data.user.last_name || ""}`.trim(),
-          email: res.data.user.email_id
+          email: res.data.user.email_id,
+           _id: res.data.user._id || res.data.user.id  
         }
       : res.data.user;
     
     if (userData) {
       setUser({
         username: userData.username || userData.name || "User",
-        email: userData.email || "user@email.com"
+        email: userData.email || "user@email.com",
+         _id: userData._id || userData.id || ""  
       });
       
-      // Also update settings
+     
       setSettings({
         username: userData.username || userData.name || "User",
         email: userData.email || "user@email.com",
@@ -122,7 +154,8 @@ const loadAll = useCallback(async () => {
     loadUserProfile(),
     loadFeed(),
     loadMyTasks(),
-    loadMyRequests(),
+     loadReceivedRequests(),
+      loadSentRequests(),
   ]);
 }, []);
 
@@ -164,8 +197,8 @@ if (res.data?.task) {
       description: "",
       category: "",
       location: "",
-      date: "",
-      budget: "",
+     startDate: "",
+        endDate: "",
       image: null,
       imagePreview: null
     });
@@ -179,30 +212,95 @@ if (res.data?.task) {
   }
 };
 
+ // ================= SEND REQUEST WITH MESSAGE =================
+  
+  const handleSendRequest = async () => {
+    if (!selectedTaskForRequest) return;
+
+    if (!requestMessage.trim()) {
+      setNotifications(p => [...p, "Please enter a message for your request"]);
+      return;
+    }
+
+    try {
+      setSendingRequest(true);
+
+     await api.post(
+  `/requests/${selectedTaskForRequest._id}/send`,
+  { description: requestMessage }
+);
+
+      setNotifications(p => [...p, `Request sent for "${selectedTaskForRequest.title}"`]);
+
+      // Reset modal
+      setShowRequestModal(false);
+      setRequestMessage("");
+      setSelectedTaskForRequest(null);
+
+      // Reload requests
+      await loadSentRequests();
+      
+      loadFeed();
+    } catch (err) {
+      console.error("Failed to send request:", err);
+
+      const errorMessage = err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to send request. Please try again.";
+
+      if (errorMessage.includes("already")) {
+        setNotifications(p => [...p, "You've already requested this task"]);
+      } else if (errorMessage.includes("own")) {
+        setNotifications(p => [...p, "You cannot request your own task"]);
+      } else {
+        setNotifications(p => [...p, errorMessage]);
+      }
+    } finally {
+      setSendingRequest(false);
+    }
+  };
+
 
   // ===== HANDLE REQUEST APPROVAL / REJECTION =====
- const handleApproveRequest = async (id) => {
-  try {
-    await api.patch(`/task/${id}/status`, { status: "active" });
-    setNotifications(p => [...p, "Task approved"]);
-         loadAll();
 
+//  ACCEPT REQUEST
+const handleAcceptRequest = async (requestId) => {
+  
+  if (!requestId) {
+    console.error("Invalid request ID:", requestId);
+    setNotifications(p => [...p, "Error: Invalid request ID"]);
+    return;
+  }
+
+  try {
+    await api.put(`/requests/${requestId}`, { status: "accepted" });
+    setNotifications(p => [...p, "Request accepted"]);
+    await loadReceivedRequests();
+    await loadMyTasks();
   } catch (err) {
-    console.error("Approve failed:", err.response?.data || err.message);
+    console.error("Accept failed:", err);
+    setNotifications(p => [...p, "Failed to accept request"]);
   }
 };
 
-const handleRejectRequest = async (id) => {
-  try {
-    await api.patch(`/task/${id}/status`, { status: "cancelled" });
-    setNotifications(p => [...p, "Task rejected"]);
-          loadAll();
+// REJECT REQUEST
+const handleRejectRequest = async (requestId) => {
+  
+  if (!requestId) {
+    console.error("Invalid request ID:", requestId);
+    setNotifications(p => [...p, "Error: Invalid request ID"]);
+    return;
+  }
 
+  try {
+    await api.put(`/requests/${requestId}`, { status: "rejected" });
+    setNotifications(p => [...p, "Request rejected"]);
+    await loadReceivedRequests();
   } catch (err) {
-    console.error("Reject failed:", err.response?.data || err.message);
+    console.error("Reject failed:", err);
+    setNotifications(p => [...p, "Failed to reject request"]);
   }
 };
-
   
   const [settings, setSettings] = useState({
     username: "",
@@ -273,26 +371,7 @@ const handleRemoveImage = () => {
   });
 };
 
-  // ================= HANDLE REQUEST =================
-  const handleRequestTask = (task) => {
-  if (!task) return;
-
-  const newRequest = {
-    _id: task._id || Date.now(),
-    title: task.title,
-    location: task.location,
-    picture: task.picture,
-    category: task.category,
-    requestedBy: settings.username || "You",
-    status: "Pending",
-  };
-
-  setRequests(prev => [...prev, newRequest]);
-
-  setNotifications(prev => [...prev, `Request sent for "${task.title}"`]);
-};
-
-
+ 
 /* ================= EDIT TASK ================= */
 
 const handleUpdateTask = async () => {
@@ -304,7 +383,7 @@ const handleUpdateTask = async () => {
     fd.append("location", editingTask.location);
     fd.append("start_time", editingTask.start_time);
     fd.append("end_time", editingTask.end_time);
-    fd.append("status", editingTask.status);
+   
     
 
     if (editingTask.newImage) {
@@ -321,6 +400,13 @@ const handleUpdateTask = async () => {
     console.error("Update failed:", err.response?.data || err.message);
   }
 };
+
+// ================= OPEN REQUEST MODAL =================
+  const openRequestModal = (task) => {
+    setSelectedTaskForRequest(task);
+    setRequestMessage("");
+    setShowRequestModal(true);
+  };
 
 
   return (
@@ -342,6 +428,23 @@ const handleUpdateTask = async () => {
         onClick={() => setActivePage(page)}
       >
         {page}
+
+         {page === "Requests" && receivedRequests.length > 0 && (
+                <span style={{
+                  background: "#ef4444",
+                  color: "white",
+                  borderRadius: "50%",
+                  width: "20px",
+                  height: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  marginLeft: "10px"
+                }}>
+                  {receivedRequests.filter(r => r.status === "pending").length}
+                </span>
+              )}
       </li>
     ))}
   </ul>
@@ -416,14 +519,14 @@ const handleUpdateTask = async () => {
         {notifications.length === 0 ? (
           <p style={{ padding: "10px" }}>No notifications</p>
         ) : (
-          notifications.map((note, index) => (
-            <p
-              key={index}
-              style={{ padding: "10px", borderBottom: "1px solid #eee" }}
-            >
-              {note}
-            </p>
-          ))
+         notifications.map((note, index) => (
+  <p
+    key={`notification-${index}-${Date.now()}`}  
+    style={{ padding: "10px", borderBottom: "1px solid #eee" }}
+  >
+    {note}
+  </p>
+))
         )}
       </div>
     )}
@@ -437,12 +540,13 @@ const handleUpdateTask = async () => {
 
         {activePage === "Feed" && (
   <div className="feed">
-    {filteredTasks(tasks).map(task => (
-      
-      <TaskCard
-        key={task._id || task.id}
+    {filteredTasks(tasks).map((task, index) => (
+  <TaskCard
+    key={task._id || task.id || index}
         task={task}
-        handleRequestTask={handleRequestTask}
+        currentUserId={user._id}
+        sentRequests={sentRequests}  
+        onRequestTask={openRequestModal}
       />
     ))}
   </div>
@@ -584,9 +688,9 @@ const handleUpdateTask = async () => {
     </div>
 
   <div className="feed my-tasks-section">
-    {filteredTasks(myTasks).map(task => (
-      <TaskCard
-        key={task._id || task.id}
+    {filteredTasks(myTasks).map((task, index) => (
+  <TaskCard
+    key={task._id || task.id || index}
         task={task}
         editable={true}
         onEdit={setEditingTask}
@@ -599,89 +703,164 @@ const handleUpdateTask = async () => {
 
           {/* ===== REQUESTS ===== */}
       {activePage === "Requests" && (
-  <div className="feed">
-    {filteredTasks(requests).map(task => (
-      <div key={task._id || task.id} className="task-card">
-        {task.picture && (
-          <img src={task.picture} alt={task.title} className="task-image" />
-        )}
+            <div className="requests-page">
+              <h2>Incoming Requests</h2>
+              <p className="page-subtitle">People who want to help with your tasks</p>
 
-        <h3>{task.title}</h3>
-        <p>Requested by: {task.requestedBy}</p>
-        <p>Status: {task.status}</p>
+              {loadingRequests ? (
+                <p style={{ padding: "20px" }}>Loading requests...</p>
+              ) : receivedRequests.length === 0 ? (
+                <p style={{ padding: "20px" }}>No requests yet. Create a task to get started!</p>
+              ) : (
+                <div className="feed">
+                  {receivedRequests.map(req => (
+                    <div key={req.requestId || req._id} className="request-card">
 
-        {task.status === "Pending" && (
-          <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
-            <button
-              style={{ background: "#22c55e", color: "#fff" }}
-              onClick={() => handleApproveRequest(task._id || task.id)}
-            >
-              Approve
-            </button>
+                      {/* Requester Info */}
+                      <div className="requester-header">
+                        <div className="requester-avatar">
+                          {(req.requester?.first_name || "U").charAt(0).toUpperCase()}
+                        </div>
+                        <div className="requester-info">
+                          <h3>
+                       {req.requester?.first_name || req.requesterFirstName || "User"}{" "}
+                       {req.requester?.last_name || req.requesterLastName || ""}
+                         </h3>
+                        </div>
+                      </div>
 
-            <button
-              style={{ background: "#ef4444", color: "#fff" }}
-              onClick={() => handleRejectRequest(task._id || task.id)}
-            >
-              Reject
-            </button>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-)}
+                      {/* Task Info */}
+                      <div className="request-task-info">
+                        <h4>Requesting for: {req.task?.title || req.taskTitle || "Task"}</h4>
 
+             {(req.task?.picture || req.taskPicture) && (
+             <img
+               src={req.task?.picture || req.taskPicture}
+              alt={req.task?.title || req.taskTitle}
+              className="request-task-image"
+              />
+                 )}
+
+                      </div>
+
+                      {/* Requester's Message */}
+                      <div className="request-message">
+                        <p><strong>Their message:</strong></p>
+                        <p className="message-text">{req.description || req.message || "No message"}</p>
+                      </div>
+
+                      {/* Metadata */}
+                      <div className="request-meta">
+                        <span>📍 {req.task?.location || req.taskLocation || "Location not specified"}</span>
+                        <span>
+                        🕐 {new Date(req.createdAt || req.creationDate).toLocaleDateString()}
+                       </span>
+                      </div>
+
+                      {/* Status & Actions */}
+                      <div className="request-actions">
+                        {req.status === "pending" ? (
+                          <>
+                            <button
+                              className="btn-accept"
+                              onClick={() => handleAcceptRequest(req.requestId)}
+                            >
+                              ✓ Accept
+                            </button>
+                            <button
+                              className="btn-reject"
+                              onClick={() => handleRejectRequest(req.requestId)}
+                            >
+                              ✕ Reject
+                            </button>
+                          </>
+                        ) : (
+                          <span className={`status-badge status-${req.status}`}>
+                            {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
 
         {/* ===== MY REQUESTS ===== */}
-    {activePage === "My Requests" && (
-  <div className="feed">
-    {myRequests.length === 0 ? (
-      <p style={{ padding: "20px" }}>You haven’t requested any tasks yet.</p>
-    ) : (
-      myRequests.map(req => (
-        <div key={req._id || req.id} className="task-card">
+   {activePage === "My Requests" && (
+            <div className="my-requests-page">
+              <h2>My Requests</h2>
+              <p className="page-subtitle">Track the help requests you've sent</p>
 
-      
-          {req.task?.picture && (
-            <img
-              src={req.task.picture}
-              alt={req.task.title}
-              className="task-image"
-            />
-          )}
+              {loadingRequests ? (
+                <p style={{ padding: "20px" }}>Loading requests...</p>
+              ) : sentRequests.length === 0 ? (
+                <p style={{ padding: "20px" }}>You haven't requested any tasks yet. Go to Feed to request!</p>
+              ) : (
+                <div className="my-requests-grid">
+                 {sentRequests.map(req => (
+  <div key={req.requestId} className="request-card my-request-card">
 
-          <h3>{req.task?.title || "Task"}</h3>
-
-          <p>
-            Owner:{" "}
-            <strong>
-              {req.task?.user_id?.first_name
-                ? `${req.task.user_id.first_name} ${req.task.user_id.last_name || ""}`
-                : "Task Owner"}
-            </strong>
-          </p>
-
-          <p>
-            Status:{" "}
-            <span style={{ fontWeight: "600" }}>
-              {req.status}
-            </span>
-          </p>
-
-        </div>
-      ))
+    {/* IMAGE */}
+    {req.taskPicture && (
+      <img
+        src={req.taskPicture}
+        alt={req.taskTitle || "Task"}
+        className="request-task-image"
+        onError={(e) => (e.target.style.display = "none")}
+      />
     )}
+
+    <div className="request-card-body">
+
+      <h3 className="request-title">
+        {req.taskTitle || "Untitled task"}
+      </h3>
+
+      <p className="request-owner">
+        <strong>Owner:</strong>{" "}
+        {req.taskOwnerName && !req.taskOwnerName.includes("undefined")
+          ? req.taskOwnerName
+          : "Not available"}
+      </p>
+
+      {req.taskLocation && (
+        <p className="task-location">📍 {req.taskLocation}</p>
+      )}
+
+      <div className="request-message">
+        <strong>Your message:</strong>
+        <p>{req.description || "No message"}</p>
+      </div>
+
+    </div>
+
+    <div className="request-status-section">
+      <span className={`status-badge status-${req.status}`}>
+        {req.status === "pending" && "🟡 Pending"}
+        {req.status === "accepted" && "🟢 Accepted"}
+        {req.status === "rejected" && "🔴 Rejected"}
+      </span>
+
+      <p className="request-date">
+        {req.creationDate
+          ? `Sent ${new Date(req.creationDate).toLocaleDateString()}`
+          : "Date not available"}
+      </p>
+    </div>
+
   </div>
-)}
+))}
 
-
+                </div>
+              )}
+            </div>
+          )}
 
       </main>
       
-
-
       {/* ===== EDIT MODAL ===== */}
 {editingTask && (
   <div className="modal-overlay">
@@ -745,18 +924,6 @@ const handleUpdateTask = async () => {
         }
       />
 
-      <label>Status</label>
-      <select
-        value={editingTask.status || "pending"}
-        onChange={(e) =>
-          setEditingTask({ ...editingTask, status: e.target.value })
-        }
-      >
-        <option value="pending">Pending</option>
-        <option value="active">Active</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
 
       <label>Change Image</label>
       <input
@@ -778,6 +945,55 @@ const handleUpdateTask = async () => {
     </div>
   </div>
 )}
+
+ {/* ================= REQUEST MODAL ================= */}
+        {showRequestModal && selectedTaskForRequest && (
+          <div className="modal-overlay">
+            <div className="modal request-modal">
+              <h2>Send Request</h2>
+
+              <div className="modal-task-info">
+                <h3>{selectedTaskForRequest.title}</h3>
+                {selectedTaskForRequest.picture && (
+                  <img
+                    src={selectedTaskForRequest.picture}
+                    alt={selectedTaskForRequest.title}
+                    className="modal-task-image"
+                  />
+                )}
+              </div>
+
+              <label>Your Message to the Task Owner</label>
+              <textarea
+                placeholder="Tell the task owner about your experience, availability, and why you'd be great for this task..."
+                value={requestMessage}
+                onChange={(e) => setRequestMessage(e.target.value)}
+                rows="6"
+                style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
+              />
+
+              <div className="modal-actions">
+                <button
+                  className="btn-submit"
+                  onClick={handleSendRequest}
+                  disabled={sendingRequest || !requestMessage.trim()}
+                >
+                  {sendingRequest ? "Sending..." : "Send Request"}
+                </button>
+                <button
+                  className="btn-cancel"
+                  onClick={() => {
+                    setShowRequestModal(false);
+                    setRequestMessage("");
+                    setSelectedTaskForRequest(null);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
 
 
@@ -841,8 +1057,36 @@ const handleUpdateTask = async () => {
   );
 };
 
-const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
+const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, editable = false, onEdit }) => {
   if (!task) return null;
+
+ const hasRequested = sentRequests.some(req =>
+  req.task?._id === task._id
+);
+
+  const isOwnTask = currentUserId === task.user_id?._id || currentUserId === task.user_id;
+
+  const isUnavailable =
+  task.status === "completed" ||
+  task.status === "cancelled";
+
+  let buttonText = "Request Task";
+  let buttonDisabled = false;
+  let buttonClass = "request-btn";
+
+  if (isOwnTask) {
+    buttonText = "Your Task";
+    buttonDisabled = true;
+    buttonClass = "request-btn disabled";
+  } else if (hasRequested) {
+    buttonText = "Requested";
+    buttonDisabled = true;
+    buttonClass = "request-btn requested";
+  } else if (isUnavailable) {
+    buttonText = "Unavailable";
+    buttonDisabled = true;
+    buttonClass = "request-btn unavailable";
+  }
 
   return (
     <div className="task-card">
@@ -853,7 +1097,7 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
             
         <div className="tag">{task.category || "General"}</div>
 
-        {/* Status badge for My Tasks */}
+        
         {editable && task.status && (
           <div className={`status-badge status-${task.status.toLowerCase()}`}>
             {task.status}
@@ -925,9 +1169,16 @@ const TaskCard = ({ task, handleRequestTask, editable = false, onEdit }) => {
           )}
 
           {/* ===== FEED → REQUEST ===== */}
-          {!editable && handleRequestTask && (
-            <button className="request-btn" onClick={() => handleRequestTask(task)}>
-              Request Task
+           {!editable && onRequestTask && (
+            <button
+              className={buttonClass}
+             onClick={() => {
+                 if (!buttonDisabled) onRequestTask(task);
+                     }}
+              disabled={buttonDisabled}
+              title={isOwnTask ? "You cannot request your own task" : ""}
+            >
+              {buttonText}
             </button>
           )}
         </div>
