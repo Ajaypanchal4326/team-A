@@ -101,6 +101,7 @@ async function getSentRequests(userId) {
             taskTitle: r.task_id.title,
             taskStatus: r.task_id.status,
             taskLocation: r.task_id.location,
+            taskOwnerName: `${r.task_id.first_name} ${r.task_id.last_name}`,
             status: r.status,
             creationDate: r.createdAt,
             description: r.description
