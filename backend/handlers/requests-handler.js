@@ -63,19 +63,22 @@ async function getReceivedRequests(userId) {
         const requests = await Requests.find({
             task_id: { $in: taskIds }
         })
-        .populate("requester_id", "first_name last_name profile_picture")
+        .populate("requester_id", "first_name last_name ")
         .populate("task_id", "title location")
         .sort({ createdAt: -1 })
         .lean();
 
-        const response = requests.map(r => ({
+        const response = requests
+        .filter(r => r.task_id)
+        .map(r => ({
             requestId: r._id,
-            taskTitle: r.task_id.title,
-            taskLocation: r.task_id.location,
+            taskTitle: r.task_id.title ?? null,
+            taskLocation: r.task_id.location ?? null,
             creationDate: r.createdAt,
             requester: {
-                name: `${r.requester_id.first_name} ${r.requester_id.last_name}`,
-                profilePicture: r.requester_id.profile_picture || null
+                name: r.requester_id ?
+                `${r.requester_id.first_name} ${r.requester_id.last_name}`: "Unknown",
+                profilePicture: null
             },
             status: r.status,
             description: r.description
@@ -99,13 +102,16 @@ async function getSentRequests(userId) {
             .sort({ createdAt: -1 })
             .lean();
 
-        const response = requests.map(r => ({
-            taskPicture: r.task_id.picture || null,
+        const response = requests
+        .filter(r => r.task_id)
+        .map(r => ({
+            taskPicture: r.task_id.picture ?? null,
             requestId: r._id,
-            taskTitle: r.task_id.title,
-            taskStatus: r.task_id.status,
-            taskLocation: r.task_id.location,
-            taskOwnerName: `${r.task_id.user_id.first_name} ${r.task_id.user_id.last_name}`,
+            taskTitle: r.task_id.title ?? null,
+            taskStatus: r.task_id.status ?? null,
+            taskLocation: r.task_id.location ?? null,
+            taskOwnerName: r.task_id.user_id ?
+            `${r.task_id.user_id.first_name} ${r.task_id.user_id.last_name}` : "Unknown",
             status: r.status,
             creationDate: r.createdAt,
             description: r.description
