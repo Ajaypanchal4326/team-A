@@ -105,7 +105,9 @@ const Dashboard = () => {
       setLoadingRequests(true);
       const res = await api.get("/requests/sent");
 
-      setSentRequests(res.data.requests || res.data || []);
+      const data = res.data.requests || res.data || [];
+      setSentRequests(data);
+
 
     } catch (err) {
       console.error("Failed to load sent requests:", err);
@@ -230,6 +232,17 @@ const Dashboard = () => {
         { description: requestMessage }
       );
 
+      setSentRequests(prev => [
+  ...prev,
+  {
+    taskId: selectedTaskForRequest._id,
+    taskTitle: selectedTaskForRequest.title,
+    taskPicture: selectedTaskForRequest.picture || null,
+    taskLocation: selectedTaskForRequest.location,
+    status: "pending"
+  }
+]);
+
       setNotifications(p => [...p, `Request sent for "${selectedTaskForRequest.title}"`]);
 
       // Reset modal
@@ -250,6 +263,11 @@ const Dashboard = () => {
 
       if (errorMessage.includes("already")) {
         setNotifications(p => [...p, "You've already requested this task"]);
+
+      setShowRequestModal(false);
+      setRequestMessage("");
+      setSelectedTaskForRequest(null);
+      
       } else if (errorMessage.includes("own")) {
         setNotifications(p => [...p, "You cannot request your own task"]);
       } else {
@@ -1058,9 +1076,13 @@ const Dashboard = () => {
 const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, editable = false, onEdit }) => {
   if (!task) return null;
 
-  const hasRequested = sentRequests.some(req =>
-    req.task?._id === task._id
-  );
+ const taskId = String(task._id || task.id);
+
+const hasRequested = sentRequests.some(
+  req => String(req.taskId) === taskId
+);
+
+
 
   const isOwnTask = currentUserId === task.user_id?._id || currentUserId === task.user_id;
 

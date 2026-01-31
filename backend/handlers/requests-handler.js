@@ -131,6 +131,7 @@ async function getSentRequests(userId) {
                 : "Unknown Owner";
 
             return {
+                taskId: task._id,
                 taskPicture: task.picture || null,
                 requestId: r._id,
                 taskTitle: task.title || "Untitled Task",
