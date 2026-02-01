@@ -106,7 +106,13 @@ const Dashboard = () => {
       const res = await api.get("/requests/sent");
 
       const data = res.data.requests || res.data || [];
-      setSentRequests(data);
+     const fixed = data.map(r => ({
+  ...r,
+  taskId: r.task_id?._id || r.taskId
+}));
+
+setSentRequests(fixed);
+
 
 
     } catch (err) {
@@ -151,22 +157,80 @@ const Dashboard = () => {
     }
   };
 
-  const loadAll = useCallback(async () => {
+  //  GET NOTIFICATIONS
+  const loadNotifications = async () => {
+  try {
+    const res = await api.get("/notifications");
+
+    const raw = res.data.notifications || res.data.data || res.data || [];
+
+    const normalized = Array.isArray(raw) ? raw : [];
+
+    setNotifications(normalized);
+
+  } catch (err) {
+    console.error("Failed to load notifications:", err);
+    setNotifications([]);
+  }
+};
+
+// ================= MARK NOTIFICATIONS AS READ ALL =================
+  const handleMarkNotificationsRead = useCallback(async () => {
+  try {
+    await api.put("/notifications/read-all");
+    await loadNotifications();
+  } catch (err) {
+    console.error("Failed to mark notifications as read:", err);
+  }
+}, []);
+
+// ================= MARK SINGLE NOTIFICATION AS READ =================
+const handleSingleNotificationRead = async (id) => {
+  try {
+    await api.put(`/notifications/${id}/read`);
+
+    // Update UI instantly (no reload)
+    setNotifications(prev =>
+      prev.map(n =>
+        n._id === id ? { ...n, read: true } : n
+      )
+    );
+  } catch (err) {
+    console.error("Failed to mark notification as read:", err);
+  }
+};
+
+
+const loadAll = useCallback(async () => {
+  try {
+    await loadUserProfile();   
+
     await Promise.all([
-      loadUserProfile(),
       loadFeed(),
       loadMyTasks(),
       loadReceivedRequests(),
       loadSentRequests(),
+      loadNotifications(),
     ]);
-  }, []);
+  } catch (err) {
+    console.error(err);
+  }
+}, []);
 
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+   useEffect(() => {
+  loadAll();
+}, [loadAll]);
 
+useEffect(() => {
+  if (!user._id) return;
 
+// Refresh notifications every 10 seconds
+  const interval = setInterval(loadNotifications, 10000);
+  return () => clearInterval(interval);
+}, [user._id]);
+
+  
 
   // ================= ADD TASK =================
   const handleAddTask = async () => {
@@ -189,7 +253,6 @@ const Dashboard = () => {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
-      setNotifications((p) => [...p, "Task added successfully"]);
       if (res.data?.task) {
         setTasks(prev => [res.data.task, ...prev]);
       }
@@ -220,7 +283,6 @@ const Dashboard = () => {
     if (!selectedTaskForRequest) return;
 
     if (!requestMessage.trim()) {
-      setNotifications(p => [...p, "Please enter a message for your request"]);
       return;
     }
 
@@ -232,19 +294,7 @@ const Dashboard = () => {
         { description: requestMessage }
       );
 
-      setSentRequests(prev => [
-  ...prev,
-  {
-    taskId: selectedTaskForRequest._id,
-    taskTitle: selectedTaskForRequest.title,
-    taskPicture: selectedTaskForRequest.picture || null,
-    taskLocation: selectedTaskForRequest.location,
-    status: "pending"
-  }
-]);
-
-      setNotifications(p => [...p, `Request sent for "${selectedTaskForRequest.title}"`]);
-
+     
       // Reset modal
       setShowRequestModal(false);
       setRequestMessage("");
@@ -252,6 +302,7 @@ const Dashboard = () => {
 
       // Reload requests
       await loadSentRequests();
+      await loadNotifications();
 
       loadFeed();
     } catch (err) {
@@ -262,16 +313,13 @@ const Dashboard = () => {
         "Failed to send request. Please try again.";
 
       if (errorMessage.includes("already")) {
-        setNotifications(p => [...p, "You've already requested this task"]);
 
       setShowRequestModal(false);
       setRequestMessage("");
       setSelectedTaskForRequest(null);
       
       } else if (errorMessage.includes("own")) {
-        setNotifications(p => [...p, "You cannot request your own task"]);
       } else {
-        setNotifications(p => [...p, errorMessage]);
       }
     } finally {
       setSendingRequest(false);
@@ -286,18 +334,16 @@ const Dashboard = () => {
 
     if (!requestId) {
       console.error("Invalid request ID:", requestId);
-      setNotifications(p => [...p, "Error: Invalid request ID"]);
       return;
     }
 
     try {
       await api.put(`/requests/${requestId}`, { status: "accepted" });
-      setNotifications(p => [...p, "Request accepted"]);
       await loadReceivedRequests();
+       await loadNotifications();
       await loadMyTasks();
     } catch (err) {
       console.error("Accept failed:", err);
-      setNotifications(p => [...p, "Failed to accept request"]);
     }
   };
 
@@ -306,17 +352,15 @@ const Dashboard = () => {
 
     if (!requestId) {
       console.error("Invalid request ID:", requestId);
-      setNotifications(p => [...p, "Error: Invalid request ID"]);
       return;
     }
 
     try {
       await api.put(`/requests/${requestId}`, { status: "rejected" });
-      setNotifications(p => [...p, "Request rejected"]);
       await loadReceivedRequests();
+       await loadNotifications();
     } catch (err) {
       console.error("Reject failed:", err);
-      setNotifications(p => [...p, "Failed to reject request"]);
     }
   };
 
@@ -411,13 +455,13 @@ const Dashboard = () => {
       await api.put(`/task/${editingTask._id}`, fd);
 
       setEditingTask(null);
-      setNotifications(p => [...p, "Task updated successfully"]);
       loadAll();
 
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
     }
   };
+
 
   // ================= OPEN REQUEST MODAL =================
   const openRequestModal = (task) => {
@@ -520,34 +564,70 @@ const Dashboard = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            <div
+           <div
               className="notification-bell"
-              onClick={() => setShowNotifications(!showNotifications)}
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                
+              }}
             >
               🔔
-              {notifications.length > 0 && (
+              {notifications.filter(n => !n.read).length > 0 && (
                 <span className="notification-badge">
-                  {notifications.length}
+                  {notifications.filter(n => !n.read).length}
                 </span>
               )}
             </div>
 
-            {showNotifications && (
-              <div className="notification-dropdown">
-                {notifications.length === 0 ? (
-                  <p style={{ padding: "10px" }}>No notifications</p>
-                ) : (
-                  notifications.map((note, index) => (
-                    <p
-                      key={`notification-${index}-${Date.now()}`}
-                      style={{ padding: "10px", borderBottom: "1px solid #eee" }}
-                    >
-                      {note}
-                    </p>
-                  ))
-                )}
-              </div>
-            )}
+           {showNotifications && (
+  <div className="notification-dropdown">
+    <div className="notification-header">
+      <span>Notifications</span>
+
+      {notifications.some(n => !n.read) && (
+        <button
+          className="mark-all-btn"
+          onClick={handleMarkNotificationsRead}
+        >
+          Mark all as read
+        </button>
+      )}
+    </div>
+
+    <div className="notification-list">
+      {notifications.length === 0 ? (
+        <div className="notification-empty">
+          <p>No notifications yet</p>
+        </div>
+      ) : (
+        notifications.map(note => (
+          <div
+            key={note._id}
+            className={`notification-item ${note.read ? "read" : "unread"}`}
+            onClick={() => handleSingleNotificationRead(note._id)}
+          >
+            <div className="notification-dot" />
+
+            <div className="notification-content">
+              <p className="notification-message">{note.message}</p>
+             <span className="notification-time">
+                {new Date(note.createdAt).toLocaleDateString()} •{" "}
+                {new Date(note.createdAt).toLocaleTimeString([], {
+                   hour: "2-digit",
+                   minute: "2-digit"
+                   })}
+             </span>
+
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </div>
+)}
+
+
+
           </div>
         </div>
 
@@ -741,8 +821,9 @@ const Dashboard = () => {
                         </div>
                         <div className="requester-info">
                           <h3>
-                            {req.requester?.first_name || req.requesterFirstName || "User"}{" "}
-                            {req.requester?.last_name || req.requesterLastName || ""}
+                            
+                            {req.requester?.name || "User"}
+
                           </h3>
                         </div>
                       </div>
@@ -1073,6 +1154,7 @@ const Dashboard = () => {
   );
 };
 
+// ================= TASK CARD COMPONENT =================
 const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, editable = false, onEdit }) => {
   if (!task) return null;
 
@@ -1081,14 +1163,12 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
 const hasRequested = sentRequests.some(
   req => String(req.taskId) === taskId
 );
-
-
-
   const isOwnTask = currentUserId === task.user_id?._id || currentUserId === task.user_id;
 
   const isUnavailable =
-    task.status === "completed" ||
-    task.status === "cancelled";
+  task.status === "completed" ||
+  task.status === "cancelled" ||
+  task.status === "assigned";
 
   let buttonText = "Request Task";
   let buttonDisabled = false;
