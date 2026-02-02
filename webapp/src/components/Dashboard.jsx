@@ -35,6 +35,9 @@ const Dashboard = () => {
   const [requestMessage, setRequestMessage] = useState("");
   const [sendingRequest, setSendingRequest] = useState(false);
 
+  const pendingCount = receivedRequests.filter(r => r.status === "pending").length;
+
+
   // NEW TASK FORM
   const [newTask, setNewTask] = useState({
     title: "",
@@ -491,22 +494,24 @@ useEffect(() => {
             >
               {page}
 
-              {page === "Requests" && receivedRequests.length > 0 && (
-                <span style={{
-                  background: "#ef4444",
-                  color: "white",
-                  borderRadius: "50%",
-                  width: "20px",
-                  height: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                  marginLeft: "10px"
-                }}>
-                  {receivedRequests.filter(r => r.status === "pending").length}
-                </span>
-              )}
+            
+              {page === "Requests" && pendingCount > 0 && (
+             <span style={{
+                 background: "#ef4444",
+                   color: "white",
+                   borderRadius: "50%",
+                   width: "20px",
+                   height: "20px",
+                   display: "flex",
+                   alignItems: "center",
+                   justifyContent: "center",
+                   fontSize: "12px",
+                   marginLeft: "10px"
+                 }}>
+                 {pendingCount}
+                 </span>
+                )}
+
             </li>
           ))}
         </ul>
@@ -601,7 +606,7 @@ useEffect(() => {
         </div>
       ) : (
         notifications.map(note => (
-          <div
+          <div style={{ display: "flex", gap: "10px" }}
             key={note._id}
             className={`notification-item ${note.read ? "read" : "unread"}`}
             onClick={() => handleSingleNotificationRead(note._id)}
@@ -903,14 +908,19 @@ useEffect(() => {
                     <div key={req.requestId} className="request-card my-request-card">
 
                       {/* IMAGE */}
-                      {req.taskPicture && (
-                        <img
-                          src={req.taskPicture}
-                          alt={req.taskTitle || "Task"}
-                          className="request-task-image"
-                          onError={(e) => (e.target.style.display = "none")}
-                        />
-                      )}
+                      <div className="request-task-image-wrapper">
+                        {req.taskPicture ? (
+                              <img
+                                src={req.taskPicture}
+                                alt={req.taskTitle || "Task"}
+                               className="request-task-image"
+                             />
+                        ) : (
+                     <div className="request-task-image-placeholder">
+                      📷 No image provided
+                     </div>
+                     )}
+                  </div>
 
                       <div className="request-card-body">
 
@@ -1190,9 +1200,16 @@ const hasRequested = sentRequests.some(
 
   return (
     <div className="task-card">
-      {task.picture && (
-        <img src={task.picture} alt={task.title || "task"} className="task-image" />
-      )}
+     <div className="task-image-wrapper">
+  {task.picture ? (
+    <img src={task.picture} alt="task" className="task-image" />
+  ) : (
+    <div className="task-image-placeholder">
+      <span>📷 No image provided</span>
+    </div>
+  )}
+</div>
+
       <div className="badges-container">
 
         <div className="tag">{task.category || "General"}</div>
