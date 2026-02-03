@@ -109,12 +109,12 @@ const Dashboard = () => {
       const res = await api.get("/requests/sent");
 
       const data = res.data.requests || res.data || [];
-     const fixed = data.map(r => ({
-  ...r,
-  taskId: r.task_id?._id || r.taskId
-}));
+      const fixed = data.map(r => ({
+        ...r,
+        taskId: r.task_id?._id || r.taskId
+      }));
 
-setSentRequests(fixed);
+      setSentRequests(fixed);
 
 
 
@@ -162,78 +162,78 @@ setSentRequests(fixed);
 
   //  GET NOTIFICATIONS
   const loadNotifications = async () => {
-  try {
-    const res = await api.get("/notifications");
+    try {
+      const res = await api.get("/notifications");
 
-    const raw = res.data.notifications || res.data.data || res.data || [];
+      const raw = res.data.notifications || res.data.data || res.data || [];
 
-    const normalized = Array.isArray(raw) ? raw : [];
+      const normalized = Array.isArray(raw) ? raw : [];
 
-    setNotifications(normalized);
+      setNotifications(normalized);
 
-  } catch (err) {
-    console.error("Failed to load notifications:", err);
-    setNotifications([]);
-  }
-};
+    } catch (err) {
+      console.error("Failed to load notifications:", err);
+      setNotifications([]);
+    }
+  };
 
-// ================= MARK NOTIFICATIONS AS READ ALL =================
+  // ================= MARK NOTIFICATIONS AS READ ALL =================
   const handleMarkNotificationsRead = useCallback(async () => {
-  try {
-    await api.put("/notifications/read-all");
-    await loadNotifications();
-  } catch (err) {
-    console.error("Failed to mark notifications as read:", err);
-  }
-}, []);
+    try {
+      await api.put("/notifications/read-all");
+      await loadNotifications();
+    } catch (err) {
+      console.error("Failed to mark notifications as read:", err);
+    }
+  }, []);
 
-// ================= MARK SINGLE NOTIFICATION AS READ =================
-const handleSingleNotificationRead = async (id) => {
-  try {
-    await api.put(`/notifications/${id}/read`);
+  // ================= MARK SINGLE NOTIFICATION AS READ =================
+  const handleSingleNotificationRead = async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
 
-    // Update UI instantly (no reload)
-    setNotifications(prev =>
-      prev.map(n =>
-        n._id === id ? { ...n, read: true } : n
-      )
-    );
-  } catch (err) {
-    console.error("Failed to mark notification as read:", err);
-  }
-};
-
-
-const loadAll = useCallback(async () => {
-  try {
-    await loadUserProfile();   
-
-    await Promise.all([
-      loadFeed(),
-      loadMyTasks(),
-      loadReceivedRequests(),
-      loadSentRequests(),
-      loadNotifications(),
-    ]);
-  } catch (err) {
-    console.error(err);
-  }
-}, []);
+      // Update UI instantly (no reload)
+      setNotifications(prev =>
+        prev.map(n =>
+          n._id === id ? { ...n, read: true } : n
+        )
+      );
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
 
 
-   useEffect(() => {
-  loadAll();
-}, [loadAll]);
+  const loadAll = useCallback(async () => {
+    try {
+      await loadUserProfile();
 
-useEffect(() => {
-  if (!user._id) return;
+      await Promise.all([
+        loadFeed(),
+        loadMyTasks(),
+        loadReceivedRequests(),
+        loadSentRequests(),
+        loadNotifications(),
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
-// Refresh notifications every 10 seconds
-  const interval = setInterval(loadNotifications, 10000);
-  return () => clearInterval(interval);
-}, [user._id]);
 
-  
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
+
+  useEffect(() => {
+    if (!user._id) return;
+
+    // Refresh notifications every 10 seconds
+    const interval = setInterval(loadNotifications, 10000);
+    return () => clearInterval(interval);
+  }, [user._id]);
+
+
 
   // ================= ADD TASK =================
   const handleAddTask = async () => {
@@ -297,7 +297,7 @@ useEffect(() => {
         { description: requestMessage }
       );
 
-     
+
       // Reset modal
       setShowRequestModal(false);
       setRequestMessage("");
@@ -317,10 +317,10 @@ useEffect(() => {
 
       if (errorMessage.includes("already")) {
 
-      setShowRequestModal(false);
-      setRequestMessage("");
-      setSelectedTaskForRequest(null);
-      
+        setShowRequestModal(false);
+        setRequestMessage("");
+        setSelectedTaskForRequest(null);
+
       } else if (errorMessage.includes("own")) {
       } else {
       }
@@ -343,7 +343,7 @@ useEffect(() => {
     try {
       await api.put(`/requests/${requestId}`, { status: "accepted" });
       await loadReceivedRequests();
-       await loadNotifications();
+      await loadNotifications();
       await loadMyTasks();
     } catch (err) {
       console.error("Accept failed:", err);
@@ -361,7 +361,7 @@ useEffect(() => {
     try {
       await api.put(`/requests/${requestId}`, { status: "rejected" });
       await loadReceivedRequests();
-       await loadNotifications();
+      await loadNotifications();
     } catch (err) {
       console.error("Reject failed:", err);
     }
@@ -494,23 +494,23 @@ useEffect(() => {
             >
               {page}
 
-            
+
               {page === "Requests" && pendingCount > 0 && (
-             <span style={{
-                 background: "#ef4444",
-                   color: "white",
-                   borderRadius: "50%",
-                   width: "20px",
-                   height: "20px",
-                   display: "flex",
-                   alignItems: "center",
-                   justifyContent: "center",
-                   fontSize: "12px",
-                   marginLeft: "10px"
-                 }}>
-                 {pendingCount}
-                 </span>
-                )}
+                <span style={{
+                  background: "#ef4444",
+                  color: "white",
+                  borderRadius: "50%",
+                  width: "20px",
+                  height: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "12px",
+                  marginLeft: "10px"
+                }}>
+                  {pendingCount}
+                </span>
+              )}
 
             </li>
           ))}
@@ -560,7 +560,7 @@ useEffect(() => {
             <h2>{activePage}</h2>
           </div>
 
-          {/*  CENTER */}
+          {/*  CENTER SIDE (Search + Bell) */}
           <div className="topbar-center">
             <input
               type="text"
@@ -571,9 +571,7 @@ useEffect(() => {
 
             <div
               className="notification-bell"
-              onClick={() => {
-                setShowNotifications(!showNotifications);
-              }}
+              onClick={() => setShowNotifications(!showNotifications)}
             >
               🔔
               {notifications.filter(n => !n.read).length > 0 && (
@@ -614,13 +612,13 @@ useEffect(() => {
 
                         <div className="notification-content">
                           <p className="notification-message">{note.message}</p>
-                         <span className="notification-time">
+                          <span className="notification-time">
                             {new Date(note.createdAt).toLocaleDateString()} •{" "}
                             {new Date(note.createdAt).toLocaleTimeString([], {
-                               hour: "2-digit",
-                               minute: "2-digit"
-                               })}
-                         </span>
+                              hour: "2-digit",
+                              minute: "2-digit"
+                            })}
+                          </span>
 
                         </div>
                       </div>
@@ -629,12 +627,6 @@ useEffect(() => {
                 </div>
               </div>
             )}
-
-          </div>
-
-          {/*  RIGHT SIDE */}
-          <div className="topbar-actions">
-            {/* Right-side controls (profile/avatar) */}
           </div>
         </div>
 
@@ -828,7 +820,7 @@ useEffect(() => {
                         </div>
                         <div className="requester-info">
                           <h3>
-                            
+
                             {req.requester?.name || "User"}
 
                           </h3>
@@ -912,17 +904,17 @@ useEffect(() => {
                       {/* IMAGE */}
                       <div className="request-task-image-wrapper">
                         {req.taskPicture ? (
-                              <img
-                                src={req.taskPicture}
-                                alt={req.taskTitle || "Task"}
-                               className="request-task-image"
-                             />
+                          <img
+                            src={req.taskPicture}
+                            alt={req.taskTitle || "Task"}
+                            className="request-task-image"
+                          />
                         ) : (
-                     <div className="request-task-image-placeholder">
-                      📷 No image provided
-                     </div>
-                     )}
-                  </div>
+                          <div className="request-task-image-placeholder">
+                            📷 No image provided
+                          </div>
+                        )}
+                      </div>
 
                       <div className="request-card-body">
 
@@ -1170,17 +1162,17 @@ useEffect(() => {
 const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, editable = false, onEdit }) => {
   if (!task) return null;
 
- const taskId = String(task._id || task.id);
+  const taskId = String(task._id || task.id);
 
-const hasRequested = sentRequests.some(
-  req => String(req.taskId) === taskId
-);
+  const hasRequested = sentRequests.some(
+    req => String(req.taskId) === taskId
+  );
   const isOwnTask = currentUserId === task.user_id?._id || currentUserId === task.user_id;
 
   const isUnavailable =
-  task.status === "completed" ||
-  task.status === "cancelled" ||
-  task.status === "assigned";
+    task.status === "completed" ||
+    task.status === "cancelled" ||
+    task.status === "assigned";
 
   let buttonText = "Request Task";
   let buttonDisabled = false;
@@ -1202,15 +1194,15 @@ const hasRequested = sentRequests.some(
 
   return (
     <div className="task-card">
-     <div className="task-image-wrapper">
-  {task.picture ? (
-    <img src={task.picture} alt="task" className="task-image" />
-  ) : (
-    <div className="task-image-placeholder">
-      <span>📷 No image provided</span>
-    </div>
-  )}
-</div>
+      <div className="task-image-wrapper">
+        {task.picture ? (
+          <img src={task.picture} alt="task" className="task-image" />
+        ) : (
+          <div className="task-image-placeholder">
+            <span>📷 No image provided</span>
+          </div>
+        )}
+      </div>
 
       <div className="badges-container">
 
