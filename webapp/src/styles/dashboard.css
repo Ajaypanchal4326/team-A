@@ -34,7 +34,6 @@
   background: #ffffff;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 24px;
   border-bottom: 1px solid #e5e7eb;
   position: sticky;
@@ -48,17 +47,33 @@
   color: #0f172a;
 }
 
+/* LEFT */
+.topbar-left {
+  flex: 1;
+}
 
+/* CENTER */
 .topbar-center {
   position: absolute;
-  /* center horizontally across the topbar */
   left: 50%;
   transform: translateX(-50%);
+  width: 420px;
+  max-width: 50%;
+}
+
+.topbar-center input {
+  width: 100%;
+  height: 42px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.topbar-right {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 14px;
-  z-index: 250;
-  pointer-events: auto;
+  gap: 16px;
 }
 
 /* Hamburger Icon */
@@ -70,15 +85,11 @@
 }
 
 /* Search bar */
-.topbar input {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid #cbd5f5;
-  width: 260px;
-  height: 40px;
-  /* vertically center inside the topbar */
-  line-height: 1;
-  display: block;
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 
@@ -88,6 +99,8 @@
   cursor: pointer;
   position: relative;
 }
+
+
 
 /* ================= MAIN CONTENT ================= */
 .main {
@@ -339,7 +352,7 @@
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 3.6em;
+  min-height: 4.6em;
   /* reserve space approximately for 3 lines */
 }
 
@@ -705,18 +718,24 @@
   justify-content: center;
   border-radius: 8px;
   background: transparent;
+   line-height: 1;
 
 }
 
+.notification-bell span {
+  display: flex;
+  transform: translateY(-1px);
+}
+
+
 .notification-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
+ top: -10px;
+right: -2px;
   background: red;
   color: white;
   font-size: 10px;
   font-weight: 600;
-
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -727,13 +746,9 @@
 
 .notification-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
-  /* place below the centered container */
-  left: 50%;
-  /* center horizontally under the topbar center */
-  transform: translateX(-50%);
-
-  width: 380px;
+  top: calc(100% + 10px);
+  right:25px;               
+  width: 360px;
   max-height: 420px;
   background: #ffffff;
   border-radius: 14px;
@@ -744,6 +759,7 @@
   z-index: 999;
   border: 1px solid #e6e6e6;
 }
+
 
 /* HEADER */
 .notification-header {
@@ -816,7 +832,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+   gap: 0px;
 }
 
 /* MESSAGE  */
@@ -830,12 +846,12 @@
 
 /* TIME  */
 .notification-time {
-  font-size: 5px;
-  opacity: 0.8;
-  line-height: 1.2;
+  font-size: 12px;
   color: #6b7280;
-
+  line-height: 1.2;
+  margin-top: 2px;
 }
+
 
 /* EMPTY */
 .notification-empty {
@@ -1972,23 +1988,6 @@
   }
 }
 
-/* ================= NOTIFICATION BADGE ================= */
-
-.notification-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #ef4444;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-}
 
 /* ================= SIDEBAR BADGE ================= */
 

@@ -3,6 +3,9 @@ import { Upload } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import api from "../services/api";
+import Loader from "./Loader";
+import { Bell } from "lucide-react";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,6 +37,10 @@ const Dashboard = () => {
   const [selectedTaskForRequest, setSelectedTaskForRequest] = useState(null);
   const [requestMessage, setRequestMessage] = useState("");
   const [sendingRequest, setSendingRequest] = useState(false);
+  const [globalLoading, setGlobalLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+
+
 
   const pendingCount = receivedRequests.filter(r => r.status === "pending").length;
 
@@ -221,9 +228,15 @@ const Dashboard = () => {
   }, []);
 
 
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+ useEffect(() => {
+  const init = async () => {
+    setGlobalLoading(true);
+    await loadAll();
+    setGlobalLoading(false);
+  };
+  init();
+}, [loadAll]);
+
 
   useEffect(() => {
     if (!user._id) return;
@@ -238,6 +251,7 @@ const Dashboard = () => {
   // ================= ADD TASK =================
   const handleAddTask = async () => {
     try {
+      setGlobalLoading(true);  
       const formData = new FormData();
 
       formData.append("title", newTask.title);
@@ -278,6 +292,9 @@ const Dashboard = () => {
     } catch (err) {
       console.error("Task creation failed:", err.response?.data || err.message);
     }
+    finally{
+      setGlobalLoading(false);  
+    }
   };
 
   // ================= SEND REQUEST WITH MESSAGE =================
@@ -290,6 +307,7 @@ const Dashboard = () => {
     }
 
     try {
+      setGlobalLoading(true);
       setSendingRequest(true);
 
       await api.post(
@@ -326,6 +344,7 @@ const Dashboard = () => {
       }
     } finally {
       setSendingRequest(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -341,12 +360,18 @@ const Dashboard = () => {
     }
 
     try {
+      setGlobalLoading(true);
+      setActionLoading(true);
       await api.put(`/requests/${requestId}`, { status: "accepted" });
       await loadReceivedRequests();
       await loadNotifications();
       await loadMyTasks();
     } catch (err) {
       console.error("Accept failed:", err);
+    }
+    finally{
+      setActionLoading(false);
+      setGlobalLoading(false);
     }
   };
 
@@ -359,11 +384,16 @@ const Dashboard = () => {
     }
 
     try {
+      setGlobalLoading(true);
       await api.put(`/requests/${requestId}`, { status: "rejected" });
       await loadReceivedRequests();
       await loadNotifications();
     } catch (err) {
       console.error("Reject failed:", err);
+    }
+    finally{
+            setGlobalLoading(false);
+
     }
   };
 
@@ -383,6 +413,19 @@ const Dashboard = () => {
     );
   };
 
+  const filteredReceivedRequests = (receivedRequests || []).filter(req => {
+  const title =
+    req.task?.title ||
+    req.taskTitle ||
+    "";
+
+  return title.toLowerCase().includes(searchTerm.toLowerCase().trim());
+});
+
+
+const filteredSentRequests = (sentRequests || []).filter(req =>
+  req.taskTitle?.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
   // ===== HANDLE IMAGE UPLOAD =====
@@ -441,6 +484,7 @@ const Dashboard = () => {
 
   const handleUpdateTask = async () => {
     try {
+       setGlobalLoading(true);
       const fd = new FormData();
       fd.append("title", editingTask.title);
       fd.append("category", editingTask.category);
@@ -463,6 +507,10 @@ const Dashboard = () => {
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
     }
+    finally{
+            setGlobalLoading(false);
+
+    }
   };
 
 
@@ -475,6 +523,9 @@ const Dashboard = () => {
 
 
   return (
+    <>
+    {globalLoading && <Loader />}
+
     <div className="dashboard-layout">
 
       {/* ================= DESKTOP SIDEBAR ================= */}
@@ -560,20 +611,24 @@ const Dashboard = () => {
             <h2>{activePage}</h2>
           </div>
 
-          {/*  CENTER SIDE (Search + Bell) */}
+          {/*  CENTER */}
           <div className="topbar-center">
             <input
               type="text"
               placeholder={`Search in ${activePage.toLowerCase()}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            /> 
+         </div>
 
+          {/*  right SIDE (Search + Bell) */}
+          <div className="topbar-right">
+            
             <div
               className="notification-bell"
               onClick={() => setShowNotifications(!showNotifications)}
             >
-              🔔
+              <Bell size={25} />
               {notifications.filter(n => !n.read).length > 0 && (
                 <span className="notification-badge">
                   {notifications.filter(n => !n.read).length}
@@ -612,13 +667,13 @@ const Dashboard = () => {
 
                         <div className="notification-content">
                           <p className="notification-message">{note.message}</p>
-                          <span className="notification-time">
+                          <p className="notification-time">
                             {new Date(note.createdAt).toLocaleDateString()} •{" "}
                             {new Date(note.createdAt).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit"
                             })}
-                          </span>
+                          </p>
 
                         </div>
                       </div>
@@ -784,8 +839,8 @@ const Dashboard = () => {
                 </button>
               </div>
 
-              <div className="feed my-tasks-section">
-                {filteredTasks(myTasks).map((task, index) => (
+             <div className="feed my-tasks-section">
+               {filteredTasks(myTasks).map((task, index) => (
                   <TaskCard
                     key={task._id || task.id || index}
                     task={task}
@@ -793,7 +848,7 @@ const Dashboard = () => {
                     onEdit={setEditingTask}
                   />
                 ))}
-              </div>
+             </div>
             </>
           )}
 
@@ -810,7 +865,7 @@ const Dashboard = () => {
                 <p style={{ padding: "20px" }}>No requests yet. Create a task to get started!</p>
               ) : (
                 <div className="feed">
-                  {receivedRequests.map(req => (
+                  {filteredReceivedRequests.map(req => (
                     <div key={req.requestId || req._id} className="request-card">
 
                       {/* Requester Info */}
@@ -862,14 +917,16 @@ const Dashboard = () => {
                             <button
                               className="btn-accept"
                               onClick={() => handleAcceptRequest(req.requestId)}
+                               disabled={actionLoading}
                             >
-                              ✓ Accept
+                               {actionLoading ? "..." : "✓ Accept"}
                             </button>
                             <button
                               className="btn-reject"
                               onClick={() => handleRejectRequest(req.requestId)}
+                              disabled={actionLoading}
                             >
-                              ✕ Reject
+                             {actionLoading ? "..." : " ✕ Reject"} 
                             </button>
                           </>
                         ) : (
@@ -898,7 +955,7 @@ const Dashboard = () => {
                 <p style={{ padding: "20px" }}>You haven't requested any tasks yet. Go to Feed to request!</p>
               ) : (
                 <div className="my-requests-grid">
-                  {sentRequests.map(req => (
+                  {filteredSentRequests.map(req => (
                     <div key={req.requestId} className="request-card my-request-card">
 
                       {/* IMAGE */}
@@ -1154,7 +1211,7 @@ const Dashboard = () => {
 
       </div>
     </div>
-
+</>
   );
 };
 
@@ -1219,9 +1276,10 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
       <div className="card-content">
         <h3>{task.title}</h3>
 
-        {task.description && (
-          <p className="task-description">{task.description}</p>
-        )}
+        <p className="task-description">
+           {task.description?.trim() || "No description provided"}
+         </p>
+
 
         {task.location && (
           <p className="task-location">
@@ -1295,6 +1353,7 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
         </div>
       </div>
     </div>
+    
   );
 };
 
