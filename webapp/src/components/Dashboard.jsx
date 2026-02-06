@@ -642,12 +642,12 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                   <span>Notifications</span>
 
                   {notifications.some(n => !n.read) && (
-                    <button
+                    <p
                       className="mark-all-btn"
                       onClick={handleMarkNotificationsRead}
                     >
                       Mark all as read
-                    </button>
+                    </p>
                   )}
                 </div>
 
@@ -1322,12 +1322,16 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
             <div className="author-avatar">
               {(task.user_id?.first_name || task.user?.username || "U").charAt(0).toUpperCase()}
             </div>
-            <span className="author-name">
-              {task.user_id?.first_name
-                ? `${task.user_id.first_name}${task.user_id.last_name ? ' ' + task.user_id.last_name : ''}`
-                : task.user?.username || "User"
-              }
-            </span>
+           <div className="author-name">
+  <span>
+    {task.user_id?.first_name || task.user?.username || "User"}
+  </span>
+
+  {task.user_id?.last_name && (
+    <span>{task.user_id.last_name}</span>
+  )}
+</div>
+
           </div>
 
           {/* ===== MY TASKS → EDIT ===== */}

@@ -5,8 +5,11 @@ import "../styles/auth.css";
 import Loader from "../components/Loader";
 
 
+
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const [email_id, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -97,14 +100,59 @@ const Login = () => {
         />
 
         <label>Password <span className="required">*</span></label>
-        <input
-          type="password"
-          value={password}
-          autoComplete="current-password"
-          maxLength={100}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password"
-        />
+        <div className="password-field">
+  <input
+    type={showPassword ? "text" : "password"}
+    value={password}
+    autoComplete="current-password"
+    maxLength={100}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Enter your password"
+  />
+
+  <span
+    className="toggle-password"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+   {showPassword ? (
+  // Eye Off
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.86 21.86 0 0 1 5.06-6.94" />
+    <path d="M1 1l22 22" />
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+    <path d="M14.12 14.12L9.88 9.88" />
+  </svg>
+) : (
+  // Eye
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)}
+
+  </span>
+</div>
+
 
         <div className="auth-options">
           <label className="remember-me">

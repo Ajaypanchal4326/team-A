@@ -389,6 +389,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;              
+  min-width: 0; 
 }
 
 .author-avatar {
@@ -405,10 +407,35 @@
 }
 
 .author-name {
+  display: flex;
+  flex-direction: column;
   font-size: 13px;
   font-weight: 500;
   color: #374151;
+  line-height: 1.25;
+
+  min-width: 0;
+  flex: 1;
+
+       
 }
+
+.author-name span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+
+  white-space: nowrap;       
+  overflow: hidden;         
+  text-overflow: ellipsis;   
+}
+
+
+.task-footer button {
+  flex-shrink: 0;     
+  margin-left: 12px;  
+}
+
 
 /* ================= HIDE USER INFO ONLY IN MY TASKS ================= */
 
@@ -763,7 +790,7 @@ right: -2px;
 
 /* HEADER */
 .notification-header {
-  padding: 0 20px 12px 20px;
+  padding: 12px 20px 12px 20px;
   font-weight: 600;
   font-size: 16px;
   border-bottom: 1px solid #f1f1f1;
@@ -2235,5 +2262,940 @@ right: -2px;
   .topbar input {
     max-width: 140px;
     font-size: 12px;
+  }
+}
+
+/* ================= NEW UPDATED RESPONSIVE DESIGN  ================= */
+
+
+/* =================  Dashboard Right Margin ================= */
+@media (max-width: 768px) {
+  .dashboard-right {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-right {
+    margin-left: 0 !important;
+  }
+}
+
+/* =================  Feed Grid Responsive ================= */
+@media (max-width: 1024px) {
+  .feed {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .feed {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 577px) {
+  .feed {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* =================  Main Padding ================= */
+@media (max-width: 768px) {
+  .main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 12px;
+  }
+}
+
+/* =================  Topbar Responsive ================= */
+@media (max-width: 768px) {
+  .topbar {
+    height: 64px;
+    padding: 0 16px;
+  }
+
+  .topbar h2 {
+    font-size: 18px;
+  }
+
+  .topbar-center {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .topbar-center input {
+    width: 100%;
+    height: 38px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    height: 56px;
+    padding: 0 12px;
+  }
+
+  .topbar h2 {
+    font-size: 16px;
+  }
+
+  .topbar-center {
+    max-width: 140px;
+  }
+
+  .topbar-center input {
+    height: 36px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .notification-bell {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* =================  Hamburger Menu Show/Hide ================= */
+@media (max-width: 768px) {
+  .hamburger-icon {
+    display: block !important;
+  }
+
+  .sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hamburger-icon {
+    font-size: 22px;
+  }
+}
+
+/* =================  Modal Responsive ================= */
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    padding: 20px;
+    max-height: 95vh;
+  }
+
+  .edit-modal {
+    padding: 20px;
+  }
+
+  .edit-modal .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    width: 100%;
+    padding: 16px;
+    border-radius: 8px;
+    max-height: 100vh;
+  }
+
+  .modal h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .edit-modal {
+    padding: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-submit,
+  .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* =================  Request Card Mobile ================= */
+@media (max-width: 768px) {
+  .my-request-card {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .request-task-image {
+    width: 100% !important;
+    height: 200px !important;
+    grid-column: 1 !important;
+  }
+
+  .task-info-wrapper {
+    grid-column: 1;
+  }
+
+  .request-status-section {
+    grid-column: 1 !important;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .request-actions {
+    flex-direction: column;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    width: 100%;
+  }
+
+  .request-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .requester-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .request-card {
+    padding: 15px;
+  }
+
+  .request-actions {
+    gap: 8px;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+
+  .request-meta {
+    font-size: 12px;
+  }
+
+  .request-status-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* =================  My Tasks Header Mobile ================= */
+@media (max-width: 600px) {
+  .my-tasks-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* =================  Form Responsive ================= */
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .add-task-form {
+    padding: 20px;
+  }
+}
+
+/* =================  Notification Dropdown Mobile ================= */
+@media (max-width: 480px) {
+  .notification-dropdown {
+    left: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: calc(100% - 16px) !important;
+  }
+}
+
+/* =================  Sidebar Responsive ================= */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+    padding: 16px;
+  }
+
+  .sidebar .logo {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-menu li {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .sidebar-footer {
+    padding-top: 16px;
+    gap: 10px;
+  }
+
+  .sidebar-footer-user {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .sidebar-footer strong {
+    font-size: 13px;
+  }
+
+  .sidebar-footer span {
+    font-size: 11px;
+  }
+
+  .logout-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .hamburger-menu {
+    width: 280px;
+    padding: 16px;
+  }
+
+  .hamburger-menu .sidebar-footer-user {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .hamburger-menu .sidebar-footer strong {
+    font-size: 12px;
+  }
+
+  .hamburger-menu .sidebar-footer span {
+    font-size: 10px;
+  }
+
+  .hamburger-menu .logout-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hamburger-menu {
+    width: 260px;
+    padding: 12px;
+  }
+
+  .hamburger-menu h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .menu-list li {
+    padding: 10px 0;
+    font-size: 13px;
+  }
+
+  .hamburger-menu .sidebar-footer {
+    padding-top: 12px;
+    margin-top: 20px;
+    gap: 8px;
+  }
+
+  .hamburger-menu .sidebar-footer-user {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .hamburger-menu .sidebar-footer strong {
+    font-size: 11px;
+  }
+
+  .hamburger-menu .sidebar-footer span {
+    font-size: 9px;
+  }
+
+  .hamburger-menu .logout-btn {
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+}
+
+/* ================= Request Grid ================= */
+@media (max-width: 1024px) {
+  .my-requests-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .my-requests-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .my-requests-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .requests-page,
+  .my-requests-page {
+    padding: 12px;
+  }
+}
+
+/* =================  Task Card Mobile ================= */
+@media (max-width: 480px) {
+  .task-card {
+    min-height: auto;
+  }
+}
+
+/* =================  Modal Actions Mobile ================= */
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+/* =================  Edit Modal Responsive ================= */
+@media (max-width: 480px) {
+  .edit-modal {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .edit-modal .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-modal .modal-actions {
+    flex-direction: column;
+  }
+
+  .edit-modal .btn-submit,
+  .edit-modal .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* ================= NEW MOBILE OPTIMIZATION ================= */
+/* Ultra-small device (under 400px) */
+
+@media (max-width: 400px) {
+  .main {
+    padding: 8px;
+  }
+
+  .feed {
+    gap: 10px;
+  }
+
+  .task-card {
+    min-height: 320px;
+  }
+
+  .task-card .card-content {
+    padding: 10px 12px;
+  }
+
+  .task-card h3 {
+    font-size: 16px;
+  }
+
+  .task-card .task-description {
+    font-size: 13px;
+    min-height: 3.9em;
+  }
+
+  .task-card .task-location,
+  .task-card .task-date,
+  .task-card .task-budget {
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
+  .task-footer {
+    padding: 12px;
+  }
+
+  .author-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .author-name span {
+    font-size: 12px;
+  }
+
+  .task-card .edit-btn,
+  .task-card .request-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Request cards mobile optimization */
+  .request-card {
+    padding: 12px;
+  }
+
+  .requester-header {
+    gap: 10px;
+  }
+
+  .requester-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .requester-info h3 {
+    font-size: 14px;
+  }
+
+  .rating {
+    font-size: 12px;
+  }
+
+  .request-task-info h4 {
+    font-size: 14px;
+  }
+
+  .request-message {
+    padding: 12px;
+  }
+
+  .request-message p {
+    font-size: 13px;
+  }
+
+  .request-message strong {
+    font-size: 12px;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  
+  .modal {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    max-height: 100vh;
+  }
+
+  .modal h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .modal label {
+    font-size: 13px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+  }
+
+  .modal input,
+  .modal textarea,
+  .modal select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .modal-actions {
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  /* Edit modal */
+  .edit-modal {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  .edit-modal h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .edit-modal .form-group label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .edit-modal input,
+  .edit-modal textarea,
+  .edit-modal select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .edit-modal .modal-actions {
+    gap: 6px;
+    margin-top: 15px;
+  }
+
+  .edit-modal .modal-actions button {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  /* Request card items */
+  .request-card-body {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .request-title {
+    font-size: 16px;
+  }
+
+  .request-owner {
+    font-size: 13px;
+  }
+
+  .request-message {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .message-text {
+    font-size: 12px;
+    margin-top: 3px;
+  }
+
+  .request-status-section {
+    padding: 10px 14px;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .request-date {
+    font-size: 11px;
+  }
+
+  
+  .topbar {
+    height: 52px;
+    padding: 0 10px;
+  }
+
+  .topbar h2 {
+    font-size: 14px;
+  }
+
+  .topbar-center {
+    max-width: 120px;
+  }
+
+  .topbar-center input {
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .hamburger-icon {
+    font-size: 20px;
+  }
+
+  .notification-bell {
+    width: 32px;
+    height: 32px;
+  }
+
+ 
+  .add-task-form {
+    padding: 16px;
+  }
+
+  .add-task-form h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .form-row {
+    gap: 12px;
+  }
+
+  .file-upload-label {
+    padding: 24px;
+  }
+
+  .file-upload-label span {
+    font-size: 11px;
+  }
+
+  .form-actions {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-submit,
+  .btn-cancel {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* My Tasks Header */
+  .my-tasks-header {
+    margin-bottom: 16px;
+  }
+
+  .my-tasks-header h2 {
+    font-size: 18px;
+  }
+
+  .add-task-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  /* Notifications */
+  .notification-dropdown {
+    width: 95vw;
+    max-width: calc(100% - 16px);
+    right: 8px !important;
+    left: 8px !important;
+    top: calc(100% + 8px) !important;
+  }
+
+  .notification-header {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .notification-item {
+    padding: 10px 16px;
+  }
+
+  .notification-message {
+    font-size: 13px;
+  }
+
+  .notification-time {
+    font-size: 11px;
+  }
+
+  
+  .sidebar-footer strong {
+    font-size: 11px;
+  }
+
+  .sidebar-footer span {
+    font-size: 8px;
+  }
+
+  .logout-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Extra small phones  */
+@media (max-width: 375px) {
+  .main {
+    padding: 6px;
+  }
+
+  .topbar {
+    height: 48px;
+    padding: 0 8px;
+  }
+
+  .topbar h2 {
+    font-size: 13px;
+  }
+
+  .topbar-center input {
+    height: 30px;
+    font-size: 10px;
+  }
+
+  .notification-bell {
+    width: 30px;
+    height: 30px;
+  }
+
+  .hamburger-icon {
+    font-size: 18px;
+  }
+
+  .feed {
+    gap: 8px;
+  }
+
+  .task-card {
+    min-height: 300px;
+  }
+
+  .task-card h3 {
+    font-size: 15px;
+  }
+
+  .task-card .task-description {
+    font-size: 12px;
+    min-height: 3.6em;
+  }
+
+  .modal {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .modal h2 {
+    font-size: 15px;
+  }
+
+  .request-card {
+    padding: 10px;
+  }
+
+  .request-title {
+    font-size: 15px;
+  }
+
+  .request-message {
+    padding: 10px;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .add-task-form {
+    padding: 12px;
+  }
+
+  .add-task-form h2 {
+    font-size: 18px;
+  }
+
+  .add-task-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
+
+/* ================= TOPBAR SPACING FIX ================= */
+/* Fix gap between search bar and bell icon on mobile */
+
+@media (max-width: 768px) {
+  .topbar-right {
+    gap: 24px !important;
+    margin-left: 8px !important;
+  }
+
+  .notification-bell {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar-right {
+    gap: 20px !important;
+    margin-left: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-right {
+    gap: 16px !important;
+    margin-left: 4px !important;
+  }
+
+  .notification-bell {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 400px) {
+  .topbar-right {
+    gap: 12px !important;
+    margin-left: 2px !important;
+  }
+
+  .notification-bell {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 375px) {
+  .topbar-right {
+    gap: 10px !important;
+    margin-left: 0 !important;
+  }
+
+  .notification-bell {
+    width: 30px;
+    height: 30px;
   }
 }

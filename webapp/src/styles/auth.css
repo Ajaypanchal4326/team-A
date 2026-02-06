@@ -226,6 +226,31 @@ button:disabled {
   font-weight: bold;
 }
 
+.password-field {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.toggle-password svg {
+  color: #666;
+  transition: 0.2s;
+}
+
+.toggle-password:hover svg {
+  color: #111;
+  transform: scale(1.1);
+}
+
+
 
 /* For Tablets & small laptops */
 @media (max-width: 768px) {
