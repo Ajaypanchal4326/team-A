@@ -1,6 +1,14 @@
 const User = require("../db/user");
 const express = require("express");
-const { registerNewUser,verifyOTP,resendOTP,loginUser,updateExistingUser,forgotPassword, resetPassword } = require("../handlers/auth-handler");
+const { 
+    registerNewUser,
+    verifyOTP,
+    resendOTP,
+    loginUser,
+    updateExistingUser,
+    forgotPassword, 
+    resetPassword,
+    changePassword } = require("../handlers/auth-handler");
 const authMiddleware = require("../middleware/auth-middleware");
 const router = express.Router();
 
@@ -137,6 +145,9 @@ router.get("/me", authMiddleware, async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         email_id: user.email_id,
+        phone_number: user.phone_number,
+        email_id: user.email_id,
+        profile_picture: user.profile_picture
         });
 
         return res.status(200).json({ authenticated: true, user: sanitizeUser(req.user) });
@@ -144,6 +155,22 @@ router.get("/me", authMiddleware, async (req, res) => {
     } catch (err) {
         console.error("/me route error:", err);
         return res.status(500).json({ authenticated: false, message: "Failed to fetch user" });
+    }
+});
+
+router.put("/change-password", authMiddleware, async (req, res) => {
+    try{
+        const model = req.body;
+        if(!model.current_password || !model.new_password)
+            return res.status(400).json({ message: "Current and New Password are required" });
+        if (model.current_password === model.new_password) {
+            return { status: 400, message: "New password must be different from current password." };
+        }
+        const result = await changePassword(req.user._id, model);
+        return res.status(result.status).json({ message: result.message });
+    }catch(err){
+        console.error("Change Password Route error:", err);
+        return res.status(500).json({ message: "Something went wrong while changing your password. Please try again later." });
     }
 });
 

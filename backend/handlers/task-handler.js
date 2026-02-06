@@ -11,10 +11,7 @@ async function createTask(model, file, userId) {
         Img = await uploadToCloudinary(file.path, 'tasks');
       } catch (err) {
         console.error("Failed to upload image to Cloudinary:", err);
-        return {
-          status: 500,
-          message: "Failed to upload image to cloud. Please try again later."
-        };
+        Img = null;
       }
     }
 
@@ -132,7 +129,7 @@ async function getOtherUserTasks(userId) {
     .select("title description location picture status start_time end_time category user_id")
     .populate({
         path: "user_id",
-        select: "first_name last_name -_id"
+        select: "first_name last_name profile_picture -_id"
     })
     .sort({ createdAt: -1 })
     .lean();

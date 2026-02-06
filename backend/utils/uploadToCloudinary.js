@@ -3,9 +3,13 @@ const fs = require("fs");
 
 const uploadToCloudinary = async (localFilePath, folder) => {
   try {
-    const result = await cloudinary.uploader.upload(localFilePath, {
+    let uploadOptions = {
       folder,
-      transformation: [
+      transformation: [],
+    };
+
+    if (folder === "tasks") {
+      uploadOptions.transformation = [
         {
           width: 400,
           height: 225,
@@ -16,8 +20,23 @@ const uploadToCloudinary = async (localFilePath, folder) => {
           quality: "auto:best",
           fetch_format: "auto"
         }
-      ],
-    });
+      ];
+    } else if (folder === "profile_pictures") {
+      uploadOptions.transformation = [
+        {
+          width: 50,
+          height: 50,
+          crop: "fill",
+          gravity: "auto"
+        },
+        {
+          quality: "auto:best",
+          fetch_format: "auto"
+        }
+      ];
+    }
+
+    const result = await cloudinary.uploader.upload(localFilePath, uploadOptions);
     fs.unlinkSync(localFilePath);
     return {  
       secure_url: result.secure_url,

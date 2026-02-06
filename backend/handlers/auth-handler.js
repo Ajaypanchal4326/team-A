@@ -114,6 +114,7 @@ async function verifyOTP(model){
         user.otp_attempts = 0;
         user.otp_blocked_time = null;
         user.password_is_verified=true;
+        user.password_verified_at=new Date();
         await user.save();
 
         try{
@@ -236,6 +237,37 @@ async function resetPassword(model){
     }
 }
 
+async function changePassword(userId,model){
+    try{
+        const user = await User.findById(userId);
+        if (!user) {
+            return { status: 404, message: "User not found" };
+        } 
+
+        const valid = await bcrypt.compare(model.current_password,user.password);
+
+        if(!valid)
+            return { status: 400, message: "Current Password is incorrect." };
+
+        let hashPassword;
+        try{
+            const salt = await bcrypt.genSalt(10);
+            hashPassword = await bcrypt.hash(model.new_password,salt);
+        }
+        catch(err){
+            console.error("Password hashing failed:", err);
+            return { status: 500, message: "Something went wrong while securing your password"};
+        }
+
+        user.password = hashPassword;
+        await user.save();
+        return { status: 200, message: "Password changed successfully." };
+    }catch(err){
+        console.error("Error changing password: ",err);
+        return { status: 500, message: "Something went wrong while changing your password. Please try again later."}
+    }
+}
+
 module.exports = {
     registerNewUser,
     verifyOTP,
@@ -243,5 +275,6 @@ module.exports = {
     loginUser,
     updateExistingUser,
     forgotPassword, 
-    resetPassword 
+    resetPassword,
+    changePassword
 };
