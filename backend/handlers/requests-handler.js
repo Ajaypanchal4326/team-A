@@ -177,6 +177,7 @@ async function updateRequestStatus(requestId, action, loggedInUserId) {
 
         if (action === STATUS.REJECTED) {
             request.status = STATUS.REJECTED;
+            request.rejectedAt = new Date();
             await request.save({ session });
 
             await Notifications.create([{

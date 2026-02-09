@@ -136,16 +136,38 @@ async function getOtherUserTasks(userId) {
 
     const userRequests = await Requests.find(
       { requester_id: userId },
-      { task_id: 1, _id: 0 }
+      { task_id: 1, _id: 0, status: 1, rejectedAt: 1}
     ).lean();
 
-    const requestedTaskIds = new Set(
-      userRequests.map(req => req.task_id.toString())
-    );
+    const oneDay = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    const requestMap = new Map();
+
+    for (const req of userRequests) {
+      let blockRequest = false;
+
+      if (req.status === "pending" || req.status === "accepted") {
+        blockRequest = true;
+      }
+
+      if (req.status === "rejected") {
+        if (!req.rejectedAt) {
+          blockRequest = true;
+        } else {
+          const rejectedTime = new Date(req.rejectedAt).getTime();
+          if (now - rejectedTime < oneDay) {
+            blockRequest = true;
+          }
+        }
+      }
+
+      requestMap.set(req.task_id.toString(), blockRequest);
+    }
 
     const tasksWithRequestStatus = other_user_tasks.map(task => ({
       ...task,
-      hasRequested: requestedTaskIds.has(task._id.toString())
+      hasRequested: requestedTaskIds.has(task._id.toString()) || false,
     }));
 
     return {

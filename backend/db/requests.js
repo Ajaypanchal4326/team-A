@@ -20,6 +20,10 @@ const requestSchema = new mongoose.Schema(
         description: {
         type: String,
         },
+        rejectedAt: {
+        type: Date,
+        default: null,
+        }
     },
     { timestamps: true }
 );
