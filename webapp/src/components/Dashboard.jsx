@@ -618,6 +618,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
           </div>
 
           {/*  CENTER */}
+          {!["Settings", "Add Task"].includes(activePage) && (
           <div className="topbar-center">
             <input
               type="text"
@@ -626,6 +627,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
               onChange={(e) => setSearchTerm(e.target.value)}
             /> 
          </div>
+          )}
 
           {/*  right SIDE (Search + Bell) */}
           <div className="topbar-right">
@@ -841,7 +843,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
           {activePage === "My Tasks" && (
             <>
               <div className="my-tasks-header">
-                <h2> </h2>
+                <h2>My Tasks</h2>
 
                 <button
                   className="add-task-btn"
