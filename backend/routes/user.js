@@ -11,7 +11,7 @@ const {
 
 const router = express.Router();
 
-router.put("/profile", protect, upload.single("profile_picture"), async (req, res) => {
+router.put("/profile", upload.single("profile_picture"), async (req, res) => {
     try {
         const model = req.body;
         if (!model.first_name || !model.last_name || !model.phone_number)
