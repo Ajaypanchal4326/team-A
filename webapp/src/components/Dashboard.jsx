@@ -137,37 +137,28 @@ const Dashboard = () => {
 
 
 
-  const loadUserProfile = async () => {
-    try {
-      const res = await api.get("/auth/me");
+ const loadUserProfile = async () => {
+  try {
+    const res = await api.get("/auth/me");
 
+    const u = res.data.user;
 
-      const userData = res.data.user?.first_name || res.data.user?.last_name || res.data.user?.email_id
-        ? {
-          username: `${res.data.user.first_name || ""} ${res.data.user.last_name || ""}`.trim(),
-          email: res.data.user.email_id,
-          _id: res.data.user._id || res.data.user.id
-        }
-        : res.data.user;
+    if (!u) return;
 
-      if (userData) {
-        setUser({
-          username: userData.username || userData.name || "User",
-          email: userData.email || "user@email.com",
-          _id: userData._id || userData.id || ""
-        });
+    setUser({
+      _id: u._id || "",
+      first_name: u.first_name || "",
+      last_name: u.last_name || "",
+      email: u.email || u.email_id || "",
+      phone_number: u.phone_number || "",
+      picture: u.profile_picture || u.picture || ""
+    });
 
+  } catch (err) {
+    console.error("Failed to load user profile:", err.message);
+  }
+};
 
-        setSettings({
-          username: userData.username || userData.name || "User",
-          email: userData.email || "user@email.com",
-          notifications: true
-        });
-      }
-    } catch (err) {
-      console.error("Failed to load user profile:", err.message);
-    }
-  };
 
   //  GET NOTIFICATIONS
   const loadNotifications = async () => {
@@ -399,11 +390,10 @@ const Dashboard = () => {
     }
   };
 
-  const [settings, setSettings] = useState({
-    username: "",
-    email: "",
-    notifications: true,
-  });
+//   const [settings, setSettings] = useState({
+//   notifications: true
+// });
+
 
   const filteredTasks = (list) => {
     if (!Array.isArray(list)) return [];
@@ -578,8 +568,8 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
             </div>
 
             <div className="sidebar-footer-text">
-              <strong>{user.username || settings.username || "User"}</strong>
-              <span>{user.email || settings.email || "user@email.com"}</span>
+              <strong>{user.username || Settings.username || "User"}</strong>
+              <span>{user.email || Settings.email || "user@email.com"}</span>
             </div>
           </div>
 
@@ -1195,8 +1185,8 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                 <div className="sidebar-footer-user">
                   {(user.username || "U").charAt(0).toUpperCase()}
                 </div>
-                <strong>{user.username || settings.username || "User"}</strong>
-                <span>{user.email || settings.email || "user@email.com"}</span>
+                <strong>{user.username || Settings.username || "User"}</strong>
+                <span>{user.email || Settings.email || "user@email.com"}</span>
                 <button
                   className="logout-btn"
                   onClick={() => {

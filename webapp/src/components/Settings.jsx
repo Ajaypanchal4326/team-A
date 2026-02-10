@@ -1,24 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/settings.css";
-import axios from "axios";
+import api from "../services/api"; 
 
-const Settings = ({ user }) => {
+const Settings = ({ user, reloadUser }) => {
 
+  
   const [form, setForm] = useState({
-    first_name: user?.first_name || "",
-    last_name: user?.last_name || "",
-    email: user?.email || "",
-    phone_number: user?.phone_number || "",
-    profile_picture: null,
-    preview: user?.picture || ""
-  });
+  first_name: "",
+  last_name: "",
+  email: "",
+  phone_number: "",
+  picture: null,
+  preview: ""
+});
+
 
   const [saving, setSaving] = useState(false);
 
+  
+  useEffect(() => {
+  if (!user) return;
+
+  setForm({
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    email: user.email || "",
+    phone_number: user.phone_number || "",
+    picture: null,
+    preview: user.picture || ""
+  });
+}, [user]);
+
+
+
+
+  
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
+  
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -26,52 +50,53 @@ const Settings = ({ user }) => {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setForm({
-        ...form,
-        profile_picture: file,
+      setForm(prev => ({
+        ...prev,
+        picture: file,      
         preview: reader.result
-      });
+      }));
     };
 
     reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
+  try {
+    setSaving(true);
 
-      const formData = new FormData();
+    const formData = new FormData();
 
-      formData.append("first_name", form.first_name);
-      formData.append("last_name", form.last_name);
-      formData.append("phone_number", form.phone_number);
+    formData.append("first_name", form.first_name);
+    formData.append("last_name", form.last_name);
+    formData.append("email", form.email);
+    formData.append("phone_number", form.phone_number);
 
-      if (form.profile_picture) {
-        formData.append("profile_picture", form.profile_picture);
-      }
-
-      await axios.put(
-        "http://127.0.0.1:5000/api/user/profile",
-        formData,
-        { withCredentials: true }
-      );
-
-      alert("Profile updated successfully");
-
-    } catch (err) {
-      console.error("Profile update failed:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Update failed");
-    } finally {
-      setSaving(false);
+    if (form.picture) {
+      formData.append("profile_picture", form.picture);
     }
-  };
+
+    await api.put("/api/user/profile", formData, {
+      withCredentials: true
+    });
+
+    if (reloadUser) await reloadUser();
+
+    alert("Profile updated successfully");
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   return (
     <div className="settings-container">
 
       <h2>Settings</h2>
 
-      {/* PROFILE PIC */}
+      {/* PROFILE PICTURE */}
       <div className="settings-card">
         <h3>Profile Picture</h3>
 
@@ -115,11 +140,18 @@ const Settings = ({ user }) => {
         </div>
 
         <input
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          disabled   
+        />
+
+        <input
           name="phone_number"
           placeholder="Phone Number"
           value={form.phone_number}
           onChange={handleChange}
-        />
+/>
 
         <button
           className="settings-save-btn"
@@ -129,6 +161,7 @@ const Settings = ({ user }) => {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
+
     </div>
   );
 };
