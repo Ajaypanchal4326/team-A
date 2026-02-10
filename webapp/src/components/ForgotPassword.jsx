@@ -11,13 +11,9 @@ const ForgotPassword = () => {
   const [email_id, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   const handleSendOtp = async () => {
+    if (loading) return;
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     const cleanEmail = email_id.trim();
 
@@ -27,21 +23,13 @@ const ForgotPassword = () => {
       return;
     }
 
-    if (loading) return;
-
     try {
-
       const res = await api.post("/auth/forgot-password", {
         email_id: cleanEmail,
       });
 
       setLoading(false);
-
       toast.success(res.data?.message || "If email exists, OTP has been sent.");
-
-      setTimeout(() => {
-        setLoading(true);
-      }, 400);
 
       setTimeout(() => {
         navigate("/verify", {
@@ -62,9 +50,6 @@ const ForgotPassword = () => {
         <div className="auth-card">
           <h2>Forgot Password</h2>
           <p>Enter your registered email to receive OTP</p>
-
-
-          {/* Alerts removed in favor of toasts */}
 
           <label>
             Email Address <span className="required">*</span>

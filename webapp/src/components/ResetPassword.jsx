@@ -15,13 +15,10 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   useEffect(() => {
     if (!email) {
       toast.error("Session expired. Please try again.");
-      setTimeout(() => navigate("/forgot"), 1200);
+      setTimeout(() => navigate("/ForgotPassword"), 1200);
     }
   }, [email, navigate]);
 
@@ -29,15 +26,14 @@ const ResetPassword = () => {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pwd);
 
   const handleReset = async () => {
+    if (loading) return;
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     const cleanPassword = password.trim();
     const cleanConfirm = confirmPassword.trim();
 
     if (!cleanPassword || !cleanConfirm) {
-      setError("All fields are required");
+      toast.error("All fields are required");
       setLoading(false);
       return;
     }
@@ -56,22 +52,14 @@ const ResetPassword = () => {
       return;
     }
 
-    if (loading) return;
-
     try {
-
       const res = await api.post("/auth/reset-password", {
         email_id: email,
         password: cleanPassword,
       });
 
       setLoading(false);
-
       toast.success(res.data?.message || "Password reset successful.");
-
-      setTimeout(() => {
-        setLoading(true);
-      }, 400);
 
       setTimeout(() => navigate("/login"), 400);
 
@@ -88,8 +76,6 @@ const ResetPassword = () => {
         <div className="auth-card">
           <h2>Reset Password</h2>
           <p>Create a new password</p>
-
-          {/* Alerts removed in favor of toasts */}
 
           <label>
             New Password <span className="required">*</span>

@@ -5,35 +5,24 @@ import api from "../services/api";
 import "../styles/auth.css";
 import Loader from "../components/Loader";
 
-
-
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-
 
   const [email_id, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = async () => {
+    if (loading) return;
     setLoading(true);
 
     const email = email_id.trim();
     const pass = password.trim();
-
-    setError("");
-    setSuccess("");
-
-    if (loading) return;
-
 
     if (!email || !pass) {
       toast.error("Please enter email and password");
@@ -47,9 +36,7 @@ const Login = () => {
       return;
     }
 
-
     try {
-
       const res = await api.post("/auth/login", {
         email_id: email,
         password: pass,
@@ -57,12 +44,7 @@ const Login = () => {
       });
 
       setLoading(false);
-
       toast.success(res.data?.message || "Login successful");
-
-      setTimeout(() => {
-        setLoading(true);
-      }, 100);
 
       setTimeout(() => {
         navigate("/Dashboard");
@@ -91,9 +73,6 @@ const Login = () => {
           <h2>Welcome Back</h2>
           <p>Sign in to your Hire-a-Helper account</p>
 
-
-          {/* Alerts removed in favor of toasts */}
-
           <label>Email Address <span className="required">*</span></label>
           <input
             type="email"
@@ -120,7 +99,6 @@ const Login = () => {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                // Eye Off
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -138,7 +116,6 @@ const Login = () => {
                   <path d="M14.12 14.12L9.88 9.88" />
                 </svg>
               ) : (
-                // Eye
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
@@ -154,10 +131,8 @@ const Login = () => {
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               )}
-
             </span>
           </div>
-
 
           <div className="auth-options">
             <label className="remember-me">

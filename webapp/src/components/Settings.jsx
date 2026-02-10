@@ -4,8 +4,6 @@ import "../styles/settings.css";
 import api from "../services/api";
 
 const Settings = ({ user, reloadUser }) => {
-
-
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -15,26 +13,19 @@ const Settings = ({ user, reloadUser }) => {
     preview: ""
   });
 
-
   const [saving, setSaving] = useState(false);
-
 
   useEffect(() => {
     if (!user) return;
-
     setForm({
       first_name: user.first_name || "",
       last_name: user.last_name || "",
       email: user.email || "",
       phone_number: user.phone_number || "",
       profile_picture: null,
-      preview: user.profile_picture || ""
+      preview: user.picture || user.profile_picture || ""
     });
   }, [user]);
-
-
-
-
 
   const handleChange = (e) => {
     setForm(prev => ({
@@ -43,13 +34,11 @@ const Settings = ({ user, reloadUser }) => {
     }));
   };
 
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onloadend = () => {
       setForm(prev => ({
         ...prev,
@@ -57,16 +46,13 @@ const Settings = ({ user, reloadUser }) => {
         preview: reader.result
       }));
     };
-
     reader.readAsDataURL(file);
   };
 
   const handleSave = async () => {
     try {
       setSaving(true);
-
       const formData = new FormData();
-
       formData.append("first_name", form.first_name);
       formData.append("last_name", form.last_name);
       formData.append("phone_number", form.phone_number);
@@ -80,9 +66,7 @@ const Settings = ({ user, reloadUser }) => {
       });
 
       await reloadUser();
-
-      toast.success("Profile updated successfully⚙️");
-
+      toast.success("Profile updated successfully ⚙️");
     } catch (err) {
       toast.error("Profile update failed ❌");
       console.error(err);
@@ -91,17 +75,12 @@ const Settings = ({ user, reloadUser }) => {
     }
   };
 
-
-
   return (
     <div className="settings-container">
-
       <h2>Settings</h2>
 
-      {/* PROFILE PICTURE */}
       <div className="settings-card">
         <h3>Profile Picture</h3>
-
         <div className="profile-picture-section">
           <div className="profile-preview">
             {form.preview ? (
@@ -112,7 +91,6 @@ const Settings = ({ user, reloadUser }) => {
               </div>
             )}
           </div>
-
           <input
             type="file"
             accept="image/*"
@@ -121,10 +99,8 @@ const Settings = ({ user, reloadUser }) => {
         </div>
       </div>
 
-      {/* PERSONAL INFO */}
       <div className="settings-card">
         <h3>Personal Information</h3>
-
         <div className="settings-row">
           <input
             name="first_name"
@@ -132,7 +108,6 @@ const Settings = ({ user, reloadUser }) => {
             value={form.first_name}
             onChange={handleChange}
           />
-
           <input
             name="last_name"
             placeholder="Last Name"
@@ -140,21 +115,18 @@ const Settings = ({ user, reloadUser }) => {
             onChange={handleChange}
           />
         </div>
-
         <input
           name="email"
           placeholder="Email"
           value={form.email}
           disabled
         />
-
         <input
           name="phone_number"
           placeholder="Phone Number"
           value={form.phone_number}
           onChange={handleChange}
         />
-
         <button
           className="settings-save-btn"
           onClick={handleSave}
@@ -163,7 +135,6 @@ const Settings = ({ user, reloadUser }) => {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
-
     </div>
   );
 };

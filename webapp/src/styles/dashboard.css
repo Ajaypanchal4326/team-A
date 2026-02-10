@@ -117,36 +117,103 @@
 /* For empty state for feed and mytasks */
 .empty-state-feed {
   width: 100%;
-  text-align: center;
-  margin-top: 86px;
+  grid-column: 1 / -1;
+  text-align: left;
+  margin-top: 20px;
+  padding: 20px;
   color: #666;
 }
 
 .empty-state-feed h3 {
   font-size: 22px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.empty-state-feed p {
+  font-size: 14px;
+  opacity: 0.8;
+  color: #666;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* my task */
 .empty-state {
   width: 100%;
-  text-align: center;
-  margin-top: 20px;
+  grid-column: 1 / -1;
+  text-align: left;
+  margin-top: 2px;
+  padding: 20px;
   color: #666;
 }
 
 .empty-state h3 {
-  font-size: 22px;
-  margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 8px;
   color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .empty-state p {
-  font-size: 15px;
+  font-size: 14px;
   opacity: 0.8;
+  color: #666;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+  .empty-state-feed,
+  .empty-state {
+    margin-top: 16px;
+    padding: 16px;
+  }
+
+  .empty-state-feed h3,
+  .empty-state h3 {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .empty-state-feed p,
+  .empty-state p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .empty-state-feed,
+  .empty-state {
+    margin-top: 12px;
+    padding: 12px;
+  }
+
+  .empty-state-feed h3,
+  .empty-state h3 {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  .empty-state-feed p,
+  .empty-state p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
 
 @media (max-width: 480px) {
   .feed {
@@ -286,17 +353,18 @@
   display: block;
 }
 
-/* Badges Container - UPDATED */
-.task-card .badges-container {
+
+/* Badges Container */
+.badges-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
+  gap: 8px;
 }
 
-/* Category Tag - Small pill style */
-.task-card .tag,
-.task-card .category-badge {
+/* Category Tag - Pill Style */
+.badges-container .tag {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 10px;
@@ -306,11 +374,12 @@
   background: #e0f2fe;
   color: #0369a1;
   border: none;
-  position: static;
+  display: inline-block;
+  white-space: nowrap;
 }
 
-/* Status Badge  */
-.status-badge {
+/* Status Badge - Pill Style */
+.badges-container .status-badge {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 10px;
@@ -318,7 +387,9 @@
   text-transform: lowercase;
   letter-spacing: 0.3px;
   border: none;
-  position: static;
+  display: inline-block;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
 .status-pending {
@@ -346,6 +417,37 @@
   color: #92400e;
 }
 
+/* Status: Open */
+.status-badge.status-open {
+  background: #dbeafe;
+  color: #0369a1;
+}
+
+/* Status: Assigned */
+.status-badge.status-assigned {
+  background: #c7d2fe;
+  color: #3730a3;
+}
+
+/* Status: In Progress */
+.status-badge.status-in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Status: Completed */
+.status-badge.status-completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Status: Cancelled */
+.status-badge.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+
 /* Card Content */
 .task-card .card-content {
   padding: 12px 16px;
@@ -353,7 +455,7 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
-  
+
 }
 
 .task-card h3 {
@@ -414,8 +516,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;              
-  min-width: 0; 
+  flex: 1;
+  min-width: 0;
 }
 
 .author-avatar {
@@ -442,7 +544,7 @@
   min-width: 0;
   flex: 1;
 
-       
+
 }
 
 .author-name span {
@@ -450,15 +552,15 @@
   font-weight: 500;
   color: #374151;
 
-  white-space: nowrap;       
-  overflow: hidden;         
-  text-overflow: ellipsis;   
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
 .task-footer button {
-  flex-shrink: 0;     
-  margin-left: 12px;  
+  flex-shrink: 0;
+  margin-left: 12px;
 }
 
 
@@ -770,7 +872,7 @@
   justify-content: center;
   border-radius: 8px;
   background: transparent;
-   line-height: 1;
+  line-height: 1;
 
 }
 
@@ -782,8 +884,8 @@
 
 .notification-badge {
   position: absolute;
- top: -10px;
-right: -2px;
+  top: -10px;
+  right: -2px;
   background: red;
   color: white;
   font-size: 10px;
@@ -799,7 +901,7 @@ right: -2px;
 .notification-dropdown {
   position: absolute;
   top: calc(100% + 10px);
-  right:25px;               
+  right: 25px;
   width: 360px;
   max-height: 420px;
   background: #ffffff;
@@ -884,7 +986,7 @@ right: -2px;
   flex: 1;
   display: flex;
   flex-direction: column;
-   gap: 0px;
+  gap: 0px;
 }
 
 /* MESSAGE  */
@@ -2841,7 +2943,7 @@ right: -2px;
     font-size: 12px;
   }
 
-  
+
   .modal {
     width: 100%;
     padding: 12px;
@@ -2946,7 +3048,7 @@ right: -2px;
     font-size: 11px;
   }
 
-  
+
   .topbar {
     height: 52px;
     padding: 0 10px;
@@ -2975,7 +3077,7 @@ right: -2px;
     height: 32px;
   }
 
- 
+
   .add-task-form {
     padding: 16px;
   }
@@ -3060,7 +3162,7 @@ right: -2px;
     font-size: 11px;
   }
 
-  
+
   .sidebar-footer strong {
     font-size: 11px;
   }
@@ -3220,8 +3322,50 @@ right: -2px;
     margin-left: 0 !important;
   }
 
-  .notification-bell {
-    width: 30px;
-    height: 30px;
+
+}
+
+/* Responsive adjustments for status badge */
+@media (max-width: 480px) {
+  .badges-container {
+    padding: 12px 14px;
+    gap: 6px;
+  }
+
+  .badges-container .tag,
+  .badges-container .status-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 400px) {
+  .badges-container {
+    padding: 10px 12px;
+    gap: 4px;
+  }
+
+  .badges-container .tag,
+  .badges-container .status-badge {
+    padding: 3px 8px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 375px) {
+  .badges-container {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .badges-container .tag,
+  .badges-container .status-badge {
+    padding: 2px 6px;
+    font-size: 8px;
+  }
+
+  .badges-container .status-badge {
+    margin-left: 0;
   }
 }

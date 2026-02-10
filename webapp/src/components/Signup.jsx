@@ -17,8 +17,6 @@ const Signup = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,10 +29,8 @@ const Signup = () => {
     /^[6-9]\d{9}$/.test(phone);
 
   const handleSignup = async () => {
+    if (loading) return;
     setLoading(true);
-
-    setError("");
-    setSuccess("");
 
     const payload = {
       first_name: form.first_name.trim(),
@@ -68,19 +64,10 @@ const Signup = () => {
       return;
     }
 
-    if (loading) return;
-
     try {
-
       const res = await api.post("/auth/register", payload);
-
       setLoading(false);
-
-      setSuccess(res.data?.message || "Registration successful");
-
-      setTimeout(() => {
-        setLoading(true);
-      }, 400);
+      toast.success(res.data?.message || "Registration successful");
 
       setTimeout(() => {
         navigate("/verify", {
@@ -102,7 +89,6 @@ const Signup = () => {
           <h2>Create Account</h2>
           <p>Join the Hire-a-Helper community</p>
 
-          {/* Alerts removed in favor of toasts */}
           <div className="two-col">
             <div className="input-group">
               <label>First Name <span className="required">*</span></label>
@@ -115,7 +101,6 @@ const Signup = () => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="input-group">
               <label>Last Name <span className="required">*</span></label>
               <input

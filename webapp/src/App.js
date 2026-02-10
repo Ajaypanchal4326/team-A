@@ -24,7 +24,6 @@ function App() {
         <Route path="/ResetPassword" element={<ResetPassword />} />
         <Route path="/Dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/Loader" element={<Loader />} />
-
       </Routes>
     </BrowserRouter>
   );

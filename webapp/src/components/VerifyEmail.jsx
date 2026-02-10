@@ -9,9 +9,6 @@ const VerifyEmail = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,9 +20,8 @@ const VerifyEmail = () => {
   }
 
   const handleVerify = async () => {
+    if (loading) return;
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     const cleanOtp = otp.trim();
 
@@ -35,10 +31,7 @@ const VerifyEmail = () => {
       return;
     }
 
-    if (loading) return;
-
     try {
-
       const res = await api.post("/auth/verify-otp", {
         email_id: email,
         otp: cleanOtp,
@@ -46,12 +39,7 @@ const VerifyEmail = () => {
       });
 
       setLoading(false);
-
       toast.success(res.data?.message || "OTP verified");
-
-      setTimeout(() => {
-        setLoading(true);
-      }, 400);
 
       setTimeout(() => {
         if (first_time) {
@@ -68,21 +56,14 @@ const VerifyEmail = () => {
   };
 
   const handleResend = async () => {
-    setError("");
-    setSuccess("");
-
     try {
       setLoading(true);
-
       const res = await api.post("/auth/resend-otp", {
         email_id: email,
       });
-
       toast.success(res.data?.message || "OTP resent");
-
     } catch (err) {
       const msg = err.response?.data?.message;
-
       if (msg?.toLowerCase().includes("already verified")) {
         toast.success("Email already verified. Please login.");
         setTimeout(() => navigate("/login"), 1200);
@@ -101,8 +82,6 @@ const VerifyEmail = () => {
         <div className="auth-card">
           <h2>Verify Your OTP</h2>
           <p>OTP sent to: {email}</p>
-
-          {/* Alerts removed in favor of toasts */}
 
           <label>
             Verification Code <span className="required">*</span>
