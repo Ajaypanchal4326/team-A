@@ -390,9 +390,11 @@ const Dashboard = () => {
     }
   };
 
-//   const [settings, setSettings] = useState({
-//   notifications: true
-// });
+  //   const [settings, setSettings] = useState({
+  //   username: "",
+  //   email: "",
+  //   notifications: true,
+  // });
 
 
   const filteredTasks = (list) => {
@@ -563,13 +565,25 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
         <div className="sidebar-footer">
 
           <div className="sidebar-footer-info">
-            <div className="sidebar-footer-user">
-              {(user.username || "U").charAt(0).toUpperCase()}
-            </div>
+              <div className="sidebar-footer-user">
+                {user?.profile_picture ? (
+                  <img
+                    src={user.profile_picture}
+                    alt="profile"
+                    className="sidebar-footer-avatar"
+                  />
+                ) : (
+                   (user?.first_name || user?.email || "U")
+      .charAt(0)
+      .toUpperCase()
+  )}
+                
+                </div>
+ 
 
             <div className="sidebar-footer-text">
-              <strong>{user.username || Settings.username || "User"}</strong>
-              <span>{user.email || Settings.email || "user@email.com"}</span>
+              <strong>{`${user.first_name || ""} ${user.last_name || ""}`.trim() || "User"}</strong>
+              <span>{user.email || "user@email.com"}</span>
             </div>
           </div>
 
@@ -1183,10 +1197,10 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
 
               <div className="sidebar-footer">
                 <div className="sidebar-footer-user">
-                  {(user.username || "U").charAt(0).toUpperCase()}
+                  {(user.profile_picture || "U").charAt(0).toUpperCase()}
                 </div>
-                <strong>{user.username || Settings.username || "User"}</strong>
-                <span>{user.email || Settings.email || "user@email.com"}</span>
+                <strong>{`${user.first_name || ""} ${user.last_name || ""}`.trim() || "User"}</strong>
+                <span>{user.email || "user@email.com"}</span>
                 <button
                   className="logout-btn"
                   onClick={() => {

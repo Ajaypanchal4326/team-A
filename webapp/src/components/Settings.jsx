@@ -10,7 +10,7 @@ const Settings = ({ user, reloadUser }) => {
   last_name: "",
   email: "",
   phone_number: "",
-  picture: null,
+  profile_picture: null,
   preview: ""
 });
 
@@ -26,8 +26,8 @@ const Settings = ({ user, reloadUser }) => {
     last_name: user.last_name || "",
     email: user.email || "",
     phone_number: user.phone_number || "",
-    picture: null,
-    preview: user.picture || ""
+    profile_picture: null,
+    preview: user.profile_picture || ""
   });
 }, [user]);
 
@@ -52,7 +52,7 @@ const Settings = ({ user, reloadUser }) => {
     reader.onloadend = () => {
       setForm(prev => ({
         ...prev,
-        picture: file,      
+        profile_picture: file,      
         preview: reader.result
       }));
     };
@@ -68,18 +68,17 @@ const Settings = ({ user, reloadUser }) => {
 
     formData.append("first_name", form.first_name);
     formData.append("last_name", form.last_name);
-    formData.append("email", form.email);
     formData.append("phone_number", form.phone_number);
 
-    if (form.picture) {
-      formData.append("profile_picture", form.picture);
+    if (form.profile_picture) {
+      formData.append("profile_picture", form.profile_picture);
     }
 
-    await api.put("/api/user/profile", formData, {
+    await api.put("user/profile", formData, {
       withCredentials: true
     });
 
-    if (reloadUser) await reloadUser();
+    await reloadUser();
 
     alert("Profile updated successfully");
 
@@ -89,6 +88,7 @@ const Settings = ({ user, reloadUser }) => {
     setSaving(false);
   }
 };
+
 
 
   return (
