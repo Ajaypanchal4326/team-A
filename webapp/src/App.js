@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import VerifyEmail from "./components/VerifyEmail";
@@ -11,16 +14,16 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/verify" element={<VerifyEmail />} />
-         <Route path="/ResetPassword" element={<ResetPassword />} />
-        <Route path="/Dashboard" element={ <ProtectedRoute><Dashboard/></ProtectedRoute>}/>
-         <Route path="/Loader" element={<Loader/>}/>
-        
+        <Route path="/ResetPassword" element={<ResetPassword />} />
+        <Route path="/Dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/Loader" element={<Loader />} />
       </Routes>
     </BrowserRouter>
   );

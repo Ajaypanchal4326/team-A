@@ -1,0 +1,88 @@
+/* Fix for react-toastify UI consistency */
+
+/* 1. Main Toast Container */
+.Toastify__toast {
+    position: relative !important;
+    padding-right: 48px !important;
+    /* Space for close button */
+    padding-left: 12px !important;
+    min-height: 64px !important;
+    width: auto !important;
+    max-width: 500px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    /* Strictly forbid wrapping */
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 2. Toast Icon */
+.Toastify__toast-icon {
+    margin-right: 8px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 3. Toast Body (Message Area) */
+.Toastify__toast-body {
+    flex: 1 1 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    /* Force single line */
+    overflow: visible !important;
+}
+
+/* 4. Target the actual message div inside the body */
+.Toastify__toast-body>div {
+    white-space: nowrap !important;
+    display: inline-block !important;
+    padding-right: 12px !important;
+    /* Extra safety space */
+}
+
+/* 5. Close Button Positioning */
+.Toastify__close-button {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    opacity: 0.6;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 100 !important;
+}
+
+.Toastify__close-button:hover {
+    opacity: 1;
+}
+
+.Toastify__close-button>svg {
+    width: 14px !important;
+    height: 14px !important;
+    fill: currentColor !important;
+}
+
+/* 6. Success/Error Left Borders */
+.Toastify__toast--success {
+    border-left: 6px solid #4caf50 !important;
+}
+
+.Toastify__toast--error {
+    border-left: 6px solid #f44336 !important;
+}

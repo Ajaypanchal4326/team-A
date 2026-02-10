@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "../styles/auth.css";
 import api from "../services/api";
 import Loader from "./Loader";
@@ -14,13 +15,10 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   useEffect(() => {
     if (!email) {
-      setError("Session expired. Please try again.");
-      setTimeout(() => navigate("/forgot"), 1200);
+      toast.error("Session expired. Please try again.");
+      setTimeout(() => navigate("/ForgotPassword"), 1200);
     }
   }, [email, navigate]);
 
@@ -28,94 +26,82 @@ const ResetPassword = () => {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pwd);
 
   const handleReset = async () => {
+    if (loading) return;
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     const cleanPassword = password.trim();
     const cleanConfirm = confirmPassword.trim();
 
     if (!cleanPassword || !cleanConfirm) {
-      setError("All fields are required");
+      toast.error("All fields are required");
       setLoading(false);
       return;
     }
 
     if (cleanPassword !== cleanConfirm) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       setLoading(false);
       return;
     }
 
     if (!isStrongPassword(cleanPassword)) {
-      setError(
+      toast.error(
         "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
       );
       setLoading(false);
       return;
     }
 
-     if(loading) return;
-  
     try {
-      
       const res = await api.post("/auth/reset-password", {
         email_id: email,
         password: cleanPassword,
       });
 
       setLoading(false);
-
-      setSuccess(res.data?.message || "Password reset successful.");
-
-       setTimeout(() => {
-  setLoading(true);   
-}, 400);
+      toast.success(res.data?.message || "Password reset successful.");
 
       setTimeout(() => navigate("/login"), 400);
 
     } catch (err) {
-      setError(err.response?.data?.message || "Reset failed");
+      toast.error(err.response?.data?.message || "Reset failed");
       setLoading(false);
-    } 
+    }
   };
 
   return (
     <>
-    {loading && <Loader/>}
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Reset Password</h2>
-        <p>Create a new password</p>
+      {loading && <Loader />}
+      <div className="auth-container">
+        <div className="auth-card">
+          <h2>Reset Password</h2>
+          <p>Create a new password</p>
 
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">{success}</div>}
+          <label>
+            New Password <span className="required">*</span>
+          </label>
+          <input
+            type="password"
+            placeholder="New password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <label>
-          New Password <span className="required">*</span>
-        </label>
-        <input
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <label>
+            Confirm Password <span className="required">*</span>
+          </label>
+          <input
+            type="password"
+            placeholder="Confirm password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
-        <label>
-          Confirm Password <span className="required">*</span>
-        </label>
-        <input
-          type="password"
-          placeholder="Confirm password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-
-        <button onClick={handleReset} disabled={loading}>
-          {loading ? "Updating..." : "Update Password"}
-        </button>
+          <button onClick={handleReset} disabled={loading}>
+            {loading ? "Updating..." : "Update Password"}
+          </button>
+        </div>
       </div>
-    </div>
     </>
   );
 };

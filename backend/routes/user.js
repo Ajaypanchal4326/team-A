@@ -11,10 +11,10 @@ const {
 
 const router = express.Router();
 
-router.put("/profile", upload.single("profile_picture"), async (req, res) => {
-    try{
+router.put("/profile", protect, upload.single("profile_picture"), async (req, res) => {
+    try {
         const model = req.body;
-        if(!model.first_name || !model.last_name || !model.phone_number)
+        if (!model.first_name || !model.last_name || !model.phone_number)
             return res.status(400).json({ message: "All fields are required" });
 
         const result = await updateProfile(req.user._id, model, req.file);
