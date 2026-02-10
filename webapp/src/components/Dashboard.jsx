@@ -3,7 +3,9 @@ import { Upload } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import api from "../services/api";
+import Settings from "./Settings";
 import Loader from "./Loader";
+
 import { Bell } from "lucide-react";
 
 
@@ -825,12 +827,10 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
 
           {/* ===== SETTINGS ===== */}
           {activePage === "Settings" && (
-            <div className="settings-page">
-              <input placeholder="Username" value={settings.username}
-                onChange={e => setSettings({ ...settings, username: e.target.value })} />
-              <input placeholder="Email" value={settings.email}
-                onChange={e => setSettings({ ...settings, email: e.target.value })} />
-            </div>
+              <Settings
+                user={user}
+                reloadUser={loadUserProfile}
+              />
           )}
 
           {/* ===== MY TASKS ===== */}
