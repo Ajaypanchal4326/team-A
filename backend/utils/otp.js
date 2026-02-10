@@ -4,7 +4,7 @@ const transporter = require("../config/email.js");
 const { Welcome_Email_Template, Verification_Email_Template } = require("./emailTemplates.js")
 dotenv.config();
 
-async function generateAndSendOTP(user, path) {
+async function generateAndSendOTP(user, path, email = null) {
     const otp = Math.floor(100000 + Math.random() * 900000);
     const salt = await bcrypt.genSalt(10);
     const hashotp = await bcrypt.hash(otp.toString(), salt);
@@ -15,7 +15,7 @@ async function generateAndSendOTP(user, path) {
     if (path)
         user.password_is_verified = false;
     await user.save();
-    await sendOTPEmail(otp, user.pending_email || user.email_id);
+    await sendOTPEmail(otp, email || user.email_id);
 }
 
 async function sendOTPEmail(otp, email) {

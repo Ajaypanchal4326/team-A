@@ -23,7 +23,6 @@ const userSchema = new mongoose.Schema({
         profile_picture_public_id: { type: String, default: null },
         otp_hash: { type: String, default: null },
         otp_expires_at: { type: Date, default: null },
-        otp_resend_timer: { type: Date, default: null },
         otp_attempts: { type:Number, default:0 },
         otp_blocked_time: { type:Date, default:null },
         password_is_verified: { type: Boolean, default: true },

@@ -14,10 +14,10 @@ const taskSchema = new mongoose.Schema(
         description: { type: String },
         location: { type: String, required: true },
         start_time: { type: Date, required: true },
-        end_time: { type: Date },
+        end_time: { type: Date, required: true },
         status: {
         type: String,
-        enum: ["open", "assigned", "completed", "cancelled"],
+        enum: ["open", "assigned", "closed" ],
         default: "open",
         },
         category: { type: String, required: true },
@@ -26,6 +26,8 @@ const taskSchema = new mongoose.Schema(
     },
     { timestamps: true, _id: false }
 );
+
+taskSchema.index({ end_date: 1, status: 1 });
 
 const Task = mongoose.model("Task",taskSchema);
 module.exports = Task;

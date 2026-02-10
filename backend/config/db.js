@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
+const autoCloseTasksJob = require("../utils/autoCloseTasks");
 
 async function connectDB() {
     try{
         await mongoose.connect(process.env.MONGO_URI);
         console.log("MongoDb connected")
+        autoCloseTasksJob();
     }catch(err){
         console.error(err.message);
         process.exit(1);
