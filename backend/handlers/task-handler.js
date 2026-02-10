@@ -167,7 +167,7 @@ async function getOtherUserTasks(userId) {
 
     const tasksWithRequestStatus = other_user_tasks.map(task => ({
       ...task,
-      hasRequested: requestedTaskIds.has(task._id.toString()) || false,
+      hasRequested: requestMap.get(task._id.toString()) || false,
     }));
 
     return {
