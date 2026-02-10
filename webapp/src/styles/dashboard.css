@@ -84,15 +84,6 @@
   display: none;
 }
 
-/* Search bar */
-.topbar-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-
 /* Notification Bell */
 .topbar span {
   font-size: 20px;
@@ -122,6 +113,40 @@
   /* ensure grid items stretch uniformly */
 
 }
+
+/* For empty state for feed and mytasks */
+.empty-state-feed {
+  width: 100%;
+  text-align: center;
+  margin-top: 86px;
+  color: #666;
+}
+
+.empty-state-feed h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* my task */
+.empty-state {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.empty-state h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.empty-state p {
+  font-size: 15px;
+  opacity: 0.8;
+}
+
 
 @media (max-width: 480px) {
   .feed {
@@ -328,7 +353,7 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
-  /* grow so footer stays at bottom */
+  
 }
 
 .task-card h3 {
@@ -1080,6 +1105,35 @@ right: -2px;
   margin-bottom: 10px;
 }
 
+/* ================= HAMBURGER MENU FOOTER ================= */
+.hamburger-menu .sidebar-footer {
+  border-top: 1px solid #555;
+  padding-top: 15px;
+  margin-top: 30px;
+}
+
+.hamburger-menu .sidebar-footer-user {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.hamburger-menu .sidebar-footer strong {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.hamburger-menu .sidebar-footer span {
+  font-size: 11px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.hamburger-menu .logout-btn {
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
 /* Logout Button */
 .logout-btn {
   width: 100%;
@@ -1160,14 +1214,6 @@ right: -2px;
   display: flex;
   justify-content: center;
   gap: 12px;
-}
-
-.request-card {
-  background: #fff3e6;
-  border-left: 6px solid #ff8c32;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
 }
 
 .request-card h3 {
@@ -1332,34 +1378,7 @@ right: -2px;
   transform: translateY(0);
 }
 
-/* ================= HAMBURGER MENU FOOTER ================= */
-.hamburger-menu .sidebar-footer {
-  border-top: 1px solid #555;
-  padding-top: 15px;
-  margin-top: 30px;
-}
 
-.hamburger-menu .sidebar-footer-user {
-  width: 40px;
-  height: 40px;
-  font-size: 14px;
-}
-
-.hamburger-menu .sidebar-footer strong {
-  font-size: 13px;
-  margin-top: 8px;
-}
-
-.hamburger-menu .sidebar-footer span {
-  font-size: 11px;
-  color: #999;
-  margin-top: 2px;
-}
-
-.hamburger-menu .logout-btn {
-  font-size: 12px;
-  padding: 8px 10px;
-}
 
 /* ================= REQUEST MODAL ================= */
 .request-modal {
@@ -2105,6 +2124,13 @@ right: -2px;
 
 .modal-actions button:last-child:hover {
   background: #d1d5db;
+}
+
+/* Required fields symbol */
+.required {
+  color: #ef4444;
+  margin-left: 2px;
+  font-weight: bold;
 }
 
 

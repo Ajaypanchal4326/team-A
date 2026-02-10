@@ -22,6 +22,7 @@ const VerifyEmail = () => {
   }
 
   const handleVerify = async () => {
+    setLoading(true);
     setError("");
     setSuccess("");
 
@@ -29,6 +30,7 @@ const VerifyEmail = () => {
 
     if (!/^\d{4,6}$/.test(cleanOtp)) {
       setError("Enter a valid OTP");
+      setLoading(false);
       return;
     }
 
@@ -41,6 +43,8 @@ const VerifyEmail = () => {
         otp: cleanOtp,
         first_time: first_time,
       });
+
+      setLoading(false);
 
       setSuccess(res.data?.message || "OTP verified");
 

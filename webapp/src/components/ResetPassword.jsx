@@ -28,6 +28,7 @@ const ResetPassword = () => {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pwd);
 
   const handleReset = async () => {
+    setLoading(true);
     setError("");
     setSuccess("");
 
@@ -36,11 +37,13 @@ const ResetPassword = () => {
 
     if (!cleanPassword || !cleanConfirm) {
       setError("All fields are required");
+      setLoading(false);
       return;
     }
 
     if (cleanPassword !== cleanConfirm) {
       setError("Passwords do not match");
+      setLoading(false);
       return;
     }
 
@@ -48,6 +51,7 @@ const ResetPassword = () => {
       setError(
         "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
       );
+      setLoading(false);
       return;
     }
 
@@ -59,6 +63,8 @@ const ResetPassword = () => {
         email_id: email,
         password: cleanPassword,
       });
+
+      setLoading(false);
 
       setSuccess(res.data?.message || "Password reset successful.");
 

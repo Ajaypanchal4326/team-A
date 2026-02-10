@@ -691,18 +691,26 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
         <main className="main">
 
           {activePage === "Feed" && (
-            <div className="feed">
-              {filteredTasks(tasks).map((task, index) => (
-                <TaskCard
-                  key={task._id || task.id || index}
-                  task={task}
-                  currentUserId={user._id}
-                  sentRequests={sentRequests}
-                  onRequestTask={openRequestModal}
-                />
-              ))}
-            </div>
-          )}
+  <div className="feed">
+    {filteredTasks(tasks).length === 0 ? (
+      <div className="empty-state-feed">
+        <h3>No tasks available right now</h3>
+        <p>Be the first to add a task or check back later.</p>
+      </div>
+    ) : (
+      filteredTasks(tasks).map((task, index) => (
+        <TaskCard
+          key={task._id || task.id || index}
+          task={task}
+          currentUserId={user._id}
+          sentRequests={sentRequests}
+          onRequestTask={openRequestModal}
+        />
+      ))
+    )}
+  </div>
+)}
+
 
 
           {/* ===== NEW ADD TASK ===== */}
@@ -712,7 +720,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                 <h2>Add Task</h2>
 
                 <div className="form-group">
-                  <label>Task Title</label>
+                  <label>Task Title <span className="required">*</span></label>
                   <input
                     type="text"
                     placeholder="Task Title"
@@ -733,7 +741,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Category</label>
+                    <label>Category <span className="required">*</span></label>
                     <input
                       type="text"
                       placeholder="e.g., Moving, Gardening, Tech"
@@ -743,7 +751,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                   </div>
 
                   <div className="form-group">
-                    <label>Location</label>
+                    <label>Location <span className="required">*</span></label>
                     <input
                       type="text"
                       placeholder="City, State"
@@ -755,7 +763,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label> Start Date</label>
+                    <label> Start Date <span className="required">*</span></label>
                     <input
                       type="date"
                       value={newTask.startDate}
@@ -764,7 +772,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                   </div>
 
                   <div className="form-group">
-                    <label> End Date</label>
+                    <label> End Date </label>
                     <input
                       type="date"
                       value={newTask.endDate}
@@ -840,17 +848,24 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
               </div>
 
              <div className="feed my-tasks-section">
-               {filteredTasks(myTasks).map((task, index) => (
-                  <TaskCard
-                    key={task._id || task.id || index}
-                    task={task}
-                    editable={true}
-                    onEdit={setEditingTask}
-                  />
-                ))}
-             </div>
-            </>
-          )}
+      {filteredTasks(myTasks).length === 0 ? (
+        <div className="empty-state">
+          <h3>You haven’t created any tasks yet</h3>
+          <p>Start by adding a new task and get help from others.</p>
+        </div>
+      ) : (
+        filteredTasks(myTasks).map((task, index) => (
+          <TaskCard
+            key={task._id || task.id || index}
+            task={task}
+            editable={true}
+            onEdit={setEditingTask}
+          />
+        ))
+      )}
+    </div>
+  </>
+)}
 
 
           {/* ===== REQUESTS ===== */}
@@ -1026,7 +1041,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
 
               <h2>Edit Task</h2>
 
-              <label>Title</label>
+              <label>Title <span className="required">*</span></label>
               <input
                 type="text"
                 value={editingTask.title || ""}
@@ -1035,7 +1050,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                 }
               />
 
-              <label>Category</label>
+              <label>Category <span className="required">*</span></label>
               <input
                 type="text"
                 value={editingTask.category || ""}
@@ -1054,7 +1069,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                 }
               />
 
-              <label>Location</label>
+              <label>Location <span className="required">*</span></label>
               <input
                 type="text"
                 value={editingTask.location || ""}
@@ -1063,7 +1078,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
                 }
               />
 
-              <label>Start Date & Time</label>
+              <label>Start Date & Time <span className="required">*</span></label>
               <input
                 type="datetime-local"
                 value={editingTask.start_time ? editingTask.start_time.slice(0, 16) : ""}
@@ -1073,7 +1088,7 @@ const filteredSentRequests = (sentRequests || []).filter(req =>
               />
 
               {/*  END DATE */}
-              <label>End Date & Time</label>
+              <label>End Date & Time <span className="required">*</span></label>
               <input
                 type="datetime-local"
                 value={editingTask.end_time ? editingTask.end_time.slice(0, 16) : ""}

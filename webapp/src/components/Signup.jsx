@@ -30,6 +30,8 @@ const Signup = () => {
     /^[6-9]\d{9}$/.test(phone);
 
   const handleSignup = async () => {
+    setLoading(true);
+
     setError("");
     setSuccess("");
 
@@ -43,21 +45,25 @@ const Signup = () => {
 
     if (Object.values(payload).some((v) => !v)) {
       setError("All fields are required");
+      setLoading(false);
       return;
     }
 
     if (!isValidEmail(payload.email_id)) {
       setError("Enter a valid email address");
+      setLoading(false);
       return;
     }
 
     if (!isValidPhone(payload.phone_number)) {
       setError("Enter a valid 10-digit phone number");
+      setLoading(false);
       return;
     }
 
     if (payload.password.length < 8) {
       setError("Password must be at least 8 characters");
+      setLoading(false);
       return;
     }
 
@@ -66,6 +72,8 @@ const Signup = () => {
     try {
       
       const res = await api.post("/auth/register", payload);
+
+      setLoading(false);
 
       setSuccess(res.data?.message || "Registration successful");
 

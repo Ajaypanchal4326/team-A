@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const [success, setSuccess] = useState("");
 
   const handleSendOtp = async () => {
+    setLoading(true);
     setError("");
     setSuccess("");
 
@@ -21,6 +22,7 @@ const ForgotPassword = () => {
 
     if (!/^\S+@\S+\.\S+$/.test(cleanEmail)) {
       setError("Enter a valid email address");
+      setLoading(false);
       return;
     }
 
@@ -31,6 +33,8 @@ const ForgotPassword = () => {
       const res = await api.post("/auth/forgot-password", {
         email_id: cleanEmail,
       });
+
+      setLoading(false);
 
       setSuccess(res.data?.message || "If email exists, OTP has been sent.");
 

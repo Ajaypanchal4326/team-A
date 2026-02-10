@@ -23,6 +23,8 @@ const Login = () => {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleLogin = async () => {
+           setLoading(true);
+
     const email = email_id.trim();
     const pass = password.trim();
 
@@ -34,11 +36,13 @@ const Login = () => {
 
     if (!email || !pass) {
       setError("Please enter email and password");
+      setLoading(false);
       return;
     }
 
     if (!isValidEmail(email)) {
       setError("Please enter a valid email address");
+      setLoading(false);
       return;
     }
     
@@ -51,7 +55,8 @@ const Login = () => {
         remember,
       });
       
-    
+           setLoading(false);
+
      setSuccess(res.data?.message || "Login successful");
 
  setTimeout(() => {
