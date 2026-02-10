@@ -1,6 +1,12 @@
 const express = require("express");
 const upload  = require("../middleware/multer.middleware");
 const { updateProfile,changePassword } = require("../handlers/user-handler");
+const {
+  reverifyPassword,
+  sendChangeEmailOtp,
+  verifyChangeEmailOtp
+} = require("../handlers/user-handler");
+const protect = require("../middleware/auth-middleware");
 const router = express.Router();
 
 router.put("/profile", upload.single("profile_picture"), async (req, res) => {
@@ -16,5 +22,11 @@ router.put("/profile", upload.single("profile_picture"), async (req, res) => {
         return res.status(500).json({ message: "Something went wrong while updating your profile. Please try again later." });
     }
 });
+
+router.post("/reverify-password", protect, reverifyPassword);
+
+router.post("/change-email/send-otp", protect, sendChangeEmailOtp);
+
+router.post("/change-email/verify-otp", protect, verifyChangeEmailOtp);
 
 module.exports = router;

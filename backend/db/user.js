@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
             unique: true, 
             index: true
         },
+        pending_email: { type: String, default: null },
         password: { type: String, required: true },
         last_password_change: { type: Date, default: Date.now },
         profile_picture: { type: String, default: null },
