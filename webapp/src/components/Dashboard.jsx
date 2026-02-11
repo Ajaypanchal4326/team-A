@@ -49,7 +49,6 @@ const Dashboard = () => {
     location: "",
     startDate: "",
     endDate: "",
-    budget: "",
     image: null,
     imagePreview: null,
   });
@@ -214,7 +213,6 @@ const Dashboard = () => {
       formData.append("start_time", newTask.startDate);
       formData.append("end_time", newTask.endDate);
       formData.append("status", "active");
-      formData.append("budget", newTask.budget);
       if (newTask.image) formData.append("picture", newTask.image);
 
       const res = await api.post("/task/create", formData, {
@@ -232,7 +230,6 @@ const Dashboard = () => {
         location: "",
         startDate: "",
         endDate: "",
-        budget: "",
         image: null,
         imagePreview: null
       });
@@ -536,10 +533,6 @@ const Dashboard = () => {
                       <label> End Date </label>
                       <input type="date" value={newTask.endDate} onChange={e => setNewTask({ ...newTask, endDate: e.target.value })} />
                     </div>
-                  </div>
-                  <div className="form-group">
-                    <label>Budget</label>
-                    <input type="number" placeholder="Budget in USD" value={newTask.budget} onChange={e => setNewTask({ ...newTask, budget: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>Task Image</label>
