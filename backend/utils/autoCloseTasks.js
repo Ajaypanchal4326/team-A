@@ -3,7 +3,7 @@ const Task = require("../db/task");
 
 const autoCloseTasksJob = () => {
 
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     try {
       const now = new Date();
 
