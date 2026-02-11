@@ -530,7 +530,7 @@ const Dashboard = () => {
                       <input type="date" value={newTask.startDate} onChange={e => setNewTask({ ...newTask, startDate: e.target.value })} />
                     </div>
                     <div className="form-group">
-                      <label> End Date </label>
+                      <label> End Date <span className="required">*</span></label>
                       <input type="date" value={newTask.endDate} onChange={e => setNewTask({ ...newTask, endDate: e.target.value })} />
                     </div>
                   </div>

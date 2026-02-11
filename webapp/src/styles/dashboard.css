@@ -2138,6 +2138,22 @@
 
 
 /* ================= SIDEBAR BADGE ================= */
+.pending-badge {
+  position: absolute;
+  top: 15px;
+  right: 4px;
+  background: red;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 .sidebar-menu li {
   position: relative;
