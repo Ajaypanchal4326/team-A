@@ -27,7 +27,7 @@ const taskSchema = new mongoose.Schema(
     { timestamps: true, _id: false }
 );
 
-taskSchema.index({ end_date: 1, status: 1 });
+taskSchema.index({ end_time: 1, status: 1 });
 
 const Task = mongoose.model("Task",taskSchema);
 module.exports = Task;
