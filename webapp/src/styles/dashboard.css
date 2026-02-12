@@ -365,6 +365,7 @@
 
 /* Category Tag - Pill Style */
 .badges-container .tag {
+  max-width: 100px;  
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 10px;
@@ -375,6 +376,8 @@
   color: #0369a1;
   border: none;
   display: inline-block;
+ overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -419,8 +422,8 @@
 
 /* Status: Open */
 .status-badge.status-open {
-  background: #dbeafe;
-  color: #0369a1;
+  background: #01e5a4;
+  color: #065f46;
 }
 
 /* Status: Assigned */
@@ -445,6 +448,11 @@
 .status-badge.status-cancelled {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.status-closed {
+  background: #da3030;
+  color: #fffefe;
 }
 
 
@@ -1655,6 +1663,15 @@
 .message-text {
   color: #6b7280;
   font-style: italic;
+ display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  line-clamp: 3;
+
+  height: calc(1.5em * 3);   
 }
 
 .request-meta {
@@ -2000,12 +2017,25 @@
   padding: 10px 12px;
   border-radius: 10px;
   color: #374151;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  line-clamp: 3;
+
+  
+  line-height: 1.5;
+  height: calc(1.5em * 3);  
 }
+
 
 .message-text {
   font-style: italic;
   color: #444;
-  margin-top: 4px;
+  margin-top: 4px;   
 }
 
 /* ================= STATUS ================= */
