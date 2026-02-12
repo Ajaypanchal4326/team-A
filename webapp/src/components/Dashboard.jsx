@@ -6,6 +6,8 @@ import "../styles/dashboard.css";
 import api from "../services/api";
 import Settings from "./Settings";
 import Loader from "./Loader";
+import { CATEGORIES } from "../constants/categories";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -515,10 +517,29 @@ const Dashboard = () => {
                     <textarea placeholder="Describe the task you need help with" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} rows="4" />
                   </div>
                   <div className="form-row">
-                    <div className="form-group">
-                      <label>Category <span className="required">*</span></label>
-                      <input type="text" placeholder="e.g., Moving, Gardening, Tech" value={newTask.category} onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
-                    </div>
+                   <div className="form-group">
+                   <label>
+                      Category <span className="required">*</span>
+                   </label>
+
+                   <div className="select-wrapper">
+                   <select
+                      value={newTask.category}
+                       onChange={(e) =>
+                      setNewTask({ ...newTask, category: e.target.value })
+                       }
+                    required
+                      >
+                 <option value="">Select Category</option>
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                                  {cat}
+                      </option>
+                       ))}
+               </select>
+                </div>
+                  </div>
+
                     <div className="form-group">
                       <label>Location <span className="required">*</span></label>
                       <input type="text" placeholder="City, State" value={newTask.location} onChange={e => setNewTask({ ...newTask, location: e.target.value })} />
@@ -676,8 +697,30 @@ const Dashboard = () => {
                 <h2>Edit Task</h2>
                 <label>Title <span className="required">*</span></label>
                 <input type="text" value={editingTask.title || ""} onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })} />
-                <label>Category <span className="required">*</span></label>
-                <input type="text" value={editingTask.category || ""} onChange={(e) => setEditingTask({ ...editingTask, category: e.target.value })} />
+               
+               <div className="form-group">
+                <label>
+                  Category <span className="required">*</span>
+               </label>
+
+              <div className="select-wrapper">
+                   <select
+                     value={editingTask.category || ""}
+                     onChange={(e) =>
+                     setEditingTask({ ...editingTask, category: e.target.value })
+                      }
+                     required
+                     >
+                  <option value="">Select Category</option>
+                   {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                              {cat}
+                         </option>
+                     ))}
+                    </select>
+                    </div>
+                  </div>
+
                 <label>Description</label>
                 <textarea value={editingTask.description || ""} onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })} />
                 <label>Location <span className="required">*</span></label>
