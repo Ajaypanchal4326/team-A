@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Upload, Bell } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../styles/dashboard.css";
 import api from "../services/api";
-import Settings from "./Settings";
+import Settings from "./Settings/Settings";
 import Loader from "./Loader";
 import { CATEGORIES } from "../constants/categories";
 
@@ -40,6 +40,14 @@ const Dashboard = () => {
   const [sendingRequest, setSendingRequest] = useState(false);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const location = useLocation();
+
+useEffect(() => {
+  if (location.state?.openPage) {
+    setActivePage(location.state.openPage);
+  }
+}, [location.state]);
 
   const pendingCount = receivedRequests.filter(r => r.status === "pending").length;
 

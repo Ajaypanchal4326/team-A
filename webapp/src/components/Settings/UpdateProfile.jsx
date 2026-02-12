@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import "../styles/settings.css";
-import api from "../services/api";
+// import "./../styles/settings.css";
+import api from "../../services/api";
 
-const Settings = ({ user, reloadUser }) => {
+const UpdateProfile = ({ user, reloadUser }) => {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -75,10 +75,8 @@ const Settings = ({ user, reloadUser }) => {
     }
   };
 
-  return (
-    <div className="settings-container">
-      <h2>Settings</h2>
-
+    return (
+    <>
       <div className="settings-card">
         <h3>Profile Picture</h3>
         <div className="profile-picture-section">
@@ -135,8 +133,8 @@ const Settings = ({ user, reloadUser }) => {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
-export default Settings;
+export default UpdateProfile;
