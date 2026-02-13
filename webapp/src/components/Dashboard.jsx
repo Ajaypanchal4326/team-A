@@ -624,7 +624,17 @@ useEffect(() => {
                     {filteredReceivedRequests.map(req => (
                       <div key={req.requestId || req._id} className="request-card">
                         <div className="requester-header">
-                          <div className="requester-avatar">{(req.requester?.first_name || "U").charAt(0).toUpperCase()}</div>
+                          <div className="requester-avatar">
+                              {req.requester?.profilePicture || req.requester?.picture ? (
+                                             <img 
+                                               src={req.requester?.profilePicture || req.requester?.picture}
+                                               alt={req.requester?.first_name || "User"}
+                                               className="requester-avatar-image"
+                                             />
+                                       ) : (
+                                               (req.requester?.first_name || "U").charAt(0).toUpperCase()
+                                           )}
+                                  </div>
                           <div className="requester-info"><h3>{req.requester?.name || "User"}</h3></div>
                         </div>
                         <div className="request-task-info">
@@ -806,6 +816,8 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
   const hasRequested = sentRequests.some(req => String(req.taskId) === taskId);
   const isOwnTask = currentUserId === (task.user_id?._id || task.user_id);
   const isUnavailable = ["completed", "cancelled", "assigned"].includes(task.status);
+  const userProfilePicture = task.user_id?.picture || task.user_id?.profile_picture;
+  const userInitial = (task.user_id?.first_name || "U").charAt(0).toUpperCase();
 
   let buttonText = "Request Task";
   let buttonDisabled = false;
@@ -852,12 +864,22 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
         )}
         <div className="task-footer">
           <div className="task-author">
-            <div className="author-avatar">{(task.user_id?.first_name || "U").charAt(0).toUpperCase()}</div>
-            <div className="author-name">
-              <span>{task.user_id?.first_name || "User"}</span>
-              {task.user_id?.last_name && <span> {task.user_id.last_name}</span>}
-            </div>
-          </div>
+  <div className="author-avatar">
+    {userProfilePicture ? (
+      <img 
+        src={userProfilePicture} 
+        alt={task.user_id?.first_name || "User"} 
+        className="author-avatar-image"
+      />
+    ) : (
+      userInitial
+    )}
+  </div>
+  <div className="author-name">
+    <span>{task.user_id?.first_name || "User"}</span>
+    {task.user_id?.last_name && <span> {task.user_id.last_name}</span>}
+  </div>
+</div>
           {editable && <button className="edit-btn" onClick={() => onEdit(task)}>✏️ Edit Task</button>}
           {!editable && onRequestTask && (
             <button className={buttonClass} onClick={() => !buttonDisabled && onRequestTask(task)} disabled={buttonDisabled}>{buttonText}</button>
