@@ -15,6 +15,11 @@ const taskSchema = new mongoose.Schema(
         location: { type: String, required: true },
         start_time: { type: Date, required: true },
         end_time: { type: Date, required: true },
+        prev_status: {
+        type: String,
+        enum: ["open", "assigned"],
+        default: null,
+        },
         status: {
         type: String,
         enum: ["open", "assigned", "closed" ],

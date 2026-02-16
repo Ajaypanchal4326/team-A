@@ -11,6 +11,12 @@ router.post("/create", upload.single("picture"), async (req, res) => {
     if (!model.title || !model.start_time || !model.location)
       return res.status(400).json({ message: "Title, Start Time and Location are required." });
 
+    if (new Date(model.start_time) > new Date(model.endTime))
+      return res.status(400).json({ message: "Start Time cannot be greater than End Time." });
+
+    if (new Date(model.start_time) < new Date())
+      return res.status(400).json({ message: "Start Time cannot be in the past." });
+
     const result = await createTask(model, req.file, req.user._id);
     return res.status(result.status).json({ message: result.message, taskId: result.taskId });
   } catch (err) {
@@ -42,14 +48,20 @@ router.get("/other", async (req, res) => {
 router.put("/:taskId",upload.single("picture"),async (req, res) => {
     try{
       const { taskId } = req.params;
-
+      model = req.body;
       if (!validator.isUUID(taskId)) {
         return res.status(400).json({ message: "Invalid Task ID" });
       }
 
+      if (new Date(model.start_time) > new Date(model.endTime))
+      return res.status(400).json({ message: "Start Time cannot be greater than End Time." });
+
+      if (new Date(model.start_time) < new Date())
+        return res.status(400).json({ message: "Start Time cannot be in the past." });
+      
       const result = await updateTask(
         taskId,
-        req.body,
+        model,
         req.file,
         req.user._id
       );

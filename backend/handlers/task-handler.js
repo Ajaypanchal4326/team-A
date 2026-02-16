@@ -81,6 +81,7 @@ async function updateTask(taskId, model, file, userId) {
     task.category = model.category ?? task.category;
     task.picture = imageUrl;
     task.picture_public_id = publicId;
+    task.status = task.prev_status === "assigned" ? "assigned" : "open";
 
     await task.save();
 

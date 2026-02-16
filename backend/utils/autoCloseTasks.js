@@ -14,6 +14,7 @@ const autoCloseTasksJob = () => {
         },
         {
           $set: {
+            prev_status: "$status",
             status: "closed",
             closed_at: now
           }
