@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Upload, Bell } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "../styles/dashboard.css";
 import api from "../services/api";
-import Settings from "./Settings";
+import Settings from "./Settings/Settings";
 import Loader from "./Loader";
+import { CATEGORIES } from "../constants/categories";
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -38,6 +40,14 @@ const Dashboard = () => {
   const [sendingRequest, setSendingRequest] = useState(false);
   const [globalLoading, setGlobalLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const location = useLocation();
+
+useEffect(() => {
+  if (location.state?.openPage) {
+    setActivePage(location.state.openPage);
+  }
+}, [location.state]);
 
   const pendingCount = receivedRequests.filter(r => r.status === "pending").length;
 
@@ -515,10 +525,29 @@ const Dashboard = () => {
                     <textarea placeholder="Describe the task you need help with" value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} rows="4" />
                   </div>
                   <div className="form-row">
-                    <div className="form-group">
-                      <label>Category <span className="required">*</span></label>
-                      <input type="text" placeholder="e.g., Moving, Gardening, Tech" value={newTask.category} onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
-                    </div>
+                   <div className="form-group">
+                   <label>
+                      Category <span className="required">*</span>
+                   </label>
+
+                   <div className="select-wrapper">
+                   <select
+                      value={newTask.category}
+                       onChange={(e) =>
+                      setNewTask({ ...newTask, category: e.target.value })
+                       }
+                    required
+                      >
+                 <option value="">Select Category</option>
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                                  {cat}
+                      </option>
+                       ))}
+               </select>
+                </div>
+                  </div>
+
                     <div className="form-group">
                       <label>Location <span className="required">*</span></label>
                       <input type="text" placeholder="City, State" value={newTask.location} onChange={e => setNewTask({ ...newTask, location: e.target.value })} />
@@ -530,7 +559,7 @@ const Dashboard = () => {
                       <input type="date" value={newTask.startDate} onChange={e => setNewTask({ ...newTask, startDate: e.target.value })} />
                     </div>
                     <div className="form-group">
-                      <label> End Date </label>
+                      <label> End Date <span className="required">*</span></label>
                       <input type="date" value={newTask.endDate} onChange={e => setNewTask({ ...newTask, endDate: e.target.value })} />
                     </div>
                   </div>
@@ -595,7 +624,17 @@ const Dashboard = () => {
                     {filteredReceivedRequests.map(req => (
                       <div key={req.requestId || req._id} className="request-card">
                         <div className="requester-header">
-                          <div className="requester-avatar">{(req.requester?.first_name || "U").charAt(0).toUpperCase()}</div>
+                          <div className="requester-avatar">
+                              {req.requester?.profilePicture || req.requester?.picture ? (
+                                             <img 
+                                               src={req.requester?.profilePicture || req.requester?.picture}
+                                               alt={req.requester?.first_name || "User"}
+                                               className="requester-avatar-image"
+                                             />
+                                       ) : (
+                                               (req.requester?.first_name || "U").charAt(0).toUpperCase()
+                                           )}
+                                  </div>
                           <div className="requester-info"><h3>{req.requester?.name || "User"}</h3></div>
                         </div>
                         <div className="request-task-info">
@@ -676,8 +715,30 @@ const Dashboard = () => {
                 <h2>Edit Task</h2>
                 <label>Title <span className="required">*</span></label>
                 <input type="text" value={editingTask.title || ""} onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })} />
-                <label>Category <span className="required">*</span></label>
-                <input type="text" value={editingTask.category || ""} onChange={(e) => setEditingTask({ ...editingTask, category: e.target.value })} />
+               
+               <div className="form-group">
+                <label>
+                  Category <span className="required">*</span>
+               </label>
+
+              <div className="select-wrapper">
+                   <select
+                     value={editingTask.category || ""}
+                     onChange={(e) =>
+                     setEditingTask({ ...editingTask, category: e.target.value })
+                      }
+                     required
+                     >
+                  <option value="">Select Category</option>
+                   {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                              {cat}
+                         </option>
+                     ))}
+                    </select>
+                    </div>
+                  </div>
+
                 <label>Description</label>
                 <textarea value={editingTask.description || ""} onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })} />
                 <label>Location <span className="required">*</span></label>
@@ -755,6 +816,8 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
   const hasRequested = sentRequests.some(req => String(req.taskId) === taskId);
   const isOwnTask = currentUserId === (task.user_id?._id || task.user_id);
   const isUnavailable = ["completed", "cancelled", "assigned"].includes(task.status);
+  const userProfilePicture = task.user_id?.picture || task.user_id?.profile_picture;
+  const userInitial = (task.user_id?.first_name || "U").charAt(0).toUpperCase();
 
   let buttonText = "Request Task";
   let buttonDisabled = false;
@@ -801,12 +864,22 @@ const TaskCard = ({ task, currentUserId, sentRequests = [], onRequestTask, edita
         )}
         <div className="task-footer">
           <div className="task-author">
-            <div className="author-avatar">{(task.user_id?.first_name || "U").charAt(0).toUpperCase()}</div>
-            <div className="author-name">
-              <span>{task.user_id?.first_name || "User"}</span>
-              {task.user_id?.last_name && <span> {task.user_id.last_name}</span>}
-            </div>
-          </div>
+  <div className="author-avatar">
+    {userProfilePicture ? (
+      <img 
+        src={userProfilePicture} 
+        alt={task.user_id?.first_name || "User"} 
+        className="author-avatar-image"
+      />
+    ) : (
+      userInitial
+    )}
+  </div>
+  <div className="author-name">
+    <span>{task.user_id?.first_name || "User"}</span>
+    {task.user_id?.last_name && <span> {task.user_id.last_name}</span>}
+  </div>
+</div>
           {editable && <button className="edit-btn" onClick={() => onEdit(task)}>✏️ Edit Task</button>}
           {!editable && onRequestTask && (
             <button className={buttonClass} onClick={() => !buttonDisabled && onRequestTask(task)} disabled={buttonDisabled}>{buttonText}</button>

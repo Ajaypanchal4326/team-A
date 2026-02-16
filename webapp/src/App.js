@@ -10,6 +10,8 @@ import ResetPassword from "./components/ResetPassword";
 import Dashboard from "./components/Dashboard";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import ChangeEmail from "./components/Settings/ChangeEmail";
+import ChangePassword from "./components/Settings/ChangePassword";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
         <Route path="/ResetPassword" element={<ResetPassword />} />
         <Route path="/Dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/Loader" element={<Loader />} />
+        <Route path="/change-email" element={<ChangeEmail />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </BrowserRouter>
   );

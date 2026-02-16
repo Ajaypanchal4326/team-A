@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import api from "../services/api";
 import "../styles/auth.css";
 import Loader from "./Loader";
+import { Eye, EyeOff } from 'lucide-react';
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,10 +19,53 @@ const Signup = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const isStrongPassword = (password) => {
+  if (password.length < 8) {
+    return {
+      isStrong: false,
+      message: "Password must be at least 8 characters"
+    };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return {
+      isStrong: false,
+      message: "Password must contain at least one uppercase letter (A-Z)"
+    };
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return {
+      isStrong: false,
+      message: "Password must contain at least one lowercase letter (a-z)"
+    };
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return {
+      isStrong: false,
+      message: "Password must contain at least one number (0-9)"
+    };
+  }
+
+  if (!/[!@#$%^&*()_+\-=[\]{};:'",.<>/?\\|]/.test(password)) {
+    return {
+      isStrong: false,
+      message: "Password must contain at least one special character (!@#$%^&*)"
+    };
+  }
+
+  return {
+    isStrong: true,
+    message: "Password is strong"
+  };
+};
 
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -58,10 +103,11 @@ const Signup = () => {
       return;
     }
 
-    if (payload.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
-      setLoading(false);
-      return;
+    const passwordValidation = isStrongPassword(payload.password);
+     if (!passwordValidation.isStrong) {
+     toast.error(passwordValidation.message);
+     setLoading(false);
+    return;
     }
 
     try {
@@ -138,16 +184,29 @@ const Signup = () => {
           </div>
 
           <div className="input-group">
-            <label>Password <span className="required">*</span></label>
-            <input
-              name="password"
-              type="password"
-              maxLength={100}
-              autoComplete="new-password"
-              placeholder="Create your password"
-              onChange={handleChange}
-            />
-          </div>
+  <label>Password <span className="required">*</span></label>
+  <div className="password-field">
+    <input
+      name="password"
+      type={showPassword ? "text" : "password"}
+      maxLength={100}
+      autoComplete="new-password"
+      placeholder="Create your password"
+      onChange={handleChange}
+    />
+    <span
+      className="toggle-password"
+      onClick={() => setShowPassword(!showPassword)}
+      style={{ cursor: 'pointer' }}
+    >
+      {showPassword ? (
+        <EyeOff size={20} />
+      ) : (
+        <Eye size={20} />
+      )}
+    </span>
+  </div>
+</div>
 
           <button className="primary-btn" onClick={handleSignup} disabled={loading}>
             {loading ? "Creating account..." : "Create Account"}

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import "../styles/auth.css";
 import api from "../services/api";
 import Loader from "./Loader";
+import { Eye, EyeOff } from 'lucide-react';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -77,25 +80,51 @@ const ResetPassword = () => {
           <h2>Reset Password</h2>
           <p>Create a new password</p>
 
-          <label>
-            New Password <span className="required">*</span>
-          </label>
-          <input
-            type="password"
-            placeholder="New password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+<label>
+  New Password <span className="required">*</span>
+</label>
+<div className="password-field">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="New password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+  <span
+    className="toggle-password"
+    onClick={() => setShowPassword(!showPassword)}
+    style={{ cursor: 'pointer' }}
+  >
+    {showPassword ? (
+      <EyeOff size={20} />
+    ) : (
+      <Eye size={20} />
+    )}
+  </span>
+</div>
 
-          <label>
-            Confirm Password <span className="required">*</span>
-          </label>
-          <input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+<label>
+  Confirm Password <span className="required">*</span>
+</label>
+<div className="password-field">
+  <input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Confirm password"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+  />
+  <span
+    className="toggle-password"
+    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+    style={{ cursor: 'pointer' }}
+  >
+    {showConfirmPassword ? (
+      <EyeOff size={20} />
+    ) : (
+      <Eye size={20} />
+    )}
+  </span>
+</div>
 
           <button onClick={handleReset} disabled={loading}>
             {loading ? "Updating..." : "Update Password"}
