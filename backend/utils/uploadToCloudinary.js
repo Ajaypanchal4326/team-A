@@ -34,7 +34,7 @@ const uploadToCloudinary = async (localFilePath, folder) => {
           fetch_format: "auto"
         }
       ];
-    
+    }
 
     const result = await cloudinary.uploader.upload(localFilePath, uploadOptions);
     fs.unlinkSync(localFilePath);
