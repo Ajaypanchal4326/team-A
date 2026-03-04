@@ -24,8 +24,8 @@ const uploadToCloudinary = async (localFilePath, folder) => {
     } else if (folder === "profile_pictures") {
       uploadOptions.transformation = [
         {
-          width: 50,
-          height: 50,
+          width: 150,
+          height: 150,
           crop: "fill",
           gravity: "auto"
         },
@@ -34,7 +34,7 @@ const uploadToCloudinary = async (localFilePath, folder) => {
           fetch_format: "auto"
         }
       ];
-    }
+    
 
     const result = await cloudinary.uploader.upload(localFilePath, uploadOptions);
     fs.unlinkSync(localFilePath);
