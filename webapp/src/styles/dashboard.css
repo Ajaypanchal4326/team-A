@@ -1660,6 +1660,10 @@ font-size: 24px;
   margin-bottom: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;      
+  
 }
 
 .request-card:hover {
@@ -1738,14 +1742,39 @@ font-size: 24px;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
+    max-height: 320px !important;  
+  flex: 1;
+  overflow-y: auto !important;
+  border: 1px solid #e5e7eb !important;
+
 }
+
+.request-message::-webkit-scrollbar {
+  width: 6px;
+}
+
+.request-message::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.request-message::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+
+.request-message::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 
 .request-message p {
   margin: 0;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;              
+  word-wrap: break-word;         
+  overflow-wrap: break-word;     
 }
-
 .request-message strong {
   color: #374151;
   display: block;
@@ -1756,15 +1785,11 @@ font-size: 24px;
 .message-text {
   color: #6b7280;
   font-style: italic;
- display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  line-clamp: 3;
-
-  height: calc(1.5em * 3);   
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .request-meta {
@@ -1782,6 +1807,7 @@ font-size: 24px;
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+   margin-top: auto;    
 }
 
 .btn-accept,
@@ -2055,6 +2081,7 @@ font-size: 24px;
   overflow: hidden;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
   transition: 0.25s ease;
+  min-height: 500px; 
 }
 
 .my-request-card:hover {
@@ -2122,6 +2149,8 @@ font-size: 24px;
   
   line-height: 1.5;
   height: calc(1.5em * 3);  
+   max-height: 200px !important;  
+  flex: 1; 
 }
 
 
@@ -2139,6 +2168,7 @@ font-size: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
 }
 
 .status-badge {
