@@ -228,6 +228,7 @@ async function changePassword(userId,model){
         }
 
         user.password = hashPassword;
+        user.last_password_change=new Date();
         await user.save();
         return { status: 200, message: "Password changed successfully." };
     }catch(err){
