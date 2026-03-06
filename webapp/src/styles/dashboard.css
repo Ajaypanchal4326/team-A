@@ -2138,18 +2138,10 @@ font-size: 24px;
   border-radius: 10px;
   color: #374151;
 
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
   line-clamp: 3;
-
-  
   line-height: 1.5;
-  height: calc(1.5em * 3);  
-   max-height: 200px !important;  
+  
+  max-height: 200px !important;  
   flex: 1; 
 }
 
