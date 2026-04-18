@@ -11,6 +11,26 @@ const {
 const authMiddleware = require("../middleware/auth-middleware");
 const router = express.Router();
 
+const cookieName = process.env.COOKIE_NAME || "HelpingCookie";
+
+const parseBool = (value, fallback) => {
+    if (value === undefined) return fallback;
+    return String(value).toLowerCase() === "true";
+};
+
+const buildCookieOptions = (maxAge) => {
+    const isProd = process.env.NODE_ENV === "production";
+    const secure = parseBool(process.env.COOKIE_SECURE, isProd);
+    const sameSite = process.env.COOKIE_SAME_SITE || (secure ? "none" : "lax");
+
+    return {
+        httpOnly: true,
+        secure,
+        sameSite,
+        maxAge,
+    };
+};
+
 router.post("/register",async(req,res)=>{
     try{
         let model=req.body;
@@ -80,12 +100,8 @@ router.post("/login",async(req,res)=>{
 
         const result = await loginUser(model);
         if (result.token) {
-            res.cookie(process.env.COOKIE_NAME, result.token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-                maxAge: model.rememberMe? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000
-            });
+            const maxAge = model.rememberMe ? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000;
+            res.cookie(cookieName, result.token, buildCookieOptions(maxAge));
         }
         return res.status(result.status).json({ message: result.message });
     } catch (err) {
@@ -124,11 +140,8 @@ router.post("/reset-password",async(req,res)=>{
 
 router.post("/logout", async (req, res) => {
     try {
-        res.clearCookie(process.env.COOKIE_NAME, {
-            httpOnly: true,
-            sameSite: "none",
-            secure: true,
-        });
+        const { maxAge, ...clearOptions } = buildCookieOptions(0);
+        res.clearCookie(cookieName, clearOptions);
 
         return res.status(200).json({ message: "Logged out successfully" });
 
