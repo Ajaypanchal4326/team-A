@@ -3,7 +3,13 @@ const autoCloseTasksJob = require("../utils/autoCloseTasks");
 
 async function connectDB() {
     try{
-        await mongoose.connect(process.env.MONGO_URI);
+        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DATABASE_URL;
+
+        if (!mongoUri) {
+            throw new Error("Missing MongoDB connection string. Set MONGO_URI, MONGODB_URI, or DATABASE_URL in backend/.env");
+        }
+
+        await mongoose.connect(mongoUri);
         console.log("MongoDb connected")
         autoCloseTasksJob();
     }catch(err){
