@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../db/user");
 
+const cookieName = process.env.COOKIE_NAME || "HelpingCookie";
+
 const protect = async (req, res, next) => {
   try {
-    const token = req.cookies?.[process.env.COOKIE_NAME];
+    const token = req.cookies?.[cookieName];
     let decoded;
 
     if (!token) {

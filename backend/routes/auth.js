@@ -1,5 +1,6 @@
 const User = require("../db/user");
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const { 
     registerNewUser,
     verifyOTP,
@@ -151,8 +152,31 @@ router.post("/logout", async (req, res) => {
     }
 });
 
-router.get("/me", authMiddleware, async (req, res) => {
+router.get("/me", async (req, res) => {
     try {
+        const token = req.cookies?.[cookieName];
+
+        if (!token) {
+            return res.status(200).json({ authenticated: false, user: null });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch {
+            return res.status(200).json({ authenticated: false, user: null });
+        }
+
+        const dbUser = await User.findById(decoded.userId).select("-password");
+
+        if (!dbUser) {
+            return res.status(200).json({ authenticated: false, user: null });
+        }
+
+        if (dbUser.last_password_change && decoded.iat * 1000 < dbUser.last_password_change.getTime()) {
+            return res.status(200).json({ authenticated: false, user: null });
+        }
+
         const sanitizeUser = (user) => ({
         first_name: user.first_name,
         last_name: user.last_name,
@@ -162,7 +186,7 @@ router.get("/me", authMiddleware, async (req, res) => {
         profile_picture: user.profile_picture
         });
 
-        return res.status(200).json({ authenticated: true, user: sanitizeUser(req.user) });
+        return res.status(200).json({ authenticated: true, user: sanitizeUser(dbUser) });
 
     } catch (err) {
         console.error("/me route error:", err);
