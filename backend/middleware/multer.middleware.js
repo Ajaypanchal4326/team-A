@@ -1,9 +1,19 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+const tempUploadDir = path.join(__dirname, "../public/temp");
+
+if (!fs.existsSync(tempUploadDir)) {
+  fs.mkdirSync(tempUploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../public/temp"));
+    if (!fs.existsSync(tempUploadDir)) {
+      fs.mkdirSync(tempUploadDir, { recursive: true });
+    }
+    cb(null, tempUploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueName =
