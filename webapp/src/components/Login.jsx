@@ -6,6 +6,8 @@ import "../styles/auth.css";
 import Loader from "../components/Loader";
 import { Eye, EyeOff } from 'lucide-react';
 
+const AUTH_SESSION_KEY = "helper_auth_session";
+
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +48,7 @@ const Login = () => {
 
       setLoading(false);
       toast.success(res.data?.message || "Login successful");
+      localStorage.setItem(AUTH_SESSION_KEY, "1");
 
       setTimeout(() => {
         navigate("/Dashboard");
